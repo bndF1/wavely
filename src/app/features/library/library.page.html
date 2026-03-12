@@ -1,8 +1,68 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Library</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="navigateToBrowse()" aria-label="Add podcasts">
+        <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <!-- Library content -->
+
+<ion-content>
+  <!-- Subscriptions list -->
+  <ng-container *ngIf="store.subscriptions().length > 0; else emptyState">
+    <p class="list-hint">Swipe left to unsubscribe</p>
+    <ion-list lines="full">
+      <ion-item-sliding
+        *ngFor="let podcast of store.subscriptions()"
+        #slidingItem>
+
+        <ion-item
+          button
+          detail="true"
+          (click)="navigateToPodcast(podcast)">
+          <ion-avatar slot="start" class="podcast-avatar">
+            <img
+              [src]="podcast.artworkUrl || '/default-artwork.svg'"
+              [alt]="podcast.title"
+              (error)="onImageError($event)" />
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ podcast.title }}</h2>
+            <ion-note>{{ podcast.author }}</ion-note>
+          </ion-label>
+          <!-- Always-visible unsubscribe for keyboard/a11y users -->
+          <ion-button
+            slot="end"
+            fill="clear"
+            color="medium"
+            size="small"
+            [attr.aria-label]="'Unsubscribe from ' + podcast.title"
+            (click)="$event.stopPropagation(); unsubscribe(podcast, slidingItem)">
+            ✕
+          </ion-button>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="unsubscribe(podcast, slidingItem)">
+            Unsubscribe
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </ng-container>
+
+  <!-- Empty state -->
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <ion-text color="medium">
+        <p class="empty-state__title">No subscriptions yet</p>
+        <p class="empty-state__sub">Browse podcasts and subscribe to build your library.</p>
+      </ion-text>
+      <ion-button (click)="navigateToBrowse()" fill="solid" color="primary">
+        Browse Podcasts
+      </ion-button>
+    </div>
+  </ng-template>
 </ion-content>
