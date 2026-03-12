@@ -1,8 +1,94 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Podcast</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ podcast?.title || '' }}</ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <!-- Podcast content -->
+
+<ion-content>
+  <!-- Loading skeleton -->
+  <ng-container *ngIf="isLoading">
+    <div class="podcast-header skeleton-header">
+      <div class="skeleton-artwork"></div>
+      <div class="skeleton-meta">
+        <ion-skeleton-text animated style="width:70%; height:20px; margin-bottom:8px"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width:50%; height:14px; margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text animated style="width:120px; height:36px; border-radius:18px"></ion-skeleton-text>
+      </div>
+    </div>
+    <ion-list>
+      <ion-item *ngFor="let s of [1,2,3,4,5,6,7,8]">
+        <ion-label>
+          <ion-skeleton-text animated style="width:80%; height:14px; margin-bottom:6px"></ion-skeleton-text>
+          <ion-skeleton-text animated style="width:40%; height:12px"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-container>
+
+  <!-- Error: podcast metadata failed -->
+  <div *ngIf="podcastError && !isLoading" class="state-message">
+    <ion-text color="medium"><p>{{ podcastError }}</p></ion-text>
+  </div>
+
+  <!-- Content -->
+  <ng-container *ngIf="!isLoading && podcast">
+    <!-- Podcast header -->
+    <div class="podcast-header">
+      <img
+        class="podcast-artwork"
+        [src]="podcast.artworkUrl || '/default-artwork.svg'"
+        [alt]="podcast.title"
+        (error)="onImageError($event)" />
+      <div class="podcast-meta">
+        <h1 class="podcast-title">{{ podcast.title }}</h1>
+        <p class="podcast-author">{{ podcast.author }}</p>
+        <p *ngIf="podcast.episodeCount" class="podcast-count">
+          {{ podcast.episodeCount }} episodes
+        </p>
+        <ion-button
+          [fill]="isSubscribed ? 'solid' : 'outline'"
+          [color]="isSubscribed ? 'primary' : 'medium'"
+          size="small"
+          shape="round"
+          (click)="toggleSubscription()">
+          <ion-icon
+            slot="start"
+            [name]="isSubscribed ? 'checkmark-circle' : 'add-circle-outline'">
+          </ion-icon>
+          {{ isSubscribed ? 'Subscribed' : 'Subscribe' }}
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Episodes error (episodes can fail independently) -->
+    <div *ngIf="episodesError" class="state-message">
+      <ion-text color="medium"><p>{{ episodesError }}</p></ion-text>
+    </div>
+
+    <!-- Episodes -->
+    <h2 class="section-title" *ngIf="episodes.length > 0">Episodes</h2>
+    <ion-list lines="full" *ngIf="episodes.length > 0">
+      <ion-item
+        *ngFor="let episode of episodes"
+        button
+        [attr.aria-label]="'Play ' + episode.title"
+        (click)="playEpisode(episode)">
+        <ion-icon name="play-circle-outline" slot="start" class="play-icon" aria-hidden="true"></ion-icon>
+        <ion-label>
+          <h3 class="episode-title">{{ episode.title }}</h3>
+          <ion-note class="episode-meta">
+            {{ episode.releaseDate | date:'mediumDate' }}
+            <span *ngIf="episode.duration"> · {{ formatDuration(episode.duration) }}</span>
+          </ion-note>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <div *ngIf="episodes.length === 0 && !episodesError" class="state-message">
+      <ion-text color="medium"><p>No episodes available.</p></ion-text>
+    </div>
+  </ng-container>
 </ion-content>
