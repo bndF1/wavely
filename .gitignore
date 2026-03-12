@@ -42,3 +42,8 @@ Thumbs.db
 .nx/workspace-data
 
 .angular
+
+.nx/polygraph
+# Editor / AI tool local configs
+.cursor/
+.opencode/
