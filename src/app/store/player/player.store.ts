@@ -52,5 +52,30 @@ export const PlayerStore = signalStore(
     clearQueue(): void {
       patchState(store, { queue: [] });
     },
+    /** Called by AudioService on every timeupdate — does NOT trigger a seek */
+    updateProgress(currentTime: number, duration: number): void {
+      patchState(store, { currentTime, duration });
+    },
+    skipBack(seconds = 15): void {
+      const newTime = Math.max(0, store.currentTime() - seconds);
+      patchState(store, { currentTime: newTime });
+    },
+    skipForward(seconds = 30): void {
+      const newTime = Math.min(store.duration(), store.currentTime() + seconds);
+      patchState(store, { currentTime: newTime });
+    },
+    /** Advance to next episode in queue, or stop if queue is empty */
+    playNext(): void {
+      const [next, ...rest] = store.queue();
+      if (next) {
+        patchState(store, { currentEpisode: next, isPlaying: true, currentTime: 0, queue: rest });
+      } else {
+        patchState(store, { isPlaying: false, currentTime: 0 });
+      }
+    },
+    /** Dismiss player entirely */
+    close(): void {
+      patchState(store, { currentEpisode: null, isPlaying: false, currentTime: 0, duration: 0 });
+    },
   }))
 );

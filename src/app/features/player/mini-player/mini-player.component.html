@@ -1,0 +1,39 @@
+<div class="mini-player" (click)="openFull.emit()" *ngIf="store.currentEpisode()">
+  <ion-progress-bar
+    class="mini-player__progress"
+    [value]="progressValue"
+    color="primary">
+  </ion-progress-bar>
+
+  <div class="mini-player__body">
+    <ion-thumbnail class="mini-player__artwork">
+      <img
+        [src]="store.currentEpisode()!.imageUrl || '/default-artwork.svg'"
+        [alt]="store.currentEpisode()!.title"
+        loading="lazy" />
+    </ion-thumbnail>
+
+    <div class="mini-player__info">
+      <p class="mini-player__title">{{ store.currentEpisode()!.title }}</p>
+    </div>
+
+    <ion-button
+      fill="clear"
+      class="mini-player__play-btn"
+      (click)="togglePlay($event)"
+      [attr.aria-label]="store.isPlaying() ? 'Pause' : 'Play'">
+      <ion-icon
+        slot="icon-only"
+        [name]="store.isPlaying() ? 'pause-circle' : 'play-circle'">
+      </ion-icon>
+    </ion-button>
+
+    <ion-button
+      fill="clear"
+      class="mini-player__close-btn"
+      (click)="close($event)"
+      aria-label="Close player">
+      <ion-icon slot="icon-only" name="close-circle"></ion-icon>
+    </ion-button>
+  </div>
+</div>

@@ -21,3 +21,7 @@
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
+
+<ion-footer *ngIf="store.currentEpisode()" class="ion-no-border">
+  <wavely-mini-player (openFull)="openFullPlayer()"></wavely-mini-player>
+</ion-footer>
