@@ -22,6 +22,7 @@ import { checkmarkCircle, addCircleOutline, playCircleOutline } from 'ionicons/i
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { PlayerStore } from '../../store/player/player.store';
+import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { Podcast, Episode } from '../../core/models/podcast.model';
 import { catchError, forkJoin, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -59,6 +60,7 @@ export class PodcastDetailPage {
   private readonly router = inject(Router);
   protected readonly podcastsStore = inject(PodcastsStore);
   protected readonly playerStore = inject(PlayerStore);
+  private readonly syncService = inject(SubscriptionSyncService);
 
   protected podcast: Podcast | null = null;
   protected episodes: Episode[] = [];
@@ -112,9 +114,9 @@ export class PodcastDetailPage {
   protected toggleSubscription(): void {
     if (!this.podcast) return;
     if (this.isSubscribed) {
-      this.podcastsStore.removeSubscription(this.podcast.id);
+      this.syncService.remove(this.podcast.id);
     } else {
-      this.podcastsStore.addSubscription(this.podcast);
+      this.syncService.add(this.podcast);
     }
   }
 
