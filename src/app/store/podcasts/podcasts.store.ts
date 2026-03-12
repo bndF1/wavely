@@ -26,6 +26,9 @@ export const PodcastsStore = signalStore(
     setLoading(loading: boolean): void {
       patchState(store, { isLoading: loading, error: null });
     },
+    setQuery(query: string): void {
+      patchState(store, { searchQuery: query });
+    },
     setSearchResults(results: Podcast[], query: string): void {
       patchState(store, { searchResults: results, searchQuery: query, isLoading: false });
     },
