@@ -24,8 +24,16 @@ import {
   IonRadio,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, moonOutline, sunnyOutline, contrastOutline } from 'ionicons/icons';
+import {
+  addOutline,
+  moonOutline,
+  sunnyOutline,
+  contrastOutline,
+  logOutOutline,
+} from 'ionicons/icons';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
+import { AuthStore } from '../../store/auth/auth.store';
+import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { ThemeService, ThemeMode } from '../../core/services/theme.service';
 import { Podcast } from '../../core/models/podcast.model';
 
@@ -60,7 +68,9 @@ import { Podcast } from '../../core/models/podcast.model';
 })
 export class LibraryPage {
   protected readonly store = inject(PodcastsStore);
+  protected readonly authStore = inject(AuthStore);
   protected readonly themeService = inject(ThemeService);
+  private readonly syncService = inject(SubscriptionSyncService);
   private readonly router = inject(Router);
 
   protected readonly themeOptions: { label: string; value: ThemeMode; icon: string }[] = [
@@ -70,7 +80,7 @@ export class LibraryPage {
   ];
 
   constructor() {
-    addIcons({ addOutline, moonOutline, sunnyOutline, contrastOutline });
+    addIcons({ addOutline, moonOutline, sunnyOutline, contrastOutline, logOutOutline });
   }
 
   protected navigateToPodcast(podcast: Podcast): void {
@@ -83,7 +93,12 @@ export class LibraryPage {
 
   protected unsubscribe(podcast: Podcast, slidingItem: IonItemSliding): void {
     slidingItem.close();
-    this.store.removeSubscription(podcast.id);
+    this.syncService.remove(podcast.id);
+  }
+
+  protected async signOut(): Promise<void> {
+    await this.authStore.signOut();
+    await this.router.navigate(['/login']);
   }
 
   protected onImageError(event: Event): void {

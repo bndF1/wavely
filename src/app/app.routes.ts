@@ -1,10 +1,15 @@
 import { Route } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const appRoutes: Route[] = [
   {
     path: '',
     redirectTo: 'tabs',
     pathMatch: 'full',
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./features/login/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'tabs',
@@ -28,6 +33,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'library',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/library/library.page').then((m) => m.LibraryPage),
       },

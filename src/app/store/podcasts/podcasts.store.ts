@@ -49,5 +49,9 @@ export const PodcastsStore = signalStore(
         subscriptions: store.subscriptions().filter((p) => p.id !== podcastId),
       });
     },
+    /** Replace the entire subscriptions list (used when loading from Firestore). */
+    setSubscriptions(podcasts: Podcast[]): void {
+      patchState(store, { subscriptions: podcasts });
+    },
   }))
 );

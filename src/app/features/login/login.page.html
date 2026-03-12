@@ -1,0 +1,34 @@
+<ion-content class="login-content">
+  <div class="login-container">
+    <div class="login-header">
+      <img src="/assets/icon/favicon.png" alt="Wavely" class="login-logo" />
+      <ion-text color="primary">
+        <h1 class="login-title">Wavely</h1>
+      </ion-text>
+      <ion-text color="medium">
+        <p class="login-subtitle">Sign in to sync your library across devices</p>
+      </ion-text>
+    </div>
+
+    <div class="login-actions">
+      <ion-button
+        expand="block"
+        color="primary"
+        [disabled]="authStore.loading()"
+        (click)="signIn()">
+        @if (authStore.loading()) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+        } @else {
+          <ion-icon name="logo-google" slot="start"></ion-icon>
+        }
+        {{ authStore.loading() ? 'Signing in…' : 'Continue with Google' }}
+      </ion-button>
+
+      @if (authStore.error()) {
+        <ion-text color="danger" class="login-error">
+          <p>{{ authStore.error() }}</p>
+        </ion-text>
+      }
+    </div>
+  </div>
+</ion-content>
