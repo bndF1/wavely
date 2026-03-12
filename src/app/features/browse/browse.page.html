@@ -3,6 +3,46 @@
     <ion-title>Browse</ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <!-- Browse content -->
+
+<ion-content>
+  <!-- Category chips -->
+  <div class="category-scroll">
+    <div class="category-row">
+      <ion-chip
+        *ngFor="let cat of categories"
+        [class.selected]="selectedCategory.id === cat.id"
+        [style.--chip-color]="cat.color"
+        (click)="selectCategory(cat)">
+        <ion-label>{{ cat.name }}</ion-label>
+      </ion-chip>
+    </div>
+  </div>
+
+  <!-- Loading skeletons -->
+  <div *ngIf="isLoading" class="podcast-grid">
+    <wavely-podcast-card
+      *ngFor="let s of skeletons"
+      [podcast]="skeletonPodcast"
+      [loading]="true">
+    </wavely-podcast-card>
+  </div>
+
+  <!-- Results -->
+  <div *ngIf="!isLoading && topPodcasts.length > 0" class="podcast-grid">
+    <wavely-podcast-card
+      *ngFor="let podcast of topPodcasts"
+      [podcast]="podcast"
+      (cardClick)="navigateToPodcast($event)">
+    </wavely-podcast-card>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !isLoading" class="state-message">
+    <ion-text color="medium"><p>{{ error }}</p></ion-text>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && !error && topPodcasts.length === 0" class="state-message">
+    <ion-text color="medium"><p>No podcasts found in this category.</p></ion-text>
+  </div>
 </ion-content>
