@@ -2,6 +2,27 @@
   <ion-toolbar>
     <ion-title>Library</ion-title>
     <ion-buttons slot="end">
+      <!-- Dark mode toggle -->
+      <ion-button id="theme-popover-trigger" aria-label="Change theme">
+        <ion-icon slot="icon-only" name="moon-outline"></ion-icon>
+      </ion-button>
+      <ion-popover trigger="theme-popover-trigger" triggerAction="click">
+        <ng-template>
+          <ion-list>
+            <ion-list-header>Appearance</ion-list-header>
+            <ion-radio-group
+              [value]="themeService.mode()"
+              (ionChange)="themeService.setMode($any($event).detail.value)">
+              <ion-item *ngFor="let opt of themeOptions">
+                <ion-icon [name]="opt.icon" slot="start"></ion-icon>
+                <ion-label>{{ opt.label }}</ion-label>
+                <ion-radio slot="end" [value]="opt.value"></ion-radio>
+              </ion-item>
+            </ion-radio-group>
+          </ion-list>
+        </ng-template>
+      </ion-popover>
+      <!-- Add podcasts -->
       <ion-button (click)="navigateToBrowse()" aria-label="Add podcasts">
         <ion-icon slot="icon-only" name="add-outline"></ion-icon>
       </ion-button>

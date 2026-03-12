@@ -18,10 +18,15 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
+  IonPopover,
+  IonListHeader,
+  IonRadioGroup,
+  IonRadio,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline } from 'ionicons/icons';
+import { addOutline, moonOutline, sunnyOutline, contrastOutline } from 'ionicons/icons';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
+import { ThemeService, ThemeMode } from '../../core/services/theme.service';
 import { Podcast } from '../../core/models/podcast.model';
 
 @Component({
@@ -47,14 +52,25 @@ import { Podcast } from '../../core/models/podcast.model';
     IonButtons,
     IonButton,
     IonIcon,
+    IonPopover,
+    IonListHeader,
+    IonRadioGroup,
+    IonRadio,
   ],
 })
 export class LibraryPage {
   protected readonly store = inject(PodcastsStore);
+  protected readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
 
+  protected readonly themeOptions: { label: string; value: ThemeMode; icon: string }[] = [
+    { label: 'System default', value: 'system', icon: 'contrast-outline' },
+    { label: 'Light', value: 'light', icon: 'sunny-outline' },
+    { label: 'Dark', value: 'dark', icon: 'moon-outline' },
+  ];
+
   constructor() {
-    addIcons({ addOutline });
+    addIcons({ addOutline, moonOutline, sunnyOutline, contrastOutline });
   }
 
   protected navigateToPodcast(podcast: Podcast): void {
