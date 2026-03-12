@@ -21,3 +21,9 @@
 - The `nx-generate` skill handles generator discovery internally - don't call nx_docs just to look up generator syntax
 
 <!-- nx configuration end-->
+
+## Project Management
+
+- **Task tracker**: GitHub Issues on `bndF1/wavely` (NOT Linear)
+- GitHub MCP tools are read-only; issue creation requires `gh auth login` or a PAT passed via env
+- To authenticate: `gh auth login` or `export GITHUB_TOKEN=<pat>` then use `gh` CLI

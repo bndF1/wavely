@@ -1,10 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { Podcast, Episode } from '../models/podcast.model';
+import { Podcast } from '../models/podcast.model';
 
-// Uses iTunes Search API (no key required) as primary source,
-// with Podcast Index API as enhanced fallback once credentials are set.
+// Uses iTunes Search API (no key required) as primary data source.
 @Injectable({ providedIn: 'root' })
 export class PodcastApiService {
   private readonly http = inject(HttpClient);
@@ -28,6 +27,17 @@ export class PodcastApiService {
       .pipe(map((res) => this.mapItunesPodcast(res.results[0])));
   }
 
+  /**
+   * Fetch top podcasts chart via the iTunes RSS feed.
+   * Endpoint: https://itunes.apple.com/us/rss/toppodcasts/limit=N/json
+   */
+  getTrendingPodcasts(limit = 25): Observable<Podcast[]> {
+    const url = `${this.itunesBase}/us/rss/toppodcasts/limit=${limit}/json`;
+    return this.http
+      .get<ItunesRssFeed>(url)
+      .pipe(map((feed) => feed.feed.entry.map(this.mapRssEntry)));
+  }
+
   private mapItunesPodcast(raw: ItunesPodcast): Podcast {
     return {
       id: String(raw.collectionId),
@@ -39,6 +49,22 @@ export class PodcastApiService {
       genres: raw.genres ?? [],
       episodeCount: raw.trackCount,
       latestReleaseDate: raw.releaseDate,
+    };
+  }
+
+  private mapRssEntry(entry: ItunesRssEntry): Podcast {
+    // Artwork comes as 55x55 / 60x60 / 170x170 — take last (largest) and upscale URL
+    const artworkUrl = (entry['im:image']?.at(-1)?.label ?? '')
+      .replace(/\/\d+x\d+bb\./, '/600x600bb.');
+    const genreAttr = entry.category?.attributes;
+    return {
+      id: entry.id.attributes['im:id'],
+      title: entry['im:name'].label,
+      author: entry['im:artist']?.label ?? '',
+      description: entry.summary?.label ?? '',
+      artworkUrl,
+      feedUrl: '',
+      genres: genreAttr?.label ? [genreAttr.label] : [],
     };
   }
 }
@@ -53,4 +79,17 @@ interface ItunesPodcast {
   genres: string[];
   trackCount: number;
   releaseDate: string;
+}
+
+interface ItunesRssEntry {
+  'im:name': { label: string };
+  'im:artist'?: { label: string };
+  'im:image'?: Array<{ label: string; attributes: { height: string } }>;
+  id: { label: string; attributes: { 'im:id': string } };
+  summary?: { label: string };
+  category?: { attributes: { 'im:id': string; term: string; label: string } };
+}
+
+interface ItunesRssFeed {
+  feed: { entry: ItunesRssEntry[] };
 }
