@@ -64,6 +64,44 @@
   }
 }
 
+/* Explicit dark override — applied by ThemeService via .ion-palette-dark on <html> */
+.ion-palette-dark {
+  --wavely-background:      #121212;
+  --wavely-surface:         #1E1E1E;
+  --wavely-surface-variant: #2A2A2A;
+  --wavely-divider:         #333333;
+  --wavely-on-surface:      #E8EAED;
+  --wavely-on-surface-muted:#9AA0A6;
+  --wavely-player-bg:       #1E1E1E;
+
+  --ion-background-color:         var(--wavely-background);
+  --ion-toolbar-background:       var(--wavely-surface);
+  --ion-toolbar-color:            var(--wavely-on-surface);
+  --ion-tab-bar-background:       var(--wavely-surface);
+  --ion-text-color:               var(--wavely-on-surface);
+  --ion-color-step-50:            #1e1e1e;
+  --ion-color-step-100:           #2a2a2a;
+  --ion-color-step-150:           #363636;
+  --ion-color-step-200:           #414141;
+  --ion-color-step-250:           #4d4d4d;
+  --ion-color-step-300:           #595959;
+  --ion-color-step-350:           #656565;
+  --ion-color-step-400:           #717171;
+  --ion-color-step-450:           #7d7d7d;
+  --ion-color-step-500:           #898989;
+  --ion-color-step-550:           #949494;
+  --ion-color-step-600:           #a0a0a0;
+  --ion-color-step-650:           #acacac;
+  --ion-color-step-700:           #b8b8b8;
+  --ion-color-step-750:           #c4c4c4;
+  --ion-color-step-800:           #d0d0d0;
+  --ion-color-step-850:           #dbdbdb;
+  --ion-color-step-900:           #e7e7e7;
+  --ion-color-step-950:           #f3f3f3;
+  --ion-item-background:          var(--wavely-surface);
+  --ion-card-background:          var(--wavely-surface);
+}
+
 /* ─── Global resets ─── */
 * {
   box-sizing: border-box;
