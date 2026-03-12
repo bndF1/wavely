@@ -47,3 +47,15 @@ Thumbs.db
 # Editor / AI tool local configs
 .cursor/
 .opencode/
+
+# Capacitor native build outputs
+/android/.gradle
+/android/app/build
+/android/build
+/ios/App/App/public
+/ios/DerivedData
+*.p8
+*.p12
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist

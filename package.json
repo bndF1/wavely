@@ -5,7 +5,12 @@
   "scripts": {
     "start": "nx serve",
     "build": "nx build",
-    "test": "nx test"
+    "test": "nx test",
+    "cap:build": "nx build && cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html",
+    "cap:sync": "bun run cap:build && bunx cap sync",
+    "cap:ios": "bun run cap:sync && bunx cap open ios",
+    "cap:android": "bun run cap:sync && bunx cap open android",
+    "cap:serve": "CAP_ENV=local bunx cap run ios --livereload --external"
   },
   "private": true,
   "dependencies": {
@@ -21,10 +26,14 @@
     "@angular/router": "~21.2.0",
     "@angular/service-worker": "^21.2.3",
     "@angular/ssr": "~21.2.0",
+    "@capacitor/android": "^8.2.0",
     "@capacitor/app": "^8.0.1",
     "@capacitor/core": "^8.2.0",
     "@capacitor/haptics": "^8.0.1",
+    "@capacitor/ios": "^8.2.0",
     "@capacitor/keyboard": "^8.0.1",
+    "@capacitor/push-notifications": "^8.0.2",
+    "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.1",
     "@ionic/angular": "^8.8.1",
     "@ionic/angular-toolkit": "^12.3.0",
