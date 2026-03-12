@@ -9,7 +9,7 @@
 
 <ion-content>
   <!-- Loading skeleton -->
-  <ng-container *ngIf="isLoading">
+  @if (isLoading) {
     <div class="podcast-header skeleton-header">
       <div class="skeleton-artwork"></div>
       <div class="skeleton-meta">
@@ -19,22 +19,26 @@
       </div>
     </div>
     <ion-list>
-      <ion-item *ngFor="let s of [1,2,3,4,5,6,7,8]">
-        <ion-label>
-          <ion-skeleton-text animated style="width:80%; height:14px; margin-bottom:6px"></ion-skeleton-text>
-          <ion-skeleton-text animated style="width:40%; height:12px"></ion-skeleton-text>
-        </ion-label>
-      </ion-item>
+      @for (s of [1,2,3,4,5,6,7,8]; track s) {
+        <ion-item>
+          <ion-label>
+            <ion-skeleton-text animated style="width:80%; height:14px; margin-bottom:6px"></ion-skeleton-text>
+            <ion-skeleton-text animated style="width:40%; height:12px"></ion-skeleton-text>
+          </ion-label>
+        </ion-item>
+      }
     </ion-list>
-  </ng-container>
+  }
 
   <!-- Error: podcast metadata failed -->
-  <div *ngIf="podcastError && !isLoading" class="state-message">
-    <ion-text color="medium"><p>{{ podcastError }}</p></ion-text>
-  </div>
+  @if (podcastError && !isLoading) {
+    <div class="state-message">
+      <ion-text color="medium"><p>{{ podcastError }}</p></ion-text>
+    </div>
+  }
 
   <!-- Content -->
-  <ng-container *ngIf="!isLoading && podcast">
+  @if (!isLoading && podcast) {
     <!-- Podcast header -->
     <div class="podcast-header">
       <img
@@ -45,9 +49,11 @@
       <div class="podcast-meta">
         <h1 class="podcast-title">{{ podcast.title }}</h1>
         <p class="podcast-author">{{ podcast.author }}</p>
-        <p *ngIf="podcast.episodeCount" class="podcast-count">
-          {{ podcast.episodeCount }} episodes
-        </p>
+        @if (podcast.episodeCount) {
+          <p class="podcast-count">
+            {{ podcast.episodeCount }} episodes
+          </p>
+        }
         <ion-button
           [fill]="isSubscribed ? 'solid' : 'outline'"
           [color]="isSubscribed ? 'primary' : 'medium'"
@@ -62,33 +68,41 @@
         </ion-button>
       </div>
     </div>
-
     <!-- Episodes error (episodes can fail independently) -->
-    <div *ngIf="episodesError" class="state-message">
-      <ion-text color="medium"><p>{{ episodesError }}</p></ion-text>
-    </div>
-
+    @if (episodesError) {
+      <div class="state-message">
+        <ion-text color="medium"><p>{{ episodesError }}</p></ion-text>
+      </div>
+    }
     <!-- Episodes -->
-    <h2 class="section-title" *ngIf="episodes.length > 0">Episodes</h2>
-    <ion-list lines="full" *ngIf="episodes.length > 0">
-      <ion-item
-        *ngFor="let episode of episodes"
-        button
-        [attr.aria-label]="'Play ' + episode.title"
-        (click)="playEpisode(episode)">
-        <ion-icon name="play-circle-outline" slot="start" class="play-icon" aria-hidden="true"></ion-icon>
-        <ion-label>
-          <h3 class="episode-title">{{ episode.title }}</h3>
-          <ion-note class="episode-meta">
-            {{ episode.releaseDate | date:'mediumDate' }}
-            <span *ngIf="episode.duration"> · {{ formatDuration(episode.duration) }}</span>
-          </ion-note>
-        </ion-label>
-      </ion-item>
-    </ion-list>
-
-    <div *ngIf="episodes.length === 0 && !episodesError" class="state-message">
-      <ion-text color="medium"><p>No episodes available.</p></ion-text>
-    </div>
-  </ng-container>
+    @if (episodes.length > 0) {
+      <h2 class="section-title">Episodes</h2>
+    }
+    @if (episodes.length > 0) {
+      <ion-list lines="full">
+        @for (episode of episodes; track episode) {
+          <ion-item
+            button
+            [attr.aria-label]="'Play ' + episode.title"
+            (click)="playEpisode(episode)">
+            <ion-icon name="play-circle-outline" slot="start" class="play-icon" aria-hidden="true"></ion-icon>
+            <ion-label>
+              <h3 class="episode-title">{{ episode.title }}</h3>
+              <ion-note class="episode-meta">
+                {{ episode.releaseDate | date:'mediumDate' }}
+                @if (episode.duration) {
+                  <span> · {{ formatDuration(episode.duration) }}</span>
+                }
+              </ion-note>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+    @if (episodes.length === 0 && !episodesError) {
+      <div class="state-message">
+        <ion-text color="medium"><p>No episodes available.</p></ion-text>
+      </div>
+    }
+  }
 </ion-content>

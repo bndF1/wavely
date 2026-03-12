@@ -1,6 +1,6 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
+
 import {
   IonHeader,
   IonToolbar,
@@ -43,8 +43,6 @@ const SKELETON_COUNT = 6;
   templateUrl: './browse.page.html',
   styleUrls: ['./browse.page.scss'],
   imports: [
-    NgFor,
-    NgIf,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -52,8 +50,8 @@ const SKELETON_COUNT = 6;
     IonChip,
     IonLabel,
     IonText,
-    PodcastCardComponent,
-  ],
+    PodcastCardComponent
+],
 })
 export class BrowsePage implements OnDestroy {
   private readonly api = inject(PodcastApiService);

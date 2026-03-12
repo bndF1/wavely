@@ -9,7 +9,7 @@
 
 <ion-content>
   <!-- Skeleton -->
-  <ng-container *ngIf="isLoading()">
+  @if (isLoading()) {
     <div class="artwork-section">
       <div class="skeleton-artwork"></div>
     </div>
@@ -17,15 +17,17 @@
       <ion-skeleton-text animated style="width:80%; height:20px; margin-bottom:8px"></ion-skeleton-text>
       <ion-skeleton-text animated style="width:55%; height:14px"></ion-skeleton-text>
     </div>
-  </ng-container>
+  }
 
   <!-- Error -->
-  <div *ngIf="error() && !isLoading()" class="state-message">
-    <ion-text color="medium"><p>{{ error() }}</p></ion-text>
-  </div>
+  @if (error() && !isLoading()) {
+    <div class="state-message">
+      <ion-text color="medium"><p>{{ error() }}</p></ion-text>
+    </div>
+  }
 
   <!-- Content -->
-  <ng-container *ngIf="!isLoading() && !error() && episode()">
+  @if (!isLoading() && !error() && episode()) {
     <!-- Artwork -->
     <div class="artwork-section">
       <img
@@ -34,19 +36,18 @@
         [alt]="episode()!.title"
         (error)="onImageError($event)" />
     </div>
-
     <!-- Info -->
     <div class="episode-info">
       <h1 class="episode-title">{{ episode()!.title }}</h1>
-      <button
-        *ngIf="podcast()"
-        class="podcast-link"
-        (click)="goToPodcast()">
-        {{ podcast()!.author || podcast()!.title }}
-      </button>
+      @if (podcast()) {
+        <button
+          class="podcast-link"
+          (click)="goToPodcast()">
+          {{ podcast()!.author || podcast()!.title }}
+        </button>
+      }
       <p class="episode-date">{{ episode()!.releaseDate | date:'longDate' }}</p>
     </div>
-
     <!-- Player controls -->
     <div class="player-controls">
       <!-- Scrubber -->
@@ -63,7 +64,6 @@
         (ionChange)="seekTo($any($event).detail.value)"
         aria-label="Playback position">
       </ion-range>
-
       <!-- Main controls -->
       <div class="controls-row">
         <ion-button fill="clear" (click)="skipBack()" aria-label="Skip back 30 seconds">
@@ -83,7 +83,6 @@
           <ion-icon slot="icon-only" name="play-skip-forward"></ion-icon>
         </ion-button>
       </div>
-
       <!-- Speed selector -->
       <div class="speed-row">
         <ion-select
@@ -91,17 +90,20 @@
           (ionChange)="playerStore.setPlaybackRate($any($event).detail.value)"
           interface="popover"
           aria-label="Playback speed">
-          <ion-select-option *ngFor="let rate of playbackRates" [value]="rate">
-            {{ rate }}×
-          </ion-select-option>
+          @for (rate of playbackRates; track rate) {
+            <ion-select-option [value]="rate">
+              {{ rate }}×
+            </ion-select-option>
+          }
         </ion-select>
       </div>
     </div>
-
     <!-- Description -->
-    <div *ngIf="episode()!.description" class="description-section">
-      <h2 class="section-title">About this episode</h2>
-      <p class="episode-description">{{ episode()!.description }}</p>
-    </div>
-  </ng-container>
+    @if (episode()!.description) {
+      <div class="description-section">
+        <h2 class="section-title">About this episode</h2>
+        <p class="episode-description">{{ episode()!.description }}</p>
+      </div>
+    }
+  }
 </ion-content>

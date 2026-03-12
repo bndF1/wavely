@@ -1,7 +1,7 @@
 import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
+
 import {
   IonHeader,
   IonToolbar,
@@ -35,16 +35,14 @@ const DEBOUNCE_MS = 300;
   styleUrls: ['./search.page.scss'],
   imports: [
     FormsModule,
-    NgFor,
-    NgIf,
     IonHeader,
     IonToolbar,
     IonTitle,
     IonContent,
     IonSearchbar,
     IonText,
-    PodcastCardComponent,
-  ],
+    PodcastCardComponent
+],
 })
 export class SearchPage implements OnDestroy {
   private readonly api = inject(PodcastApiService);

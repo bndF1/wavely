@@ -1,12 +1,12 @@
 import { Component, input, output } from '@angular/core';
-import { NgIf } from '@angular/common';
+
 import { Podcast } from '../../../core/models/podcast.model';
 
 @Component({
   selector: 'wavely-podcast-card',
   templateUrl: './podcast-card.component.html',
   styleUrls: ['./podcast-card.component.scss'],
-  imports: [NgIf],
+  imports: [],
 })
 export class PodcastCardComponent {
   readonly podcast = input.required<Podcast>();

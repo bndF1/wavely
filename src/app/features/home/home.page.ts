@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
+
 import {
   IonHeader,
   IonToolbar,
@@ -29,8 +29,6 @@ const SKELETON_COUNT = 6;
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   imports: [
-    NgFor,
-    NgIf,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -41,8 +39,8 @@ const SKELETON_COUNT = 6;
     IonButtons,
     IonButton,
     IonIcon,
-    PodcastCardComponent,
-  ],
+    PodcastCardComponent
+],
 })
 export class HomePage implements OnInit {
   private readonly api = inject(PodcastApiService);

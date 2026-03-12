@@ -1,8 +1,5 @@
 import { Component, inject } from '@angular/core';
-import {
-  NgIf,
-  DecimalPipe,
-} from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import {
   IonHeader,
   IonToolbar,
@@ -33,15 +30,14 @@ import { RangeCustomEvent } from '@ionic/angular';
   templateUrl: './full-player.component.html',
   styleUrls: ['./full-player.component.scss'],
   imports: [
-    NgIf,
     IonHeader,
     IonToolbar,
     IonButtons,
     IonButton,
     IonIcon,
     IonContent,
-    IonRange,
-  ],
+    IonRange
+],
 })
 export class FullPlayerComponent {
   readonly store = inject(PlayerStore);
