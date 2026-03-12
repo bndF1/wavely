@@ -3,6 +3,59 @@
     <ion-title>Search</ion-title>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <!-- Search content -->
+
+<ion-content>
+  <div class="search-bar-wrapper">
+    <ion-searchbar
+      placeholder="Podcasts, shows, creators…"
+      [debounce]="0"
+      [value]="store.searchQuery()"
+      (ionInput)="onSearchInput($event)"
+      (ionClear)="onSearchClear()"
+      animated
+      enterkeyhint="search"
+      aria-label="Search podcasts">
+    </ion-searchbar>
+  </div>
+
+  <!-- Loading skeletons -->
+  <div *ngIf="store.isLoading()" class="podcast-grid">
+    <wavely-podcast-card
+      *ngFor="let s of skeletons"
+      [podcast]="skeletonPodcast"
+      [loading]="true">
+    </wavely-podcast-card>
+  </div>
+
+  <!-- Results -->
+  <div *ngIf="!store.isLoading() && store.searchResults().length > 0" class="podcast-grid">
+    <wavely-podcast-card
+      *ngFor="let podcast of store.searchResults()"
+      [podcast]="podcast"
+      (cardClick)="navigateToPodcast($event)">
+    </wavely-podcast-card>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="store.error() && !store.isLoading()" class="state-message">
+    <ion-text color="medium"><p>{{ store.error() }}</p></ion-text>
+  </div>
+
+  <!-- Empty: typed a query but got nothing -->
+  <div
+    *ngIf="!store.isLoading() && !store.error() && store.searchQuery() && store.searchResults().length === 0"
+    class="state-message">
+    <ion-text color="medium">
+      <p>No podcasts found for "<strong>{{ store.searchQuery() }}</strong>"</p>
+    </ion-text>
+  </div>
+
+  <!-- Idle: nothing typed yet -->
+  <div
+    *ngIf="!store.isLoading() && !store.searchQuery()"
+    class="state-message state-message--idle">
+    <ion-text color="medium">
+      <p>Search for your favourite podcasts</p>
+    </ion-text>
+  </div>
 </ion-content>
