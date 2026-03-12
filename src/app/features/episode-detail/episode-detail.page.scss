@@ -1,0 +1,135 @@
+.artwork-section {
+  display: flex;
+  justify-content: center;
+  padding: 24px 32px 16px;
+}
+
+.episode-artwork,
+.skeleton-artwork {
+  width: min(280px, 75vw);
+  height: min(280px, 75vw);
+  border-radius: 16px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.skeleton-artwork {
+  background: var(--ion-color-light);
+}
+
+.episode-info {
+  padding: 0 24px 8px;
+  text-align: center;
+}
+
+.episode-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--ion-color-dark);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.podcast-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--ion-color-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.episode-date {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin: 4px 0 0;
+}
+
+.player-controls {
+  padding: 8px 24px 16px;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.time-label {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+}
+
+ion-range {
+  --bar-height: 4px;
+  --knob-size: 16px;
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.controls-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.play-pause-btn {
+  --padding-start: 0;
+  --padding-end: 0;
+
+  ion-icon {
+    font-size: 64px;
+    color: var(--ion-color-primary);
+  }
+}
+
+.controls-row ion-button:not(.play-pause-btn) {
+  ion-icon {
+    font-size: 32px;
+    color: var(--ion-color-dark);
+  }
+}
+
+.speed-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+
+  ion-select {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+  }
+}
+
+.description-section {
+  padding: 0 24px 32px;
+  border-top: 1px solid var(--ion-color-light);
+  margin-top: 8px;
+}
+
+.section-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  margin: 16px 0 8px;
+}
+
+.episode-description {
+  font-size: 0.85rem;
+  color: var(--ion-color-medium-shade);
+  line-height: 1.6;
+  white-space: pre-line;
+  margin: 0;
+}
+
+.state-message {
+  text-align: center;
+  padding: 40px 24px;
+}
