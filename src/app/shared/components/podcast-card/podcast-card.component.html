@@ -1,0 +1,33 @@
+<article
+  class="podcast-card"
+  [class.podcast-card--skeleton]="loading()"
+  (click)="!loading() && cardClick.emit(podcast())"
+  [attr.role]="loading() ? null : 'button'"
+  [attr.tabindex]="loading() ? null : 0"
+  (keydown.enter)="!loading() && cardClick.emit(podcast())"
+  (keydown.space)="onSpaceKey($event)">
+
+  <div class="podcast-card__artwork">
+    <ng-container *ngIf="!loading(); else skeletonArtwork">
+      <img
+        [src]="podcast().artworkUrl || '/default-artwork.svg'"
+        [alt]="podcast().title"
+        loading="lazy"
+        (error)="onImageError($event)" />
+    </ng-container>
+    <ng-template #skeletonArtwork>
+      <div class="skeleton-box podcast-card__skeleton-artwork"></div>
+    </ng-template>
+  </div>
+
+  <div class="podcast-card__meta">
+    <ng-container *ngIf="!loading(); else skeletonMeta">
+      <p class="podcast-card__title">{{ podcast().title }}</p>
+      <p class="podcast-card__author">{{ podcast().author }}</p>
+    </ng-container>
+    <ng-template #skeletonMeta>
+      <div class="skeleton-box podcast-card__skeleton-title"></div>
+      <div class="skeleton-box podcast-card__skeleton-author"></div>
+    </ng-template>
+  </div>
+</article>

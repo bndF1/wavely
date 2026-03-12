@@ -1,8 +1,74 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Home</ion-title>
+    <ion-title>
+      <span class="header-logo">Wavely</span>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="navigateToSearch()" aria-label="Search podcasts">
+        <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <!-- Home content -->
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- ── My Subscriptions ── -->
+  <ng-container *ngIf="store.subscriptions().length > 0">
+    <section class="home-section">
+      <h2 class="section-title">My Podcasts</h2>
+      <div class="subscriptions-scroll">
+        <div class="subscriptions-row">
+          <wavely-podcast-card
+            *ngFor="let podcast of store.subscriptions()"
+            class="subscription-card"
+            [podcast]="podcast"
+            (cardClick)="navigateToPodcast($event)">
+          </wavely-podcast-card>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+
+  <!-- ── Trending ── -->
+  <section class="home-section">
+    <h2 class="section-title">Trending</h2>
+
+    <!-- Error state -->
+    <div *ngIf="store.error() && !store.isLoading()" class="error-state">
+      <ion-text color="medium">
+        <p>{{ store.error() }}</p>
+      </ion-text>
+    </div>
+
+    <!-- Loading skeletons -->
+    <div *ngIf="store.isLoading()" class="podcast-grid">
+      <wavely-podcast-card
+        *ngFor="let s of skeletons"
+        [podcast]="skeletonPodcast"
+        [loading]="true">
+      </wavely-podcast-card>
+    </div>
+
+    <!-- Trending grid -->
+    <div *ngIf="!store.isLoading() && store.trending().length > 0" class="podcast-grid">
+      <wavely-podcast-card
+        *ngFor="let podcast of store.trending()"
+        [podcast]="podcast"
+        (cardClick)="navigateToPodcast($event)">
+      </wavely-podcast-card>
+    </div>
+
+    <!-- Empty state (no error, no loading, no results) -->
+    <div
+      *ngIf="!store.isLoading() && !store.error() && store.trending().length === 0"
+      class="empty-state">
+      <ion-text color="medium">
+        <p>No trending podcasts found.</p>
+      </ion-text>
+    </div>
+  </section>
 </ion-content>
