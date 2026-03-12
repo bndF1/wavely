@@ -1,1 +1,78 @@
-/* You can add global styles to this file, and also import other style files */
+/* Core Ionic styles */
+@import "@ionic/angular/css/core.css";
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/* ─── Wavely Design Tokens (Google Podcasts palette) ─── */
+:root {
+  /* Brand */
+  --wavely-primary:         #1A73E8;
+  --wavely-primary-light:   #4A9EFF;
+  --wavely-primary-dark:    #0D47A1;
+  --wavely-accent:          #EA4335;
+
+  /* Surfaces (light) */
+  --wavely-background:      #F8F9FA;
+  --wavely-surface:         #FFFFFF;
+  --wavely-surface-variant: #F1F3F4;
+  --wavely-divider:         #E0E0E0;
+
+  /* Text */
+  --wavely-on-surface:      #202124;
+  --wavely-on-surface-muted:#5F6368;
+  --wavely-on-primary:      #FFFFFF;
+
+  /* Player */
+  --wavely-player-bg:       #FFFFFF;
+  --wavely-player-progress: #1A73E8;
+
+  /* Ionic overrides */
+  --ion-background-color:         var(--wavely-background);
+  --ion-toolbar-background:       var(--wavely-surface);
+  --ion-toolbar-color:            var(--wavely-on-surface);
+  --ion-tab-bar-background:       var(--wavely-surface);
+  --ion-color-primary:            var(--wavely-primary);
+  --ion-color-primary-contrast:   var(--wavely-on-primary);
+  --ion-font-family:              'Google Sans', 'Roboto', sans-serif;
+  --ion-text-color:               var(--wavely-on-surface);
+  --ion-border-color:             var(--wavely-divider);
+}
+
+/* ─── Dark mode ─── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --wavely-background:      #121212;
+    --wavely-surface:         #1E1E1E;
+    --wavely-surface-variant: #2A2A2A;
+    --wavely-divider:         #333333;
+    --wavely-on-surface:      #E8EAED;
+    --wavely-on-surface-muted:#9AA0A6;
+    --wavely-player-bg:       #1E1E1E;
+
+    --ion-background-color:         var(--wavely-background);
+    --ion-toolbar-background:       var(--wavely-surface);
+    --ion-toolbar-color:            var(--wavely-on-surface);
+    --ion-tab-bar-background:       var(--wavely-surface);
+    --ion-text-color:               var(--wavely-on-surface);
+  }
+}
+
+/* ─── Global resets ─── */
+* {
+  box-sizing: border-box;
+}
+
+ion-content {
+  --background: var(--wavely-background);
+}
+
+ion-toolbar {
+  --min-height: 56px;
+}

@@ -1,0 +1,10 @@
+ion-tab-bar {
+  --background: var(--wavely-surface);
+  --border: none;
+  box-shadow: 0 -1px 0 var(--wavely-divider);
+}
+
+ion-tab-button {
+  --color: var(--wavely-on-surface-muted);
+  --color-selected: var(--wavely-primary);
+}
