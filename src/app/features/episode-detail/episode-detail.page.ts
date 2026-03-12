@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   IonHeader,
   IonToolbar,
@@ -51,8 +51,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    NgFor,
-    NgIf,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -66,8 +64,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     IonSkeletonText,
     IonText,
     IonSelect,
-    IonSelectOption,
-  ],
+    IonSelectOption
+],
 })
 export class EpisodeDetailPage {
   private readonly route = inject(ActivatedRoute);

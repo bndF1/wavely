@@ -1,5 +1,5 @@
 import { Component, inject, output } from '@angular/core';
-import { NgIf } from '@angular/common';
+
 import {
   IonThumbnail,
   IonButton,
@@ -15,7 +15,7 @@ import { AudioService } from '../../../core/services/audio.service';
   selector: 'wavely-mini-player',
   templateUrl: './mini-player.component.html',
   styleUrls: ['./mini-player.component.scss'],
-  imports: [NgIf, IonThumbnail, IonButton, IonIcon, IonProgressBar],
+  imports: [IonThumbnail, IonButton, IonIcon, IonProgressBar],
 })
 export class MiniPlayerComponent {
   readonly store = inject(PlayerStore);

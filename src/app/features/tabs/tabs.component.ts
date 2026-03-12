@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { NgIf } from '@angular/common';
+
 import {
   IonTabs,
   IonTabBar,
@@ -28,7 +28,7 @@ import { FullPlayerComponent } from '../player/full-player/full-player.component
   selector: 'wavely-tabs',
   templateUrl: './tabs.component.html',
   styleUrls: ['./tabs.component.scss'],
-  imports: [NgIf, IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonFooter, MiniPlayerComponent],
+  imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonFooter, MiniPlayerComponent],
 })
 export class TabsComponent {
   readonly store = inject(PlayerStore);

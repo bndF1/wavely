@@ -13,11 +13,13 @@
             <ion-radio-group
               [value]="themeService.mode()"
               (ionChange)="themeService.setMode($any($event).detail.value)">
-              <ion-item *ngFor="let opt of themeOptions">
-                <ion-icon [name]="opt.icon" slot="start"></ion-icon>
-                <ion-label>{{ opt.label }}</ion-label>
-                <ion-radio slot="end" [value]="opt.value"></ion-radio>
-              </ion-item>
+              @for (opt of themeOptions; track opt) {
+                <ion-item>
+                  <ion-icon [name]="opt.icon" slot="start"></ion-icon>
+                  <ion-label>{{ opt.label }}</ion-label>
+                  <ion-radio slot="end" [value]="opt.value"></ion-radio>
+                </ion-item>
+              }
             </ion-radio-group>
           </ion-list>
         </ng-template>
@@ -32,50 +34,46 @@
 
 <ion-content>
   <!-- Subscriptions list -->
-  <ng-container *ngIf="store.subscriptions().length > 0; else emptyState">
+  @if (store.subscriptions().length > 0) {
     <p class="list-hint">Swipe left to unsubscribe</p>
     <ion-list lines="full">
-      <ion-item-sliding
-        *ngFor="let podcast of store.subscriptions()"
-        #slidingItem>
-
-        <ion-item
-          button
-          detail="true"
-          (click)="navigateToPodcast(podcast)">
-          <ion-avatar slot="start" class="podcast-avatar">
-            <img
-              [src]="podcast.artworkUrl || '/default-artwork.svg'"
-              [alt]="podcast.title"
-              (error)="onImageError($event)" />
-          </ion-avatar>
-          <ion-label>
-            <h2>{{ podcast.title }}</h2>
-            <ion-note>{{ podcast.author }}</ion-note>
-          </ion-label>
-          <!-- Always-visible unsubscribe for keyboard/a11y users -->
-          <ion-button
-            slot="end"
-            fill="clear"
-            color="medium"
-            size="small"
-            [attr.aria-label]="'Unsubscribe from ' + podcast.title"
-            (click)="$event.stopPropagation(); unsubscribe(podcast, slidingItem)">
-            ✕
-          </ion-button>
-        </ion-item>
-
-        <ion-item-options side="end">
-          <ion-item-option color="danger" (click)="unsubscribe(podcast, slidingItem)">
-            Unsubscribe
-          </ion-item-option>
-        </ion-item-options>
-      </ion-item-sliding>
+      @for (podcast of store.subscriptions(); track podcast) {
+        <ion-item-sliding
+          #slidingItem>
+          <ion-item
+            button
+            detail="true"
+            (click)="navigateToPodcast(podcast)">
+            <ion-avatar slot="start" class="podcast-avatar">
+              <img
+                [src]="podcast.artworkUrl || '/default-artwork.svg'"
+                [alt]="podcast.title"
+                (error)="onImageError($event)" />
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ podcast.title }}</h2>
+              <ion-note>{{ podcast.author }}</ion-note>
+            </ion-label>
+            <!-- Always-visible unsubscribe for keyboard/a11y users -->
+            <ion-button
+              slot="end"
+              fill="clear"
+              color="medium"
+              size="small"
+              [attr.aria-label]="'Unsubscribe from ' + podcast.title"
+              (click)="$event.stopPropagation(); unsubscribe(podcast, slidingItem)">
+              ✕
+            </ion-button>
+          </ion-item>
+          <ion-item-options side="end">
+            <ion-item-option color="danger" (click)="unsubscribe(podcast, slidingItem)">
+              Unsubscribe
+            </ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      }
     </ion-list>
-  </ng-container>
-
-  <!-- Empty state -->
-  <ng-template #emptyState>
+  } @else {
     <div class="empty-state">
       <ion-text color="medium">
         <p class="empty-state__title">No subscriptions yet</p>
@@ -85,5 +83,7 @@
         Browse Podcasts
       </ion-button>
     </div>
-  </ng-template>
+  }
+
+  <!-- Empty state -->
 </ion-content>

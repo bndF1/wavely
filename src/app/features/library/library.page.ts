@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
+
 import {
   IonHeader,
   IonToolbar,
@@ -34,8 +34,6 @@ import { Podcast } from '../../core/models/podcast.model';
   templateUrl: './library.page.html',
   styleUrls: ['./library.page.scss'],
   imports: [
-    NgFor,
-    NgIf,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -55,8 +53,8 @@ import { Podcast } from '../../core/models/podcast.model';
     IonPopover,
     IonListHeader,
     IonRadioGroup,
-    IonRadio,
-  ],
+    IonRadio
+],
 })
 export class LibraryPage {
   protected readonly store = inject(PodcastsStore);

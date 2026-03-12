@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   IonHeader,
   IonToolbar,
@@ -34,8 +34,6 @@ import { switchMap } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    NgFor,
-    NgIf,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -49,8 +47,8 @@ import { switchMap } from 'rxjs/operators';
     IonLabel,
     IonNote,
     IonSkeletonText,
-    IonText,
-  ],
+    IonText
+],
 })
 export class PodcastDetailPage {
   private readonly route = inject(ActivatedRoute);

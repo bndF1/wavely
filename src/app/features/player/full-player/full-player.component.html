@@ -16,60 +16,54 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="full-player__content" *ngIf="store.currentEpisode()">
-  <div class="full-player__body">
-
-    <!-- Artwork -->
-    <div class="full-player__artwork-wrapper" [class.full-player__artwork-wrapper--playing]="store.isPlaying()">
-      <img
-        class="full-player__artwork"
-        [src]="store.currentEpisode()!.imageUrl || '/default-artwork.svg'"
-        [alt]="store.currentEpisode()!.title" />
-    </div>
-
-    <!-- Episode info -->
-    <div class="full-player__info">
-      <h2 class="full-player__title">{{ store.currentEpisode()!.title }}</h2>
-    </div>
-
-    <!-- Scrubber -->
-    <div class="full-player__scrubber">
-      <ion-range
-        class="full-player__range"
-        [value]="progressValue * 100"
-        [min]="0"
-        [max]="100"
-        [step]="0.1"
-        color="primary"
-        (ionChange)="onScrubChange($event)"
-        aria-label="Playback position">
-      </ion-range>
-
-      <div class="full-player__time-labels">
-        <span class="full-player__current-time">{{ currentTimeLabel }}</span>
-        <span class="full-player__remaining-time">{{ remainingTimeLabel }}</span>
+@if (store.currentEpisode()) {
+  <ion-content class="full-player__content">
+    <div class="full-player__body">
+      <!-- Artwork -->
+      <div class="full-player__artwork-wrapper" [class.full-player__artwork-wrapper--playing]="store.isPlaying()">
+        <img
+          class="full-player__artwork"
+          [src]="store.currentEpisode()!.imageUrl || '/default-artwork.svg'"
+          [alt]="store.currentEpisode()!.title" />
+      </div>
+      <!-- Episode info -->
+      <div class="full-player__info">
+        <h2 class="full-player__title">{{ store.currentEpisode()!.title }}</h2>
+      </div>
+      <!-- Scrubber -->
+      <div class="full-player__scrubber">
+        <ion-range
+          class="full-player__range"
+          [value]="progressValue * 100"
+          [min]="0"
+          [max]="100"
+          [step]="0.1"
+          color="primary"
+          (ionChange)="onScrubChange($event)"
+          aria-label="Playback position">
+        </ion-range>
+        <div class="full-player__time-labels">
+          <span class="full-player__current-time">{{ currentTimeLabel }}</span>
+          <span class="full-player__remaining-time">{{ remainingTimeLabel }}</span>
+        </div>
+      </div>
+      <!-- Controls -->
+      <div class="full-player__controls">
+        <button class="full-player__skip-btn" (click)="skipBack()" aria-label="Skip back 15 seconds">
+          <ion-icon name="play-skip-back"></ion-icon>
+          <span class="full-player__skip-label">15</span>
+        </button>
+        <button
+          class="full-player__play-pause-btn"
+          (click)="togglePlay()"
+          [attr.aria-label]="store.isPlaying() ? 'Pause' : 'Play'">
+          <ion-icon [name]="store.isPlaying() ? 'pause-circle' : 'play-circle'"></ion-icon>
+        </button>
+        <button class="full-player__skip-btn" (click)="skipForward()" aria-label="Skip forward 30 seconds">
+          <ion-icon name="play-skip-forward"></ion-icon>
+          <span class="full-player__skip-label">30</span>
+        </button>
       </div>
     </div>
-
-    <!-- Controls -->
-    <div class="full-player__controls">
-      <button class="full-player__skip-btn" (click)="skipBack()" aria-label="Skip back 15 seconds">
-        <ion-icon name="play-skip-back"></ion-icon>
-        <span class="full-player__skip-label">15</span>
-      </button>
-
-      <button
-        class="full-player__play-pause-btn"
-        (click)="togglePlay()"
-        [attr.aria-label]="store.isPlaying() ? 'Pause' : 'Play'">
-        <ion-icon [name]="store.isPlaying() ? 'pause-circle' : 'play-circle'"></ion-icon>
-      </button>
-
-      <button class="full-player__skip-btn" (click)="skipForward()" aria-label="Skip forward 30 seconds">
-        <ion-icon name="play-skip-forward"></ion-icon>
-        <span class="full-player__skip-label">30</span>
-      </button>
-    </div>
-
-  </div>
-</ion-content>
+  </ion-content>
+}
