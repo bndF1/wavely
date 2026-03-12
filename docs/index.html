@@ -1019,16 +1019,19 @@
       .section-inner {
         padding-left: 1.25rem;
         padding-right: 1.25rem;
+        padding-top: 2.5rem;
+        padding-bottom: 2.5rem;
       }
       .section-title { font-size: clamp(1.75rem, 7vw, 2.5rem); }
       .section-sub { font-size: 0.95rem; }
 
       .screens-phones { flex-direction: column; align-items: center; gap: 1.5rem; }
       .screen-phone:nth-child(2) { display: none; }
+      .screen-phone { max-width: 240px; margin: 0 auto; }
+      .screens-copy { order: -1; }
 
       .download-cards { grid-template-columns: 1fr; gap: 1rem; max-width: 400px; }
-      .dl-card { padding: 1.5rem 1.25rem; flex-direction: row; text-align: left; gap: 1rem; }
-      .dl-card-icon { font-size: 2rem; flex-shrink: 0; }
+      .dl-card { padding: 1.25rem 1rem; }
 
       .contribute-steps { gap: 1rem; }
       .contribute-step { padding: 1.25rem; }
