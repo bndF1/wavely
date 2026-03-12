@@ -1,0 +1,166 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.full-player {
+  &__header {
+    ion-toolbar {
+      --background: var(--wavely-surface);
+    }
+  }
+
+  &__now-playing-label {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--wavely-on-surface-muted);
+    text-transform: uppercase;
+  }
+
+  &__rate-badge {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--wavely-primary);
+  }
+
+  &__content {
+    --background: var(--wavely-surface);
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 32px 40px;
+    gap: 24px;
+    height: 100%;
+  }
+
+  // Artwork
+  &__artwork-wrapper {
+    width: min(280px, 80vw);
+    height: min(280px, 80vw);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
+
+    &--playing {
+      transform: scale(1.04);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+    }
+  }
+
+  &__artwork {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  // Info
+  &__info {
+    width: 100%;
+    text-align: center;
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--wavely-on-surface);
+    margin: 0;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // Scrubber
+  &__scrubber {
+    width: 100%;
+  }
+
+  &__range {
+    --bar-height: 4px;
+    --bar-border-radius: 2px;
+    --knob-size: 16px;
+    padding-inline: 0;
+  }
+
+  &__time-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: -8px;
+    padding-inline: 2px;
+  }
+
+  &__current-time,
+  &__remaining-time {
+    font-size: 12px;
+    color: var(--wavely-on-surface-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  // Controls
+  &__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    width: 100%;
+  }
+
+  &__play-pause-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--wavely-primary);
+    line-height: 1;
+
+    ion-icon {
+      font-size: 72px;
+    }
+  }
+
+  &__skip-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--wavely-on-surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px;
+    position: relative;
+
+    ion-icon {
+      font-size: 36px;
+    }
+  }
+
+  &__skip-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--wavely-on-surface-muted);
+    position: absolute;
+    bottom: 2px;
+  }
+}
+
+// Dark mode
+@media (prefers-color-scheme: dark) {
+  .full-player__artwork-wrapper {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+    &--playing {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
+    }
+  }
+}
