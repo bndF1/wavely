@@ -1,0 +1,33 @@
+name: Feature
+description: New feature or enhancement
+labels: ["type: enhancement"]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Feature summary
+      placeholder: One-line description
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: What should this feature do?
+    validations:
+      required: true
+  - type: dropdown
+    id: epic
+    attributes:
+      label: Epic
+      options:
+        - "epic: foundation"
+        - "epic: discover"
+        - "epic: search"
+        - "epic: player"
+        - "epic: library"
+        - "epic: auth"
+        - "epic: mobile"
+        - "epic: settings"
+    validations:
+      required: true

@@ -6,7 +6,8 @@
     "module": "preserve",
     "lib": ["es2020", "dom"],
     "paths": {},
-    "isolatedModules": true
+    "isolatedModules": true,
+    "skipLibCheck": true
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
