@@ -1,101 +1,227 @@
-# Wavely
+# 🎙 Wavely
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+> A beautiful, open-source podcast player for **iOS**, **Android**, and the **Web**.  
+> Inspired by Google Podcasts. Built with Angular 21, Ionic 8, and Capacitor 8.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+[![CI](https://github.com/bndF1/wavely/actions/workflows/ci.yml/badge.svg)](https://github.com/bndF1/wavely/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)](https://angular.io)
+[![Ionic](https://img.shields.io/badge/Ionic-8-blue?logo=ionic)](https://ionicframework.com)
+[![Capacitor](https://img.shields.io/badge/Capacitor-8-green?logo=capacitor)](https://capacitorjs.com)
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-standalone-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+---
 
-## Run tasks
+## ✨ Features
 
-To run the dev server for your app, use:
+| Feature | Description |
+|---------|-------------|
+| 🔊 **Audio Player** | Full-screen player with scrubber, speed control (0.5×–2×), skip ±30s, and mini-player |
+| 📱 **Cross-Platform** | iOS + Android (Capacitor) + Web (PWA) from a single codebase |
+| 🌙 **Dark Mode** | System-aware with manual override, persisted to localStorage |
+| 📡 **Offline / PWA** | Angular service worker — app shell, artwork (7d), iTunes API cache (1h) |
+| 🔍 **Search & Browse** | Real-time debounced search, browse by category, trending podcasts |
+| 📚 **Podcast Detail** | Episode list, subscribe/unsubscribe, share |
+| 🎧 **Episode Detail** | Full description, progress scrubber, playback controls |
+| 🗃 **State Management** | NgRx SignalStore for player and podcast data |
 
-```sh
-npx nx serve wavely
+---
+
+## 🚀 Quick Start
+
+**Prerequisites:** [Bun](https://bun.sh) v1.3+ · [Node.js](https://nodejs.org) 20+
+
+```bash
+# 1. Clone
+git clone https://github.com/bndF1/wavely.git
+cd wavely
+
+# 2. Install
+bun install
+
+# 3. Dev server (web)
+bun start
+# → http://localhost:4200
 ```
 
-To create a production bundle:
+---
 
-```sh
-npx nx build wavely
+## 📋 Scripts
+
+| Command | Description |
+|---------|-------------|
+| `bun start` | Dev server at `localhost:4200` |
+| `bun run build` | Production build (SSR) |
+| `bun test` | Unit tests with Jest |
+| `bun run cap:sync` | Build + sync to iOS and Android |
+| `bun run cap:ios` | Sync + open Xcode |
+| `bun run cap:android` | Sync + open Android Studio |
+| `bun run cap:serve` | Live-reload dev on iOS simulator (`CAP_ENV=local`) |
+
+---
+
+## 🏗 Tech Stack
+
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Framework | Angular (standalone) | 21.2.x |
+| Mobile shell | Ionic | 8.8.x |
+| Native runtime | Capacitor | 8.2.x |
+| State | NgRx SignalStore | 21.0.x |
+| Backend / Auth | Firebase + AngularFire | 12.x / 20.x |
+| Podcast data | iTunes Search API | — |
+| Workspace | Nx | 22.5.x |
+| Package manager | Bun | 1.3.x |
+| Testing | Jest + Playwright | 30.x / 1.36.x |
+| CI | GitHub Actions | — |
+
+---
+
+## 📁 Project Structure
+
+```
+wavely/
+├── src/
+│   └── app/
+│       ├── core/                 # Services, models, guards, interceptors
+│       │   ├── services/
+│       │   │   ├── podcast-api.service.ts   # iTunes Search API client
+│       │   │   └── theme.service.ts         # Dark/light mode
+│       │   └── models/
+│       ├── features/             # Lazy-loaded pages
+│       │   ├── home/             # Subscriptions feed + trending
+│       │   ├── browse/           # Categories + trending
+│       │   ├── search/           # Real-time search
+│       │   ├── library/          # Subscriptions + history
+│       │   ├── podcast-detail/   # Episode list + subscribe
+│       │   └── episode-detail/   # Player + description
+│       ├── store/                # NgRx SignalStores
+│       │   ├── player/           # PlayerStore — playback state
+│       │   └── podcasts/         # PodcastsStore — subscriptions, search
+│       └── shared/               # Reusable components, pipes, directives
+├── android/                      # Capacitor Android (Gradle)
+├── ios/                          # Capacitor iOS (Xcode / Swift)
+├── docs/                         # Landing page (GitHub Pages)
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                # Build, lint, test, type-check
+│       └── pages.yml             # Deploy docs/ to GitHub Pages
+├── ngsw-config.json              # Service worker caching rules
+├── capacitor.config.ts           # Capacitor configuration
+└── project.json                  # Nx build targets
 ```
 
-To see all available targets to run for a project, run:
+---
 
-```sh
-npx nx show project wavely
+## 📱 Native Platforms
+
+### iOS
+
+Requires **Xcode** installed on macOS.
+
+```bash
+bun run cap:ios         # build + sync + open Xcode
+# → Archive and submit via Xcode Organizer
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+### Android
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Requires **Android Studio** installed.
 
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/angular:app demo
+```bash
+bun run cap:android     # build + sync + open Android Studio
+# → Build APK/AAB via Gradle
 ```
 
-To generate a new library, use:
+### Live-Reload on Device
 
-```sh
-npx nx g @nx/angular:lib mylib
+```bash
+bun run cap:serve       # starts Angular dev server + runs on iOS simulator
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+---
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🔥 Firebase Auth (Optional)
 
-## Set up CI!
+Issue #8. Requires a Firebase project. Once you have credentials:
 
-### Step 1
+1. Create `src/environments/environment.ts`:
 
-To connect to Nx Cloud, run the following command:
-
-```sh
-npx nx connect
+```typescript
+export const environment = {
+  production: false,
+  firebaseConfig: {
+    apiKey:            'YOUR_API_KEY',
+    authDomain:        'YOUR_PROJECT.firebaseapp.com',
+    projectId:         'YOUR_PROJECT',
+    storageBucket:     'YOUR_PROJECT.appspot.com',
+    messagingSenderId: 'YOUR_SENDER_ID',
+    appId:             'YOUR_APP_ID',
+  }
+};
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
+2. Open an issue or PR — the Firebase Auth integration is [tracked in #8](https://github.com/bndF1/wavely/issues/8).
 
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-### Step 2
+## 🧪 Testing
 
-Use the following command to configure a CI workflow for your workspace:
-
-```sh
-npx nx g ci-workflow
+```bash
+bun test                          # all unit tests
+bunx nx test --watch              # watch mode
+bunx nx test --coverage           # with coverage report
+# E2E (Playwright) — target not yet configured in project.json
+# bunx nx e2e
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
 
-## Install Nx Console
+## 🔄 CI Pipeline
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+Every push to `main` / `develop` and every PR runs:
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. **Type check** — `tsc --noEmit`
+2. **Lint** — ESLint + angular-eslint
+3. **Build** — Nx production build (SSR + service worker)
+4. **Tests** — Jest with coverage
+5. Coverage artifact uploaded on PRs
 
-## Useful links
+---
 
-Learn more:
+## 🤝 Contributing
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-standalone-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. Fork the repo
+2. Create a branch: `git checkout -b feat/your-feature`
+3. Make your changes following the Angular patterns in this codebase:
+   - Standalone components with `OnPush` change detection
+   - `inject()` for dependency injection (no constructor injection)
+   - Signal inputs/outputs (`input()` / `output()`)
+   - `signal<T>()` for local state, `computed()` for derived state
+   - `takeUntilDestroyed(DestroyRef)` for subscriptions
+4. Commit: `git commit -m "feat: description"`
+5. Push and open a PR against `main`
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+---
+
+## 🗺 Roadmap
+
+- [x] Tab navigation shell
+- [x] Home page (subscriptions + trending)
+- [x] Search + Browse pages
+- [x] Library page
+- [x] Podcast Detail page
+- [x] Episode Detail page + player controls
+- [x] Dark mode (signal-based ThemeService)
+- [x] PWA / Offline support (Angular service worker)
+- [x] CI pipeline (GitHub Actions)
+- [x] Native platforms (iOS + Android via Capacitor)
+- [ ] Firebase Authentication (Google Sign-In + email) — [#8](https://github.com/bndF1/wavely/issues/8)
+- [ ] Download episodes (Capacitor Filesystem)
+- [ ] Push notifications (Capacitor Push + Firebase)
+- [ ] Background audio (Media Session API + Capacitor Media)
+
+---
+
+## 📄 License
+
+[MIT](LICENSE) © 2026 Wavely contributors
