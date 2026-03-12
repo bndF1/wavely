@@ -19,6 +19,11 @@
           {
             "glob": "**/*",
             "input": "public"
+          },
+          {
+            "glob": "manifest.webmanifest",
+            "input": "src",
+            "output": "/"
           }
         ],
         "styles": ["./src/styles.scss"],
@@ -42,7 +47,8 @@
               "maximumError": "8kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "serviceWorker": "ngsw-config.json"
         },
         "development": {
           "optimization": false,
