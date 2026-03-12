@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wavely — Podcast Player for iOS, Android & Web</title>
+  <meta name="description" content="Wavely is a beautiful open-source podcast player inspired by Google Podcasts, built for iOS, Android, and the web with Angular, Ionic, and Capacitor.">
+  <meta property="og:title" content="Wavely — Podcast Player">
+  <meta property="og:description" content="Your podcasts, everywhere. A beautiful open-source podcast player for iOS, Android, and the web.">
+  <meta property="og:url" content="https://bndF1.github.io/wavely">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Wavely — Podcast Player">
+  <meta name="theme-color" content="#1A73E8">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #07070E;
+      --bg-card:       #0D0D1C;
+      --bg-card-2:     #111128;
+      --border:        rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.14);
+      --primary:       #1A73E8;
+      --primary-glow:  rgba(26,115,232,0.25);
+      --primary-light: #4A9EFF;
+      --accent:        #EA4335;
+      --accent-glow:   rgba(234,67,53,0.2);
+      --green:         #34A853;
+      --yellow:        #FBBC04;
+      --text:          #E8EAED;
+      --text-muted:    #9AA0A6;
+      --text-faint:    #5F6368;
+      --radius:        16px;
+      --radius-sm:     10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* ── AMBIENT BLOBS ── */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      will-change: transform;
+    }
+    .blob-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(26,115,232,0.18) 0%, transparent 70%);
+      top: -200px; right: -100px;
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    .blob-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(74,158,255,0.12) 0%, transparent 70%);
+      top: 300px; left: -150px;
+      animation: drift 22s ease-in-out infinite alternate-reverse;
+    }
+    .blob-3 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(234,67,53,0.08) 0%, transparent 70%);
+      bottom: 100px; right: 50px;
+      animation: drift 26s ease-in-out infinite alternate;
+    }
+    @keyframes drift {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(40px, -30px) scale(1.05); }
+      100% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      height: 64px;
+      background: rgba(7,7,14,0.85);
+      backdrop-filter: blur(20px) saturate(150%);
+      -webkit-backdrop-filter: blur(20px) saturate(150%);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo .logo-icon {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 0 0 var(--primary-glow);
+    }
+    .btn-primary:hover {
+      background: #1565C0;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--primary-glow);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-bright);
+    }
+    .btn-ghost:hover {
+      color: var(--text);
+      border-color: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.04);
+    }
+    .btn-lg {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      border-radius: 10px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: calc(100vh - 64px);
+      display: flex;
+      align-items: center;
+      padding: clamp(4rem, 10vh, 7rem) clamp(1.5rem, 5vw, 4rem);
+      overflow: hidden;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 580px;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(26,115,232,0.12);
+      border: 1px solid rgba(26,115,232,0.3);
+      color: var(--primary-light);
+      font-size: 0.8rem;
+      font-family: 'DM Mono', monospace;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.875rem;
+      border-radius: 100px;
+      margin-bottom: 1.75rem;
+      animation: fadeSlideUp 0.6s ease both;
+    }
+    .eyebrow-dot {
+      width: 6px; height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3.5rem, 8vw, 6.5rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeSlideUp 0.6s 0.1s ease both;
+    }
+    .hero h1 .word-wave {
+      display: block;
+      background: linear-gradient(135deg, var(--text) 0%, var(--text) 40%, var(--primary-light) 65%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero h1 .word-ly {
+      display: block;
+      color: var(--text);
+      -webkit-text-fill-color: var(--text);
+    }
+    .hero-tagline {
+      font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+      color: var(--text-muted);
+      font-weight: 300;
+      line-height: 1.5;
+      margin-bottom: 2.5rem;
+      max-width: 460px;
+      animation: fadeSlideUp 0.6s 0.2s ease both;
+    }
+    .hero-tagline strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.875rem;
+      animation: fadeSlideUp 0.6s 0.3s ease both;
+    }
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 3rem;
+      animation: fadeSlideUp 0.6s 0.4s ease both;
+    }
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-faint);
+    }
+    .hero-meta-item .dot {
+      width: 4px; height: 4px;
+      background: var(--text-faint);
+      border-radius: 50%;
+    }
+
+    /* ── WAVEFORM VISUALIZATION ── */
+    .hero-visual {
+      position: absolute;
+      right: clamp(1.5rem, 6vw, 5rem);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      animation: fadeIn 1s 0.5s ease both;
+    }
+    .waveform-container {
+      position: relative;
+      width: 340px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .waveform-glow {
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(ellipse at center, var(--primary-glow) 0%, transparent 70%);
+      filter: blur(20px);
+    }
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 180px;
+      position: relative;
+      z-index: 1;
+    }
+    .waveform-bar {
+      width: 6px;
+      border-radius: 3px;
+      background: linear-gradient(to top, var(--primary), var(--primary-light));
+      transform-origin: bottom center;
+      animation: waveAnim var(--dur, 1.2s) var(--delay, 0s) ease-in-out infinite alternate;
+      box-shadow: 0 0 8px rgba(74,158,255,0.4);
+    }
+    @keyframes waveAnim {
+      0%   { transform: scaleY(var(--min, 0.15)); opacity: 0.6; }
+      100% { transform: scaleY(var(--max, 1.0)); opacity: 1; }
+    }
+
+    .now-playing-card {
+      background: rgba(13,13,28,0.9);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      width: 300px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
+    }
+    .np-top {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    .np-artwork {
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1A73E8 0%, #EA4335 100%);
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .np-info { flex: 1; min-width: 0; }
+    .np-title {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .np-author {
+      font-size: 0.75rem;
+      color: var(--text-faint);
+      margin-top: 2px;
+    }
+    .np-progress-track {
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-bottom: 0.5rem;
+      overflow: hidden;
+    }
+    .np-progress-fill {
+      height: 100%;
+      width: 42%;
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      border-radius: 2px;
+      animation: progressAnim 8s linear infinite;
+    }
+    @keyframes progressAnim {
+      0% { width: 42%; }
+      100% { width: 68%; }
+    }
+    .np-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      margin-top: 0.75rem;
+    }
+    .np-ctrl {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+    }
+    .np-ctrl.play {
+      width: 40px; height: 40px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1.1rem;
+    }
+    .np-time {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-faint);
+    }
+
+    /* ── PLATFORM BADGES ── */
+    .platform-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .platform-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .platform-badge .pb-icon { font-size: 0.9rem; }
+
+    /* ── SECTION COMMON ── */
+    section { position: relative; }
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 6rem clamp(1.5rem, 5vw, 4rem);
+    }
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 0.875rem;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      max-width: 520px;
+      line-height: 1.7;
+    }
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border-bright), transparent);
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-top: 3.5rem;
+      border: 1px solid var(--border);
+    }
+    .feature-card {
+      background: var(--bg-card);
+      padding: 2rem 1.75rem;
+      transition: background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(26,115,232,0.4), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover { background: var(--bg-card-2); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+    .fi-blue  { background: rgba(26,115,232,0.12);  border: 1px solid rgba(26,115,232,0.25); }
+    .fi-red   { background: rgba(234,67,53,0.12);   border: 1px solid rgba(234,67,53,0.25); }
+    .fi-green { background: rgba(52,168,83,0.12);   border: 1px solid rgba(52,168,83,0.25); }
+    .fi-yellow{ background: rgba(251,188,4,0.12);   border: 1px solid rgba(251,188,4,0.25); }
+    .fi-purple{ background: rgba(138,43,226,0.12);  border: 1px solid rgba(138,43,226,0.25); }
+    .fi-teal  { background: rgba(0,188,212,0.12);   border: 1px solid rgba(0,188,212,0.25); }
+    .feature-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .feature-tag {
+      display: inline-block;
+      margin-top: 1rem;
+      font-size: 0.72rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--primary-light);
+      background: rgba(26,115,232,0.08);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    /* ── TECH STACK SECTION ── */
+    .tech-section { background: var(--bg-card); }
+    .tech-section .section-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4rem;
+    }
+    .tech-left { flex: 1; min-width: 280px; }
+    .tech-right { flex: 1; min-width: 280px; }
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+    .tech-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.875rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .tech-item:hover { border-color: var(--border-bright); }
+    .tech-item-icon {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .tech-item-info {}
+    .tech-item-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .tech-item-version {
+      font-size: 0.72rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-faint);
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      padding: 3rem clamp(1.5rem, 5vw, 4rem);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+    .stat-item {
+      flex: 1;
+      min-width: 160px;
+      text-align: center;
+      padding: 1.5rem 2rem;
+      position: relative;
+    }
+    .stat-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 25%; bottom: 25%;
+      width: 1px;
+      background: var(--border);
+    }
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--text), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      margin-top: 0.25rem;
+    }
+
+    /* ── ARCHITECTURE ── */
+    .arch-section .section-inner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3rem;
+      align-items: flex-start;
+    }
+    .arch-left { flex: 1; min-width: 280px; }
+    .arch-right { flex: 1.2; min-width: 300px; }
+    .arch-diagram {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .arch-diagram .c-blue   { color: var(--primary-light); }
+    .arch-diagram .c-green  { color: #34A853; }
+    .arch-diagram .c-yellow { color: #FBBC04; }
+    .arch-diagram .c-faint  { color: var(--text-faint); }
+    .arch-layers {
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+      margin-top: 2rem;
+    }
+    .arch-layer {
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .arch-layer-label {
+      font-size: 0.72rem;
+      font-family: 'DM Mono', monospace;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+    }
+    .arch-layer-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .arch-chip {
+      font-size: 0.78rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+    }
+    .chip-blue   { background: rgba(26,115,232,0.12);  color: var(--primary-light); }
+    .chip-green  { background: rgba(52,168,83,0.12);   color: #68D97C; }
+    .chip-red    { background: rgba(234,67,53,0.12);   color: #F28B82; }
+    .chip-yellow { background: rgba(251,188,4,0.12);   color: #FDD663; }
+    .chip-teal   { background: rgba(0,188,212,0.12);   color: #4DD0E1; }
+    .chip-gray   { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+
+    /* ── CTA ── */
+    .cta-section {
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(26,115,232,0.08) 0%, transparent 50%, rgba(74,158,255,0.05) 100%);
+    }
+    .cta-section .section-inner {
+      text-align: center;
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+    }
+    .cta-section .section-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      max-width: 700px;
+      margin: 0 auto 1.25rem;
+    }
+    .cta-section .section-sub {
+      max-width: 480px;
+      margin: 0 auto 2.5rem;
+    }
+    .cta-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .cta-sub-note {
+      margin-top: 1.25rem;
+      font-size: 0.8rem;
+      color: var(--text-faint);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem clamp(1.5rem, 5vw, 4rem);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .footer-logo .logo-icon {
+      width: 24px; height: 24px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    footer p {
+      font-size: 0.82rem;
+      color: var(--text-faint);
+    }
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+    }
+    .footer-links a {
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text-muted); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero-visual { display: none; }
+      .hero-content { max-width: 100%; }
+      .nav-links { display: none; }
+    }
+    @media (max-width: 600px) {
+      .stat-item:not(:last-child)::after { display: none; }
+      .tech-grid { grid-template-columns: 1fr; }
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { width: 100%; justify-content: center; }
+      .cta-actions { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AMBIENT BLOBS -->
+  <div class="blob blob-1" aria-hidden="true"></div>
+  <div class="blob blob-2" aria-hidden="true"></div>
+  <div class="blob blob-3" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <span class="logo-icon">🎙</span>
+      Wavely
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#tech">Tech Stack</a></li>
+      <li><a href="#architecture">Architecture</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener" class="btn btn-ghost">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+        GitHub
+      </a>
+      <a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" aria-label="Hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot" aria-hidden="true"></span>
+        Open Source · v0.1.0
+      </div>
+
+      <h1>
+        <span class="word-wave">Wave</span>
+        <span class="word-ly">ly.</span>
+      </h1>
+
+      <p class="hero-tagline">
+        A <strong>beautiful open-source podcast player</strong> for iOS, Android, and the web.
+        Inspired by Google Podcasts, built with the modern Angular stack.
+      </p>
+
+      <div class="hero-actions">
+        <a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          View on GitHub
+        </a>
+        <a href="#features" class="btn btn-ghost btn-lg">
+          Explore Features →
+        </a>
+      </div>
+
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span>🅰</span>
+          <span>Angular 21</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="dot" aria-hidden="true"></span>
+        </div>
+        <div class="hero-meta-item">
+          <span>⚡</span>
+          <span>Ionic 8</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="dot" aria-hidden="true"></span>
+        </div>
+        <div class="hero-meta-item">
+          <span>📱</span>
+          <span>Capacitor 8</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO VISUAL -->
+    <div class="hero-visual" aria-hidden="true">
+      <!-- Waveform -->
+      <div class="waveform-container">
+        <div class="waveform-glow"></div>
+        <div class="waveform" id="waveform"></div>
+      </div>
+
+      <!-- Now Playing Card -->
+      <div class="now-playing-card">
+        <div class="np-top">
+          <div class="np-artwork">🎙</div>
+          <div class="np-info">
+            <div class="np-title">The Future of Cross-Platform Dev</div>
+            <div class="np-author">Wavely Podcast Player</div>
+          </div>
+        </div>
+        <div class="np-progress-track">
+          <div class="np-progress-fill"></div>
+        </div>
+        <div class="np-time">
+          <span>18:42</span>
+          <span>44:10</span>
+        </div>
+        <div class="np-controls" role="presentation">
+          <div class="np-ctrl" aria-hidden="true">⏮</div>
+          <div class="np-ctrl" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 .49-3.96"></path>
+              <text x="8" y="15" font-size="6" fill="currentColor" stroke="none">30</text>
+            </svg>
+          </div>
+          <div class="np-ctrl play" aria-hidden="true">▐▐</div>
+          <div class="np-ctrl" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-.49-3.96"></path>
+            </svg>
+          </div>
+          <div class="np-ctrl" aria-hidden="true">⏭</div>
+        </div>
+      </div>
+
+      <!-- Platform badges -->
+      <div class="platform-row">
+        <div class="platform-badge"><span class="pb-icon">🍎</span> iOS</div>
+        <div class="platform-badge"><span class="pb-icon">🤖</span> Android</div>
+        <div class="platform-badge"><span class="pb-icon">🌐</span> Web (PWA)</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item reveal">
+      <div class="stat-value">3</div>
+      <div class="stat-label">Target Platforms</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-value">Angular 21</div>
+      <div class="stat-label">Framework Version</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-value">Nx 22</div>
+      <div class="stat-label">Workspace</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-value">100%</div>
+      <div class="stat-label">TypeScript</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-value">MIT</div>
+      <div class="stat-label">License</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FEATURES -->
+  <section id="features" aria-labelledby="features-heading">
+    <div class="section-inner">
+      <p class="section-label reveal">Features</p>
+      <h2 class="section-title reveal" id="features-heading">Everything you need<br>in a podcast player.</h2>
+      <p class="section-sub reveal">Built with Google Podcasts as the reference experience, Wavely brings a clean, focused listening interface to every platform.</p>
+
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-blue">🔊</div>
+          <h3>Beautiful Audio Player</h3>
+          <p>Full-screen player with artwork, scrubber, playback speed (0.5×–2×), skip 30s, and a persistent mini-player docked above the tab bar.</p>
+          <span class="feature-tag">NgRx SignalStore</span>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-green">📱</div>
+          <h3>Truly Cross-Platform</h3>
+          <p>One codebase. iOS native via Xcode, Android via Gradle, and a PWA for the web — all powered by Capacitor 8 with full hardware API access.</p>
+          <span class="feature-tag">Capacitor 8</span>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-yellow">🌙</div>
+          <h3>Dark Mode & Themes</h3>
+          <p>System-aware dark mode with manual override. Persistent preference via localStorage. Smooth transitions using Ionic CSS custom properties.</p>
+          <span class="feature-tag">Signal-based</span>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-teal">📡</div>
+          <h3>Offline & PWA Ready</h3>
+          <p>Angular service worker caches the app shell, artwork (7 days), and iTunes API responses (1 hour). Works without a network after first load.</p>
+          <span class="feature-tag">@angular/service-worker</span>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-red">🔍</div>
+          <h3>Search & Browse</h3>
+          <p>Real-time search with debounce against the iTunes Search API. Browse by category, trending shows, and new releases.</p>
+          <span class="feature-tag">iTunes API</span>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-purple">📚</div>
+          <h3>Podcast & Episode Detail</h3>
+          <p>Full podcast pages with episode list, subscribe toggle, and artwork. Episode detail with full description, scrubber, and speed controls.</p>
+          <span class="feature-tag">Lazy-loaded routes</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TECH STACK -->
+  <section id="tech" class="tech-section" aria-labelledby="tech-heading">
+    <div class="section-inner">
+      <div class="tech-left">
+        <p class="section-label reveal">Built With</p>
+        <h2 class="section-title reveal" id="tech-heading">Latest stable<br>stack, always.</h2>
+        <p class="section-sub reveal">
+          No legacy code. Every dependency pinned to the latest stable version,
+          managed in a Bun-powered Nx workspace with full TypeScript strict mode.
+        </p>
+        <div class="arch-layers" style="margin-top:2rem">
+          <div class="arch-layer reveal">
+            <div class="arch-layer-label">UI &amp; Navigation</div>
+            <div class="arch-layer-items">
+              <span class="arch-chip chip-blue">Angular 21</span>
+              <span class="arch-chip chip-blue">Ionic 8</span>
+              <span class="arch-chip chip-gray">Standalone Components</span>
+              <span class="arch-chip chip-gray">OnPush</span>
+            </div>
+          </div>
+          <div class="arch-layer reveal">
+            <div class="arch-layer-label">State Management</div>
+            <div class="arch-layer-items">
+              <span class="arch-chip chip-red">NgRx SignalStore 21</span>
+              <span class="arch-chip chip-gray">Signals</span>
+              <span class="arch-chip chip-gray">computed()</span>
+            </div>
+          </div>
+          <div class="arch-layer reveal">
+            <div class="arch-layer-label">Native &amp; Backend</div>
+            <div class="arch-layer-items">
+              <span class="arch-chip chip-green">Capacitor 8</span>
+              <span class="arch-chip chip-yellow">Firebase 12</span>
+              <span class="arch-chip chip-teal">AngularFire 20</span>
+            </div>
+          </div>
+          <div class="arch-layer reveal">
+            <div class="arch-layer-label">Tooling</div>
+            <div class="arch-layer-items">
+              <span class="arch-chip chip-teal">Nx 22</span>
+              <span class="arch-chip chip-gray">Bun</span>
+              <span class="arch-chip chip-gray">Jest</span>
+              <span class="arch-chip chip-gray">Playwright</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-right">
+        <div class="tech-grid">
+          <div class="tech-item reveal">
+            <div class="tech-item-icon fi-blue">🅰</div>
+            <div class="tech-item-info">
+              <div class="tech-item-name">Angular</div>
+              <div class="tech-item-version">v21.2</div>
+            </div>
+          </div>
+          <div class="tech-item reveal">
+            <div class="tech-item-icon fi-blue">⚡</div>
+            <div class="tech-item-info">
+              <div class="tech-item-name">Ionic</div>
+              <div class="tech-item-version">v8.8</div>
+            </div>
+          </div>
+          <div class="tech-item reveal">
+            <div class="tech-item-icon fi-green">📱</div>
+            <div class="tech-item-info">
+              <div class="tech-item-name">Capacitor</div>
+              <div class="tech-item-version">v8.2</div>
+            </div>
+          </div>
+          <div class="tech-item reveal">
+            <div class="tech-item-icon fi-red">🗃</div>
+            <div class="tech-item-info">
+              <div class="tech-item-name">NgRx Signals</div>
+              <div class="tech-item-version">v21.0</div>
+            </div>
+          </div>
+          <div class="tech-item reveal">
+            <div class="tech-item-icon fi-yellow">🔥</div>
+            <div class="tech-item-info">
+              <div class="tech-item-name">Firebase</div>
+              <div class="tech-item-version">v12.10</div>
+            </div>
+          </div>
+          <div class="tech-item reveal">
+            <div class="tech-item-icon fi-teal">🏗</div>
+            <div class="tech-item-info">
+              <div class="tech-item-name">Nx Workspace</div>
+              <div class="tech-item-version">v22.5</div>
+            </div>
+          </div>
+          <div class="tech-item reveal">
+            <div class="tech-item-icon fi-purple">🧪</div>
+            <div class="tech-item-info">
+              <div class="tech-item-name">Jest + Playwright</div>
+              <div class="tech-item-version">v30 / v1.36</div>
+            </div>
+          </div>
+          <div class="tech-item reveal">
+            <div class="tech-item-icon fi-green">🐇</div>
+            <div class="tech-item-info">
+              <div class="tech-item-name">Bun</div>
+              <div class="tech-item-version">v1.3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ARCHITECTURE -->
+  <section id="architecture" class="arch-section" aria-labelledby="arch-heading">
+    <div class="section-inner">
+      <div class="arch-left">
+        <p class="section-label reveal">Architecture</p>
+        <h2 class="section-title reveal" id="arch-heading">Clean, layered,<br>zero legacy.</h2>
+        <p class="section-sub reveal">
+          Feature-first folder structure. Every component is standalone.
+          Services are injected via <code style="font-family:'DM Mono',monospace;font-size:0.9em;color:var(--primary-light)">inject()</code>.
+          State lives in NgRx SignalStores. No NgModules.
+        </p>
+        <div style="margin-top:2.5rem" class="reveal">
+          <div class="arch-diagram">
+<span class="c-blue">src/app/</span>
+├── <span class="c-green">core/</span>          <span class="c-faint">← services, guards, interceptors</span>
+│   ├── services/
+│   └── models/
+├── <span class="c-green">features/</span>      <span class="c-faint">← lazy-loaded pages</span>
+│   ├── home/
+│   ├── browse/
+│   ├── search/
+│   ├── library/
+│   ├── podcast-detail/
+│   └── episode-detail/
+├── <span class="c-yellow">store/</span>         <span class="c-faint">← NgRx SignalStores</span>
+│   ├── player/
+│   └── podcasts/
+└── <span class="c-blue">shared/</span>        <span class="c-faint">← reusable components</span>
+          </div>
+        </div>
+      </div>
+      <div class="arch-right">
+        <div style="margin-top:0.5rem">
+          <div class="now-playing-card reveal" style="width:100%;margin-bottom:1rem">
+            <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--text-faint);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.08em">Data Flow</div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem">
+              <div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;background:rgba(26,115,232,0.08);border-radius:8px;border:1px solid rgba(26,115,232,0.15)">
+                <span style="font-size:1rem">🔌</span>
+                <div>
+                  <div style="font-size:0.8rem;font-weight:500;color:var(--text)">iTunes Search API</div>
+                  <div style="font-size:0.72rem;color:var(--text-faint)">PodcastApiService → HTTP → NgRx Store</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:0.85rem">↓</div>
+              <div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;background:rgba(234,67,53,0.08);border-radius:8px;border:1px solid rgba(234,67,53,0.15)">
+                <span style="font-size:1rem">🗃</span>
+                <div>
+                  <div style="font-size:0.8rem;font-weight:500;color:var(--text)">NgRx SignalStore</div>
+                  <div style="font-size:0.72rem;color:var(--text-faint)">PlayerStore, PodcastsStore → signals</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:0.85rem">↓</div>
+              <div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;background:rgba(52,168,83,0.08);border-radius:8px;border:1px solid rgba(52,168,83,0.15)">
+                <span style="font-size:1rem">🖥</span>
+                <div>
+                  <div style="font-size:0.8rem;font-weight:500;color:var(--text)">Standalone Components</div>
+                  <div style="font-size:0.72rem;color:var(--text-faint)">OnPush + async pipe / signal() reads</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:0.85rem">↓</div>
+              <div style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;background:rgba(0,188,212,0.08);border-radius:8px;border:1px solid rgba(0,188,212,0.15)">
+                <span style="font-size:1rem">📱</span>
+                <div>
+                  <div style="font-size:0.8rem;font-weight:500;color:var(--text)">Capacitor Native Bridge</div>
+                  <div style="font-size:0.72rem;color:var(--text-faint)">Audio, Haptics, StatusBar, Filesystem</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="now-playing-card reveal" style="width:100%">
+            <div style="font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--text-faint);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.08em">CI / CD Pipeline</div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.82rem">
+              <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+                <span style="color:#34A853">✓</span> Lint (ESLint + angular-eslint)
+              </div>
+              <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+                <span style="color:#34A853">✓</span> Type check (tsc --noEmit)
+              </div>
+              <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+                <span style="color:#34A853">✓</span> Unit tests (Jest)
+              </div>
+              <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+                <span style="color:#34A853">✓</span> Build (Nx + SSR)
+              </div>
+              <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+                <span style="color:#34A853">✓</span> Coverage artifact upload
+              </div>
+              <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+                <span style="color:#34A853">✓</span> Concurrency cancellation
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CTA -->
+  <section class="cta-section" aria-labelledby="cta-heading">
+    <div class="section-inner">
+      <p class="section-label reveal">Open Source</p>
+      <h2 class="section-title reveal" id="cta-heading">Ready to build<br>your own podcasts app?</h2>
+      <p class="section-sub reveal">
+        Fork it, clone it, extend it. Wavely is MIT-licensed and built to be
+        a reference implementation for Angular + Ionic + Capacitor.
+      </p>
+      <div class="cta-actions">
+        <a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener" class="btn btn-primary btn-lg reveal">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          Clone on GitHub
+        </a>
+        <a href="https://github.com/bndF1/wavely/issues" target="_blank" rel="noopener" class="btn btn-ghost btn-lg reveal">
+          Open an Issue
+        </a>
+      </div>
+      <p class="cta-sub-note reveal">
+        MIT License · No tracking · No telemetry
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">
+      <a href="#" class="footer-logo">
+        <span class="logo-icon">🎙</span>
+        Wavely
+      </a>
+      <p>Open source podcast player for iOS, Android &amp; Web.</p>
+    </div>
+    <ul class="footer-links">
+      <li><a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://github.com/bndF1/wavely/issues" target="_blank" rel="noopener">Issues</a></li>
+      <li><a href="https://github.com/bndF1/wavely/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    // ── WAVEFORM GENERATOR ──
+    (function() {
+      const waveform = document.getElementById('waveform');
+      if (!waveform) return;
+      const bars = 32;
+      const heights = [60,90,130,110,160,80,140,100,170,90,120,150,80,110,140,70,160,100,130,90,170,120,80,150,110,95,140,75,160,105,135,90];
+      const minRatios = [0.2,0.3,0.15,0.25,0.1,0.35,0.2,0.3,0.15,0.4,0.2,0.1,0.35,0.25,0.15,0.4,0.1,0.3,0.2,0.35,0.1,0.25,0.4,0.15,0.3,0.2,0.1,0.35,0.15,0.25,0.2,0.3];
+      const durations = [1.1,0.9,1.3,1.0,0.85,1.4,1.1,0.95,1.25,0.8,1.15,1.35,0.9,1.05,0.85,1.2,1.0,1.3,0.95,1.15,0.8,1.25,1.05,0.9,1.35,1.1,0.85,1.2,1.0,0.9,1.15,0.85];
+      const delays = [0,0.3,0.1,0.5,0.2,0.7,0.15,0.45,0.05,0.6,0.25,0.4,0.8,0.1,0.55,0.35,0.65,0.2,0.5,0.0,0.4,0.15,0.7,0.3,0.1,0.55,0.2,0.45,0.05,0.35,0.25,0.6];
+      for (let i = 0; i < bars; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'waveform-bar';
+        bar.style.cssText = `
+          height:${heights[i]}px;
+          --min:${minRatios[i]};
+          --max:1;
+          --dur:${durations[i]}s;
+          --delay:${delays[i]}s;
+          animation-delay:${delays[i]}s;
+        `;
+        waveform.appendChild(bar);
+      }
+    })();
+
+    // ── SCROLL REVEAL ──
+    const revealObserver = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } }),
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    document.querySelectorAll('.reveal').forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 4) * 0.07}s`;
+      revealObserver.observe(el);
+    });
+  </script>
+</body>
+</html>
