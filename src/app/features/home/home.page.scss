@@ -1,0 +1,68 @@
+.home-page {
+  --padding-start: 16px;
+  --padding-end: 16px;
+}
+
+.home-section {
+  padding: 20px 16px 8px;
+}
+
+.section-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--wavely-on-surface);
+  letter-spacing: -0.2px;
+}
+
+.podcast-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* Horizontal subscription scroll */
+.subscriptions-scroll {
+  overflow-x: auto;
+  margin: 0 -16px;
+  padding: 0 16px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.subscriptions-row {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.subscription-card {
+  flex: 0 0 120px;
+  width: 120px;
+}
+
+/* Header */
+.header-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--wavely-primary);
+  letter-spacing: -0.5px;
+}
+
+.header-icon {
+  font-size: 22px;
+  padding: 0 16px;
+  cursor: pointer;
+  color: var(--wavely-on-surface);
+}
+
+/* Error / empty */
+.error-state,
+.empty-state {
+  padding: 32px 16px;
+  text-align: center;
+  ion-text p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
