@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, NgFor, NgIf } from '@angular/common';
 import {
   IonHeader,
@@ -56,6 +56,7 @@ export class PodcastDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(PodcastApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   protected readonly podcastsStore = inject(PodcastsStore);
   protected readonly playerStore = inject(PlayerStore);
 
@@ -125,6 +126,10 @@ export class PodcastDetailPage {
     this.playerStore.clearQueue();
     upcoming.forEach((e) => this.playerStore.addToQueue(e));
     this.playerStore.play(episode);
+    // Navigate to episode detail, passing full objects via router state to avoid extra API calls
+    this.router.navigate(['/episode', episode.id], {
+      state: { episode, podcast: this.podcast },
+    });
   }
 
   protected formatDuration(seconds: number): string {
