@@ -6,6 +6,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'e2e-auth/:token',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'tabs/**',
     renderMode: RenderMode.Client,
   },
