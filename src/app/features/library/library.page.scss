@@ -55,3 +55,21 @@ ion-note {
     margin-top: 8px;
   }
 }
+
+
+.profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.profile-email {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+}

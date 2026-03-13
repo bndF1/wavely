@@ -9,6 +9,7 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tap } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
+import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import type { User } from 'firebase/auth';
 
 interface AuthState {
@@ -32,11 +33,20 @@ export const AuthStore = signalStore(
     photoURL: computed(() => user()?.photoURL ?? null),
     email: computed(() => user()?.email ?? null),
   })),
-  withMethods((store, authService = inject(AuthService)) => ({
+  withMethods((store, authService = inject(AuthService), syncService = inject(SubscriptionSyncService)) => ({
     init: rxMethod<void>(
       tap(() => {
         authService.user$.subscribe((user) => {
+          const previousUid = store.user()?.uid ?? null;
           patchState(store, { user, loading: false });
+
+          if (user && user.uid !== previousUid) {
+            // User just signed in — load their subscriptions from Firestore
+            syncService.loadFromFirestore(user.uid);
+          } else if (!user && previousUid) {
+            // User just signed out — clear in-memory subscriptions
+            syncService.clearSubscriptions();
+          }
         });
       })
     ),
