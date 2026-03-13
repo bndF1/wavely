@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { environment } from '../environments/environment';
 
 export const appRoutes: Route[] = [
   {
@@ -12,6 +13,19 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./features/login/login.page').then((m) => m.LoginPage),
   },
+  // E2E-only: signs in with a custom token from the Playwright global setup.
+  // Tree-shaken from all non-emulator builds.
+  ...(environment.useEmulators
+    ? [
+        {
+          path: 'e2e-auth/:token',
+          loadComponent: () =>
+            import('./features/e2e-auth/e2e-auth.component').then(
+              (m) => m.E2eAuthComponent
+            ),
+        },
+      ]
+    : []),
   {
     path: 'tabs',
     canActivate: [authGuard],

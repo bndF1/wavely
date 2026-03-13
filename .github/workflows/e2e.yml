@@ -1,0 +1,68 @@
+name: E2E Tests
+
+# Runs Playwright E2E tests with the Firebase Auth + Firestore Emulators.
+# Required status check for merging into `main` (set in branch protection rules).
+#
+# Architecture:
+#   1. Build the app with --configuration=e2e (fake Firebase config + useEmulators=true)
+#   2. Start Firebase Auth + Firestore emulators
+#   3. Playwright global-setup creates a test user and saves browser auth state
+#   4. Tests run against the local build using the pre-authenticated context
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.10'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build for E2E
+        # Uses environment.e2e.ts: fake Firebase config + useEmulators=true
+        run: |
+          bunx nx build --configuration=e2e
+          cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html
+
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps chromium
+
+      - name: Start Firebase Emulators
+        run: |
+          bunx firebase-tools emulators:start \
+            --only auth,firestore \
+            --project wavely-f659c &
+          # Wait for auth emulator
+          timeout 30 bash -c \
+            'until curl -sf http://localhost:9099 > /dev/null 2>&1; do sleep 1; done'
+          echo "✅ Auth emulator ready"
+          # Wait for Firestore emulator
+          timeout 30 bash -c \
+            'until curl -sf http://localhost:8080 > /dev/null 2>&1; do sleep 1; done'
+          echo "✅ Firestore emulator ready"
+
+      - name: Run E2E tests (Chromium only)
+        run: bunx nx e2e --project=chromium
+        env:
+          CI: 'true'
+          USE_EMULATORS: 'true'
+          FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
+          BASE_URL: 'http://localhost:4200'
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7

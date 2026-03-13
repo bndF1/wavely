@@ -1,68 +1,58 @@
 import { defineConfig, devices } from '@playwright/test';
 import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
+import path from 'path';
 
-// For CI, you may want to set BASE_URL to the deployed application.
+const isCI = !!process.env['CI'];
+const useEmulators = !!process.env['USE_EMULATORS'];
 const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
 
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// require('dotenv').config();
-
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'on-first-retry',
   },
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npx nx run wavely:serve',
-    url: 'http://localhost:4200',
-    reuseExistingServer: true,
-    cwd: workspaceRoot,
-  },
+  // Global setup runs when USE_EMULATORS=true: creates a test user in the
+  // Firebase Auth Emulator and saves browser auth state to e2e/.auth/user.json.
+  globalSetup: useEmulators
+    ? path.join(__dirname, 'global-setup.ts')
+    : undefined,
+  fullyParallel: !isCI,
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 1 : undefined,
+  reporter: isCI ? [['github'], ['html', { open: 'never' }]] : 'html',
+  webServer: isCI
+    ? {
+        // In CI: serve the pre-built e2e output (built with --configuration=e2e).
+        command:
+          'bunx serve dist/wavely/browser -p 4200 --no-clipboard --single',
+        url: 'http://localhost:4200',
+        reuseExistingServer: false,
+        timeout: 30_000,
+      }
+    : {
+        // Local dev: use nx serve with live reload.
+        command: 'npx nx run wavely:serve',
+        url: 'http://localhost:4200',
+        reuseExistingServer: true,
+        cwd: workspaceRoot,
+      },
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    // Uncomment for mobile browsers support
-    /* {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    }, */
-
-    // Uncomment for branded browsers
-    /* {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    } */
+    // Firefox and WebKit only run locally to keep CI fast.
+    ...(isCI
+      ? []
+      : [
+          { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+          { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+          { name: 'Mobile Chrome', use: { ...devices['Pixel 5'] } },
+          { name: 'Mobile Safari', use: { ...devices['iPhone 12'] } },
+        ]),
   ],
 });

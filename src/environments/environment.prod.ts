@@ -1,7 +1,7 @@
-// ⚠️ This file is GENERATED — never commit real values
-// CI: ENV_TARGET=prod node scripts/generate-env.mjs (GitHub secrets injected)
 export const environment = {
   production: true,
+  useEmulators: false,
+  sentryDsn: '',
   firebase: {
     apiKey: '',
     authDomain: '',

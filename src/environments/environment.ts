@@ -1,7 +1,7 @@
-// ⚠️ This file is GENERATED — never commit real values
-// Local dev: node --env-file=.env scripts/generate-env.mjs
 export const environment = {
   production: false,
+  useEmulators: false,
+  sentryDsn: '',
   firebase: {
     apiKey: '',
     authDomain: '',

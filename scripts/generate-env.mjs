@@ -30,6 +30,8 @@ const get = (key) => {
   return val ?? '';
 };
 
+const getSentryDsn = () => process.env['NG_APP_SENTRY_DSN'] ?? '';
+
 if (isProdOrStaging) {
   const missing = REQUIRED_KEYS.filter((key) => !get(key));
   if (missing.length > 0) {
@@ -39,8 +41,10 @@ if (isProdOrStaging) {
   }
 }
 
-const firebaseConfig = (productionFlag) => `export const environment = {
+const firebaseConfig = (productionFlag, useSentry = false) => `export const environment = {
   production: ${productionFlag},
+  useEmulators: false,
+  sentryDsn: '${useSentry ? getSentryDsn() : ''}',
   firebase: {
     apiKey: '${get('NG_APP_FIREBASE_API_KEY')}',
     authDomain: '${get('NG_APP_FIREBASE_AUTH_DOMAIN')}',
@@ -59,7 +63,7 @@ if (target === 'all' || target === 'dev') {
 }
 
 if (target === 'all' || target === 'prod') {
-  writeFileSync('src/environments/environment.prod.ts', firebaseConfig(true));
+  writeFileSync('src/environments/environment.prod.ts', firebaseConfig(true, true));
   console.log('✅ src/environments/environment.prod.ts generated (prod)');
 }
 
