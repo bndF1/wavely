@@ -24,4 +24,16 @@ module.exports = {
     '<rootDir>/src/**/__tests__/**/*.[jt]s?(x)',
     '<rootDir>/src/**/*(*.)@(spec|test).[jt]s?(x)',
   ],
+  coveragePathIgnorePatterns: [
+    '<rootDir>/src/app/core/services/audio.service.ts',
+    '<rootDir>/src/testing/',
+  ],
+  coverageThreshold: {
+    global: {
+      statements: 70,
+      branches: 60,
+      functions: 70,
+      lines: 70,
+    },
+  },
 };

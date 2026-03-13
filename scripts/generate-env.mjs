@@ -7,7 +7,7 @@
  *              (uses NG_APP_FIREBASE_*_STAGING secrets, falls back to NG_APP_FIREBASE_*)
  */
 
-import { writeFileSync } from 'fs';
+import { writeFileSync, readFileSync } from 'fs';
 
 const target = process.env['ENV_TARGET'] ?? 'all';
 const isStaging = target === 'staging';
@@ -32,6 +32,9 @@ const get = (key) => {
 
 const getSentryDsn = () => process.env['NG_APP_SENTRY_DSN'] ?? '';
 
+const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+const appVersion = pkg.version ?? '0.0.0';
+
 if (isProdOrStaging) {
   const missing = REQUIRED_KEYS.filter((key) => !get(key));
   if (missing.length > 0) {
@@ -43,6 +46,7 @@ if (isProdOrStaging) {
 
 const firebaseConfig = (productionFlag, useSentry = false) => `export const environment = {
   production: ${productionFlag},
+  appVersion: '${appVersion}',
   useEmulators: false,
   sentryDsn: '${useSentry ? getSentryDsn() : ''}',
   firebase: {
