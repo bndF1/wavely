@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { AudioService } from './core/services/audio.service';
+import { AuthStore } from './store/auth/auth.store';
 
 @Component({
   imports: [IonApp, IonRouterOutlet],
@@ -13,4 +14,9 @@ export class App {
   // Injecting AudioService here ensures it's instantiated at app start
   // so effects are registered before any playback is triggered.
   private readonly _audio = inject(AudioService);
+  private readonly authStore = inject(AuthStore);
+
+  constructor() {
+    this.authStore.init();
+  }
 }
