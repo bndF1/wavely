@@ -3,11 +3,19 @@ import {
   isDevMode,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideHttpClient, withFetch } from '@angular/common/http';
+import { PreloadAllModules, provideRouter, withPreloading } from '@angular/router';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideServiceWorker } from '@angular/service-worker';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import {
+  ScreenTrackingService,
+  getAnalytics,
+  provideAnalytics,
+} from '@angular/fire/analytics';
+import { getAuth, provideAuth } from '@angular/fire/auth';
 import { provideIonicAngular } from '@ionic/angular/standalone';
+import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -16,6 +24,10 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     provideHttpClient(withFetch()),
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideAuth(() => getAuth()),
+    provideAnalytics(() => getAnalytics()),
+    ScreenTrackingService,
     provideIonicAngular({
       mode: 'md',
       animated: true,

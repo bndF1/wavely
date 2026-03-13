@@ -1,11 +1,9 @@
-// Replace these values with your actual Firebase project credentials.
-// Create a project at https://console.firebase.google.com
-// DO NOT commit real credentials — use environment variables in CI.
 export const firebaseConfig = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_PROJECT_ID.appspot.com',
-  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-  appId: 'YOUR_APP_ID',
+  apiKey: 'AIzaSyCeJmhipBMx8a3X6LJ7GBHFcuLp4jkikKQ',
+  authDomain: 'wavely-f659c.firebaseapp.com',
+  projectId: 'wavely-f659c',
+  storageBucket: 'wavely-f659c.firebasestorage.app',
+  messagingSenderId: '728511867731',
+  appId: '1:728511867731:web:5d20c815407c8b11234fa6',
+  measurementId: 'G-9L7P8EWY75',
 };
