@@ -44,6 +44,9 @@ export const PodcastsStore = signalStore(
         patchState(store, { subscriptions: [...store.subscriptions(), podcast] });
       }
     },
+    setSubscriptions(podcasts: Podcast[]): void {
+      patchState(store, { subscriptions: podcasts });
+    },
     removeSubscription(podcastId: string): void {
       patchState(store, {
         subscriptions: store.subscriptions().filter((p) => p.id !== podcastId),

@@ -27,16 +27,19 @@ export class SubscriptionSyncService {
     return getFirestore();
   }
 
-  /** Load all subscriptions for a user from Firestore and hydrate the store. */
-  async loadFromFirestore(uid: string): Promise<void> {
+  /**
+   * Load all subscriptions for a user from Firestore and replace the store.
+   * `isStillCurrentUser` guards against stale results when the user changes
+   * before the async getDocs call resolves.
+   */
+  async loadFromFirestore(uid: string, isStillCurrentUser: () => boolean): Promise<void> {
     try {
       const colRef = collection(this.db, 'users', uid, 'subscriptions');
       const snapshot = await getDocs(colRef);
+      // Drop result if user signed out or switched while the request was in-flight
+      if (!isStillCurrentUser()) return;
       const podcasts = snapshot.docs.map((d) => d.data() as Podcast);
-      // Replace in-memory subscriptions with the Firestore data
-      for (const podcast of podcasts) {
-        this.store.addSubscription(podcast);
-      }
+      this.store.setSubscriptions(podcasts);
     } catch (err) {
       console.error('[SubscriptionSyncService] Failed to load subscriptions', err);
     }
@@ -51,11 +54,14 @@ export class SubscriptionSyncService {
       await setDoc(docRef, { ...podcast });
     } catch (err) {
       console.error('[SubscriptionSyncService] Failed to persist subscription', err);
+      // Rollback optimistic update
+      this.store.removeSubscription(podcast.id);
     }
   }
 
   /** Unsubscribe from a podcast — updates store and removes from Firestore if authed. */
   async removeSubscription(podcastId: string, uid: string | null): Promise<void> {
+    const snapshot = this.store.subscriptions().find((p) => p.id === podcastId) ?? null;
     this.store.removeSubscription(podcastId);
     if (!uid) return;
     try {
@@ -63,14 +69,13 @@ export class SubscriptionSyncService {
       await deleteDoc(docRef);
     } catch (err) {
       console.error('[SubscriptionSyncService] Failed to remove subscription', err);
+      // Rollback optimistic update if we have the original data
+      if (snapshot) this.store.addSubscription(snapshot);
     }
   }
 
   /** Clear all in-memory subscriptions (called on sign-out). */
   clearSubscriptions(): void {
-    const ids = this.store.subscriptions().map((p) => p.id);
-    for (const id of ids) {
-      this.store.removeSubscription(id);
-    }
+    this.store.setSubscriptions([]);
   }
 }
