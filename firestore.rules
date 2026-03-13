@@ -2,23 +2,94 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // User-owned subcollections: only the authenticated user can read/write their own data
+
+    // ─── Helpers ────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Reject writes larger than 10 KB to prevent abuse
+    function isReasonableSize() {
+      return request.resource.size < 10240;
+    }
+
+    // ─── User data ──────────────────────────────────────────────────────────
+    // All user subcollections: only the authenticated owner can read/write.
+
+    // Subscriptions: users/{uid}/subscriptions/{podcastId}
+    match /users/{uid}/subscriptions/{podcastId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && isReasonableSize()
+        && request.resource.data.keys().hasAll(['id', 'title', 'feedUrl'])
+        && request.resource.data.id is string
+        && request.resource.data.title is string
+        && request.resource.data.feedUrl is string;
+      allow delete: if isOwner(uid);
+    }
+
+    // Playback progress: users/{uid}/progress/{episodeId}
+    match /users/{uid}/progress/{episodeId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && isReasonableSize()
+        && request.resource.data.keys().hasAll(['episodeId', 'position', 'duration', 'updatedAt'])
+        && request.resource.data.episodeId is string
+        && request.resource.data.position is number
+        && request.resource.data.duration is number
+        && request.resource.data.position >= 0
+        && request.resource.data.duration >= 0
+        && request.resource.data.updatedAt is number;
+      allow delete: if isOwner(uid);
+    }
+
+    // Queue: users/{uid}/queue/{itemId}
+    match /users/{uid}/queue/{itemId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && isReasonableSize()
+        && request.resource.data.keys().hasAll(['episodeId', 'podcastId', 'order', 'addedAt'])
+        && request.resource.data.episodeId is string
+        && request.resource.data.podcastId is string
+        && request.resource.data.order is number
+        && request.resource.data.addedAt is number;
+      allow delete: if isOwner(uid);
+    }
+
+    // FCM tokens: users/{uid}/tokens/{tokenId}
+    match /users/{uid}/tokens/{tokenId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && isReasonableSize()
+        && request.resource.data.keys().hasAll(['token', 'platform', 'updatedAt'])
+        && request.resource.data.token is string
+        && request.resource.data.platform is string
+        && request.resource.data.updatedAt is number;
+      allow delete: if isOwner(uid);
+    }
+
+    // Catch-all for any other user subcollections (deny by default)
     match /users/{uid}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if false;
     }
 
-    // Public podcast/episode metadata cache (read-only for authenticated users)
+    // ─── Shared read-only caches ─────────────────────────────────────────────
+    // Podcast and episode metadata cached by server-side functions.
     match /podcasts/{podcastId} {
-      allow read: if request.auth != null;
-      allow write: if false; // only written server-side
-    }
-
-    match /episodes/{episodeId} {
-      allow read: if request.auth != null;
+      allow read: if isSignedIn();
       allow write: if false;
     }
 
-    // Deny everything else
+    match /episodes/{episodeId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // ─── Deny everything else ────────────────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
     }
