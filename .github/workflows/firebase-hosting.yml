@@ -30,11 +30,11 @@ jobs:
           NG_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.NG_APP_FIREBASE_MEASUREMENT_ID }}
 
       - name: Deploy to Firebase Hosting
-        run: bunx firebase deploy --only hosting --project wavely-f659c
+        run: bunx firebase-tools deploy --only hosting --project wavely-f659c
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Deploy Firestore Rules
-        run: bunx firebase deploy --only firestore:rules --project wavely-f659c
+        run: bunx firebase-tools deploy --only firestore:rules --project wavely-f659c
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
