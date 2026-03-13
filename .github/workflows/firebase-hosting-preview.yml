@@ -1,6 +1,6 @@
 name: Deploy Firebase Preview Channel
 
-# Deploys a temporary preview channel on every PR to main or dev.
+# Deploys a temporary preview channel on every PR to main, staging, or dev.
 # Preview URL is posted as a PR comment.
 # Channel expires after 7 days and is deleted when the PR closes.
 # Uses the same Firebase project as production (wavely-f659c).
@@ -10,7 +10,7 @@ name: Deploy Firebase Preview Channel
 
 on:
   pull_request:
-    branches: [main, dev]
+    branches: [main, staging, dev]
     types: [opened, synchronize, reopened, closed]
 
 jobs:

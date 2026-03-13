@@ -1,14 +1,13 @@
 name: Deploy to Firebase Hosting (Staging)
 
-# Deploys the dev branch to a permanent staging channel.
+# Deploys the staging branch to a permanent staging channel.
 # URL: https://wavely-f659c--staging.web.app
 #
-# This is the single pre-production environment.
-# Flow: feature/* → PR → dev (staging) → PR → main (production)
+# Flow: feature/* → dev → PR → staging (here) → PR → main (production)
 
 on:
   push:
-    branches: [dev]
+    branches: [staging]
   workflow_dispatch:
 
 jobs:
