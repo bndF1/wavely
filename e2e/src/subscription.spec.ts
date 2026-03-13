@@ -57,7 +57,7 @@ async function mockPodcastEndpoints(
   });
 }
 
-test.skip(!process.env['USE_EMULATORS'], 'Requires Firebase emulators');
+test.skip(() => !process.env['USE_EMULATORS'], 'Requires Firebase emulators');
 
 test.describe.serial('Subscriptions', () => {
   test('subscribe to podcast then appears in library', async ({ page }) => {
