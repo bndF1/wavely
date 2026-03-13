@@ -31,6 +31,8 @@ import { SubscriptionSyncService } from '../../core/services/subscription-sync.s
 import { ThemeService, ThemeMode } from '../../core/services/theme.service';
 import { Podcast } from '../../core/models/podcast.model';
 
+import { environment } from '../../../environments/environment';
+
 @Component({
   selector: 'wavely-library',
   templateUrl: './library.page.html',
@@ -62,6 +64,7 @@ export class LibraryPage {
   protected readonly store = inject(PodcastsStore);
   protected readonly authStore = inject(AuthStore);
   protected readonly themeService = inject(ThemeService);
+  protected readonly appVersion = environment.appVersion;
   private readonly syncService = inject(SubscriptionSyncService);
   private readonly router = inject(Router);
 
