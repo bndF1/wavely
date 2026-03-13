@@ -59,3 +59,8 @@ Thumbs.db
 *.mobileprovision
 google-services.json
 GoogleService-Info.plist
+
+# Local environment secrets — never commit
+.env
+.env.local
+.env.*.local

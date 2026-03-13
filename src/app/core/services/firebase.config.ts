@@ -1,9 +1,10 @@
+// Config is loaded from environment.ts via NG_APP_* env vars — see .env.example
 export const firebaseConfig = {
-  apiKey: 'AIzaSyCeJmhipBMx8a3X6LJ7GBHFcuLp4jkikKQ',
-  authDomain: 'wavely-f659c.firebaseapp.com',
-  projectId: 'wavely-f659c',
-  storageBucket: 'wavely-f659c.firebasestorage.app',
-  messagingSenderId: '728511867731',
-  appId: '1:728511867731:web:5d20c815407c8b11234fa6',
-  measurementId: 'G-9L7P8EWY75',
+  apiKey: import.meta.env?.['NG_APP_FIREBASE_API_KEY'] ?? '',
+  authDomain: import.meta.env?.['NG_APP_FIREBASE_AUTH_DOMAIN'] ?? '',
+  projectId: import.meta.env?.['NG_APP_FIREBASE_PROJECT_ID'] ?? '',
+  storageBucket: import.meta.env?.['NG_APP_FIREBASE_STORAGE_BUCKET'] ?? '',
+  messagingSenderId: import.meta.env?.['NG_APP_FIREBASE_MESSAGING_SENDER_ID'] ?? '',
+  appId: import.meta.env?.['NG_APP_FIREBASE_APP_ID'] ?? '',
+  measurementId: import.meta.env?.['NG_APP_FIREBASE_MEASUREMENT_ID'] ?? '',
 };
