@@ -1,8 +1,10 @@
 import { inject, Injectable, PLATFORM_ID, effect, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PlayerStore } from '../../store/player/player.store';
+import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { ProgressSyncService } from './progress-sync.service';
+import { Episode } from '../models/podcast.model';
 
 /**
  * AudioService
@@ -16,6 +18,7 @@ import { ProgressSyncService } from './progress-sync.service';
 @Injectable({ providedIn: 'root' })
 export class AudioService {
   private readonly store = inject(PlayerStore);
+  private readonly podcastsStore = inject(PodcastsStore);
   private readonly authStore = inject(AuthStore);
   private readonly progressSync = inject(ProgressSyncService);
   private readonly platformId = inject(PLATFORM_ID);
@@ -48,6 +51,7 @@ export class AudioService {
     this.audio = new Audio();
     this.audio.preload = 'metadata';
     this.wireEvents();
+    this.setupMediaSession();
 
     // Load new episode when currentEpisode changes
     effect(() => {
@@ -69,6 +73,7 @@ export class AudioService {
           // a new episode ID before audio.src has been updated.
           this.activeEpisodeId = episode.id;
           this.audio.load();
+          this.updateMediaSessionMetadata(episode);
 
           // Asynchronously load saved position; apply it once metadata is ready
           const episodeId = episode.id;
@@ -101,6 +106,7 @@ export class AudioService {
           this.activeEpisodeId = null;
           this.audio.src = '';
           this.audio.load();
+          this.clearMediaSession();
         }
       });
     });
@@ -118,6 +124,7 @@ export class AudioService {
         } else {
           this.audio.pause();
         }
+        this.updateMediaSessionPlaybackState(playing);
       });
     });
 
@@ -144,8 +151,88 @@ export class AudioService {
     });
   }
 
+  // ---------------------------------------------------------------------------
+  // Media Session API — lockscreen / notification controls
+  // ---------------------------------------------------------------------------
+
+  private get mediaSession(): MediaSession | null {
+    return typeof navigator !== 'undefined' && 'mediaSession' in navigator
+      ? navigator.mediaSession
+      : null;
+  }
+
+  private setupMediaSession(): void {
+    const ms = this.mediaSession;
+    if (!ms) return;
+
+    ms.setActionHandler('play', () => this.store.resume());
+    ms.setActionHandler('pause', () => this.store.pause());
+    ms.setActionHandler('stop', () => this.store.close());
+    ms.setActionHandler('seekbackward', (details) =>
+      this.store.skipBack(details.seekOffset ?? 15)
+    );
+    ms.setActionHandler('seekforward', (details) =>
+      this.store.skipForward(details.seekOffset ?? 30)
+    );
+    ms.setActionHandler('seekto', (details) => {
+      if (details.seekTime != null) this.store.seek(details.seekTime);
+    });
+    ms.setActionHandler('nexttrack', () => this.store.playNext());
+    ms.setActionHandler('previoustrack', () => {
+      if (this.store.currentTime() > 5) {
+        this.store.seek(0);
+      }
+    });
+  }
+
+  private updateMediaSessionMetadata(episode: Episode): void {
+    const ms = this.mediaSession;
+    if (!ms) return;
+
+    const podcast = this.podcastsStore
+      .subscriptions()
+      .find((p) => p.id === episode.podcastId);
+
+    const artwork = episode.imageUrl ?? podcast?.artworkUrl ?? '/icons/icon-512x512.png';
+
+    ms.metadata = new MediaMetadata({
+      title: episode.title,
+      artist: podcast?.title ?? episode.podcastId,
+      album: podcast?.author ?? '',
+      artwork: [
+        { src: artwork, sizes: '512x512', type: 'image/png' },
+        { src: artwork, sizes: '256x256', type: 'image/png' },
+      ],
+    });
+  }
+
+  private updateMediaSessionPlaybackState(playing: boolean): void {
+    const ms = this.mediaSession;
+    if (ms) ms.playbackState = playing ? 'playing' : 'paused';
+  }
+
+  private updateMediaSessionPositionState(currentTime: number, duration: number): void {
+    const ms = this.mediaSession;
+    if (!ms || !duration) return;
+    try {
+      ms.setPositionState({
+        duration,
+        playbackRate: this.store.playbackRate(),
+        position: Math.min(currentTime, duration),
+      });
+    } catch {
+      // setPositionState throws if duration is not finite — ignore silently
+    }
+  }
+
+  private clearMediaSession(): void {
+    const ms = this.mediaSession;
+    if (!ms) return;
+    ms.metadata = null;
+    ms.playbackState = 'none';
+  }
+
   private wireEvents(): void {
-    if (!this.audio) return;
 
     this.audio.addEventListener('loadedmetadata', () => {
       this.metadataLoaded = true;
@@ -158,10 +245,10 @@ export class AudioService {
 
     this.audio.addEventListener('timeupdate', () => {
       if (this.seeking || !this.audio) return;
-      this.store.updateProgress(
-        this.audio.currentTime,
-        isFinite(this.audio.duration) ? this.audio.duration : 0
-      );
+      const currentTime = this.audio.currentTime;
+      const duration = isFinite(this.audio.duration) ? this.audio.duration : 0;
+      this.store.updateProgress(currentTime, duration);
+      this.updateMediaSessionPositionState(currentTime, duration);
       // Throttled Firestore write during playback
       const uid = this.authStore.user()?.uid ?? null;
       // Use activeEpisodeId (not store) — store.currentEpisode() may already reflect
@@ -170,8 +257,8 @@ export class AudioService {
       if (episodeId) {
         this.progressSync.scheduleWrite(
           episodeId,
-          this.audio.currentTime,
-          isFinite(this.audio.duration) ? this.audio.duration : 0,
+          currentTime,
+          duration,
           uid
         );
       }
