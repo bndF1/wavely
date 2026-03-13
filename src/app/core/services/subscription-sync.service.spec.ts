@@ -1,6 +1,6 @@
-// Mock firebase/firestore before any imports that use it
-jest.mock('firebase/firestore', () => ({
-  getFirestore: jest.fn(() => ({})),
+// Mock @angular/fire/firestore before any imports that use it
+jest.mock('@angular/fire/firestore', () => ({
+  Firestore: class MockFirestore {},
   doc: jest.fn(() => ({ id: 'mock-doc' })),
   getDocs: jest.fn(),
   setDoc: jest.fn(),
@@ -9,6 +9,7 @@ jest.mock('firebase/firestore', () => ({
 }));
 
 import { TestBed } from '@angular/core/testing';
+import { Firestore } from '@angular/fire/firestore';
 import { SubscriptionSyncService } from './subscription-sync.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { mockPodcast } from '../../../testing/podcast-fixtures';
@@ -21,7 +22,7 @@ describe('SubscriptionSyncService', () => {
   let mockGetDocs: jest.Mock;
 
   beforeEach(() => {
-    const firestoreMock = jest.requireMock('firebase/firestore');
+    const firestoreMock = jest.requireMock('@angular/fire/firestore');
     mockSetDoc = firestoreMock.setDoc;
     mockDeleteDoc = firestoreMock.deleteDoc;
     mockGetDocs = firestoreMock.getDocs;
@@ -32,7 +33,11 @@ describe('SubscriptionSyncService', () => {
     mockGetDocs.mockResolvedValue({ docs: [] });
 
     TestBed.configureTestingModule({
-      providers: [SubscriptionSyncService, PodcastsStore],
+      providers: [
+        SubscriptionSyncService,
+        PodcastsStore,
+        { provide: Firestore, useValue: {} },
+      ],
     });
     service = TestBed.inject(SubscriptionSyncService);
     store = TestBed.inject(PodcastsStore);
