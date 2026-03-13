@@ -9,7 +9,6 @@ import {
 import { addIcons } from 'ionicons';
 import { playCircle, pauseCircle, closeCircle } from 'ionicons/icons';
 import { PlayerStore } from '../../../store/player/player.store';
-import { AudioService } from '../../../core/services/audio.service';
 
 @Component({
   selector: 'wavely-mini-player',
