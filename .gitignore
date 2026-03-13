@@ -64,3 +64,8 @@ GoogleService-Info.plist
 .env
 .env.local
 .env.*.local
+
+# Generated environment files — contain Firebase credentials, never commit
+src/environments/environment.ts
+src/environments/environment.prod.ts
+src/environments/environment.staging.ts
