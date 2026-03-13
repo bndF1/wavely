@@ -1,0 +1,47 @@
+name: Deploy to Firebase Hosting (Staging)
+
+# Deploys the dev branch to a permanent staging channel.
+# URL: https://wavely-f659c--staging.web.app
+#
+# This is the single pre-production environment.
+# Flow: feature/* → PR → dev (staging) → PR → main (production)
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.10'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate environment files
+        run: ENV_TARGET=prod node scripts/generate-env.mjs
+        env:
+          NG_APP_FIREBASE_API_KEY: ${{ secrets.NG_APP_FIREBASE_API_KEY }}
+          NG_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.NG_APP_FIREBASE_AUTH_DOMAIN }}
+          NG_APP_FIREBASE_PROJECT_ID: ${{ secrets.NG_APP_FIREBASE_PROJECT_ID }}
+          NG_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.NG_APP_FIREBASE_STORAGE_BUCKET }}
+          NG_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NG_APP_FIREBASE_MESSAGING_SENDER_ID }}
+          NG_APP_FIREBASE_APP_ID: ${{ secrets.NG_APP_FIREBASE_APP_ID }}
+          NG_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.NG_APP_FIREBASE_MEASUREMENT_ID }}
+
+      - name: Build
+        run: bunx nx build --configuration=production && cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html
+
+      - name: Deploy to staging channel
+        run: |
+          bunx firebase-tools hosting:channel:deploy staging \
+            --expires 365d \
+            --project wavely-f659c
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
