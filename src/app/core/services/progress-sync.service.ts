@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
+  Firestore,
   doc,
   getDoc,
-  getFirestore,
   setDoc,
-} from 'firebase/firestore';
+} from '@angular/fire/firestore';
 
 export interface EpisodeProgress {
   episodeId: string;
@@ -26,9 +26,7 @@ export interface EpisodeProgress {
  */
 @Injectable({ providedIn: 'root' })
 export class ProgressSyncService {
-  private get db() {
-    return getFirestore();
-  }
+  private readonly firestore = inject(Firestore);
 
   private static readonly WRITE_INTERVAL_MS = 5000;
   private static readonly MIN_POSITION_SECONDS = 2;
@@ -41,7 +39,7 @@ export class ProgressSyncService {
   async loadProgress(episodeId: string, uid: string | null): Promise<number> {
     if (!uid || !episodeId) return 0;
     try {
-      const snap = await getDoc(doc(this.db, 'users', uid, 'progress', episodeId));
+      const snap = await getDoc(doc(this.firestore, 'users', uid, 'progress', episodeId));
       if (!snap.exists()) return 0;
       const data = snap.data() as EpisodeProgress;
       // Don't restore if episode was completed (within last 30s of duration)
@@ -87,7 +85,7 @@ export class ProgressSyncService {
       // completedAt is intentionally omitted — only markCompleted() may set it.
       // Writing null here would clobber completion status set on another device.
       await setDoc(
-        doc(this.db, 'users', uid, 'progress', episodeId),
+        doc(this.firestore, 'users', uid, 'progress', episodeId),
         { episodeId, position, duration, updatedAt: Date.now() },
         { merge: true }
       );
@@ -107,7 +105,7 @@ export class ProgressSyncService {
     this.lastWriteTime = Date.now();
     try {
       await setDoc(
-        doc(this.db, 'users', uid, 'progress', episodeId),
+        doc(this.firestore, 'users', uid, 'progress', episodeId),
         { episodeId, position: duration, duration, completedAt: Date.now(), updatedAt: Date.now() },
         { merge: true }
       );

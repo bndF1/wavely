@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  Firestore,
   collection,
   deleteDoc,
   doc,
   getDocs,
-  getFirestore,
   setDoc,
-} from 'firebase/firestore';
+} from '@angular/fire/firestore';
 import { Podcast } from '../models/podcast.model';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 
@@ -23,9 +23,7 @@ import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 @Injectable({ providedIn: 'root' })
 export class SubscriptionSyncService {
   private readonly store = inject(PodcastsStore);
-  private get db() {
-    return getFirestore();
-  }
+  private readonly firestore = inject(Firestore);
 
   /**
    * Load all subscriptions for a user from Firestore and replace the store.
@@ -34,7 +32,7 @@ export class SubscriptionSyncService {
    */
   async loadFromFirestore(uid: string, isStillCurrentUser: () => boolean): Promise<void> {
     try {
-      const colRef = collection(this.db, 'users', uid, 'subscriptions');
+      const colRef = collection(this.firestore, 'users', uid, 'subscriptions');
       const snapshot = await getDocs(colRef);
       // Drop result if user signed out or switched while the request was in-flight
       if (!isStillCurrentUser()) return;
@@ -50,7 +48,7 @@ export class SubscriptionSyncService {
     this.store.addSubscription(podcast);
     if (!uid) return;
     try {
-      const docRef = doc(this.db, 'users', uid, 'subscriptions', podcast.id);
+      const docRef = doc(this.firestore, 'users', uid, 'subscriptions', podcast.id);
       await setDoc(docRef, { ...podcast });
     } catch (err) {
       console.error('[SubscriptionSyncService] Failed to persist subscription', err);
@@ -65,7 +63,7 @@ export class SubscriptionSyncService {
     this.store.removeSubscription(podcastId);
     if (!uid) return;
     try {
-      const docRef = doc(this.db, 'users', uid, 'subscriptions', podcastId);
+      const docRef = doc(this.firestore, 'users', uid, 'subscriptions', podcastId);
       await deleteDoc(docRef);
     } catch (err) {
       console.error('[SubscriptionSyncService] Failed to remove subscription', err);

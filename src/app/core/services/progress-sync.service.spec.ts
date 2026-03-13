@@ -1,12 +1,13 @@
-// Mock firebase/firestore before any imports that use it
-jest.mock('firebase/firestore', () => ({
-  getFirestore: jest.fn(() => ({})),
+// Mock @angular/fire/firestore before any imports that use it
+jest.mock('@angular/fire/firestore', () => ({
+  Firestore: class MockFirestore {},
   doc: jest.fn(() => ({ id: 'mock-doc' })),
   getDoc: jest.fn(),
   setDoc: jest.fn(),
 }));
 
 import { TestBed } from '@angular/core/testing';
+import { Firestore } from '@angular/fire/firestore';
 import { ProgressSyncService } from './progress-sync.service';
 
 describe('ProgressSyncService', () => {
@@ -18,13 +19,18 @@ describe('ProgressSyncService', () => {
     jest.useFakeTimers();
 
     // Grab the mocked functions from the mocked module
-    const firestoreMock = jest.requireMock('firebase/firestore');
+    const firestoreMock = jest.requireMock('@angular/fire/firestore');
     mockSetDoc = firestoreMock.setDoc;
     mockGetDoc = firestoreMock.getDoc;
     mockSetDoc.mockResolvedValue(undefined);
     mockGetDoc.mockResolvedValue({ exists: () => false });
 
-    TestBed.configureTestingModule({ providers: [ProgressSyncService] });
+    TestBed.configureTestingModule({
+      providers: [
+        ProgressSyncService,
+        { provide: Firestore, useValue: {} },
+      ],
+    });
     service = TestBed.inject(ProgressSyncService);
   });
 
