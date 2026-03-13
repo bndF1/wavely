@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "nx serve",
+    "generate-env": "node --env-file=.env scripts/generate-env.mjs",
+    "start": "ENV_TARGET=dev node --env-file=.env scripts/generate-env.mjs && nx serve",
     "build": "nx build",
     "test": "nx test",
     "cap:build": "nx build && cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html",

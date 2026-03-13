@@ -1,7 +1,7 @@
 // ⚠️ This file is GENERATED — never commit real values
-// CI: ENV_TARGET=prod node scripts/generate-env.mjs (GitHub secrets injected)
+// CI: ENV_TARGET=staging node scripts/generate-env.mjs (*_STAGING secrets)
 export const environment = {
-  production: true,
+  production: false,
   firebase: {
     apiKey: '',
     authDomain: '',
