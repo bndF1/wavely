@@ -14,6 +14,7 @@ import {
   provideAnalytics,
 } from '@angular/fire/analytics';
 import { getAuth, provideAuth } from '@angular/fire/auth';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
@@ -26,6 +27,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch()),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
+    provideFirestore(() => getFirestore()),
     provideAnalytics(() => getAnalytics()),
     ScreenTrackingService,
     provideIonicAngular({

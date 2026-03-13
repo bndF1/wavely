@@ -9,6 +9,7 @@ import {
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tap } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
+import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import type { User } from 'firebase/auth';
 
 interface AuthState {
@@ -32,11 +33,22 @@ export const AuthStore = signalStore(
     photoURL: computed(() => user()?.photoURL ?? null),
     email: computed(() => user()?.email ?? null),
   })),
-  withMethods((store, authService = inject(AuthService)) => ({
+  withMethods((store, authService = inject(AuthService), syncService = inject(SubscriptionSyncService)) => ({
     init: rxMethod<void>(
       tap(() => {
         authService.user$.subscribe((user) => {
+          const previousUid = store.user()?.uid ?? null;
           patchState(store, { user, loading: false });
+
+          if (user && user.uid !== previousUid) {
+            // Clear any previous user's subscriptions first (handles direct user-switch A→B)
+            syncService.clearSubscriptions();
+            // Pass a stale-result guard: discard getDocs result if user changed mid-flight
+            syncService.loadFromFirestore(user.uid, () => store.user()?.uid === user.uid);
+          } else if (!user && previousUid) {
+            // User just signed out — clear in-memory subscriptions
+            syncService.clearSubscriptions();
+          }
         });
       })
     ),
@@ -50,8 +62,11 @@ export const AuthStore = signalStore(
       }
     },
     async signOut(): Promise<void> {
+      // Don't manually patch user to null here — the user$ subscriber handles it
+      // and clearing subscriptions. A manual patchState here would zero out
+      // store.user() *before* user$ fires, causing previousUid to be null and
+      // skipping the clearSubscriptions() call.
       await authService.signOut();
-      patchState(store, { user: null });
     },
   }))
 );
