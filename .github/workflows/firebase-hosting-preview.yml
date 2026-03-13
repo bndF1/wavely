@@ -1,0 +1,112 @@
+name: Deploy Firebase Preview Channel
+
+# Deploys a temporary preview channel on every PR to main.
+# Preview URL is posted as a PR comment.
+# Channel expires after 7 days and is deleted when the PR closes.
+# Uses the same Firebase project as production (wavely-f659c).
+#
+# Security note: secrets are only available to PRs from branches in THIS repo
+# (not forks). GitHub withholds secrets from fork PRs by default.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, closed]
+
+jobs:
+  deploy-preview:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.10'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate environment files
+        run: ENV_TARGET=prod node scripts/generate-env.mjs
+        env:
+          NG_APP_FIREBASE_API_KEY: ${{ secrets.NG_APP_FIREBASE_API_KEY }}
+          NG_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.NG_APP_FIREBASE_AUTH_DOMAIN }}
+          NG_APP_FIREBASE_PROJECT_ID: ${{ secrets.NG_APP_FIREBASE_PROJECT_ID }}
+          NG_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.NG_APP_FIREBASE_STORAGE_BUCKET }}
+          NG_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NG_APP_FIREBASE_MESSAGING_SENDER_ID }}
+          NG_APP_FIREBASE_APP_ID: ${{ secrets.NG_APP_FIREBASE_APP_ID }}
+          NG_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.NG_APP_FIREBASE_MEASUREMENT_ID }}
+
+      - name: Build
+        run: bunx nx build --configuration=production && cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html
+
+      - name: Deploy preview channel
+        id: deploy
+        run: |
+          CHANNEL="pr-${{ github.event.pull_request.number }}"
+          OUTPUT=$(bunx firebase-tools hosting:channel:deploy "$CHANNEL" \
+            --expires 7d \
+            --project wavely-f659c \
+            --json 2>/dev/null)
+          URL=$(echo "$OUTPUT" | node -e "
+            let d=''; process.stdin.on('data',c=>d+=c).on('end',()=>{
+              try { const r=JSON.parse(d); console.log(r.result?.['wavely-f659c']?.url||''); }
+              catch { console.log(''); }
+            });
+          " <<< "$OUTPUT")
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "channel=$CHANNEL" >> $GITHUB_OUTPUT
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Comment preview URL on PR
+        if: steps.deploy.outputs.url != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = '${{ steps.deploy.outputs.url }}';
+            const channel = '${{ steps.deploy.outputs.channel }}';
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body.includes('🔥 Firebase Preview'));
+            const body = `🔥 **Firebase Preview**: [${url}](${url})\n> Channel \`${channel}\` · expires in 7 days`;
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+  cleanup-preview:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.10'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Delete preview channel
+        run: |
+          bunx firebase-tools hosting:channel:delete "pr-${{ github.event.pull_request.number }}" \
+            --project wavely-f659c \
+            --force || echo "::warning::Preview channel cleanup failed (may have already expired)"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
