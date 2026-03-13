@@ -1,5 +1,10 @@
 @if (store.currentEpisode()) {
-  <div class="mini-player" (click)="openFull.emit()">
+  <div class="mini-player"
+       role="button"
+       tabindex="0"
+       (click)="openFull.emit()"
+       (keydown.enter)="openFull.emit()"
+       (keydown.space)="openFull.emit()">
     <ion-progress-bar
       class="mini-player__progress"
       [value]="progressValue"

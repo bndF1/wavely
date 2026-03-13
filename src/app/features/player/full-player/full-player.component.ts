@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import {
   IonHeader,
   IonToolbar,
@@ -101,6 +100,7 @@ export class FullPlayerComponent {
       text: `${r}×${r === current ? '  ✓' : ''}`,
       handler: () => this.store.setPlaybackRate(r),
     }));
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     buttons.push({ text: 'Cancel', handler: () => {} });
 
     const sheet = await this.actionSheetCtrl.create({
