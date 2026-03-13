@@ -12,38 +12,40 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
-    // Reject writes larger than 10 KB to prevent abuse
-    function isReasonableSize() {
-      return request.resource.size < 10240;
-    }
-
     // ─── User data ──────────────────────────────────────────────────────────
     // All user subcollections: only the authenticated owner can read/write.
 
     // Subscriptions: users/{uid}/subscriptions/{podcastId}
+    // Service writes the full Podcast object via spread: { ...podcast }
+    // Required fields mirror the Podcast model interface.
     match /users/{uid}/subscriptions/{podcastId} {
       allow read: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && isReasonableSize()
-        && request.resource.data.keys().hasAll(['id', 'title', 'feedUrl'])
+        && request.resource.data.keys().hasAll(['id', 'title', 'author', 'description', 'artworkUrl', 'feedUrl', 'genres'])
         && request.resource.data.id is string
         && request.resource.data.title is string
-        && request.resource.data.feedUrl is string;
+        && request.resource.data.author is string
+        && request.resource.data.description is string
+        && request.resource.data.artworkUrl is string
+        && request.resource.data.feedUrl is string
+        && request.resource.data.genres is list;
       allow delete: if isOwner(uid);
     }
 
     // Playback progress: users/{uid}/progress/{episodeId}
+    // Normal write: { episodeId, position, duration, updatedAt }
+    // Completion write adds optional completedAt (number timestamp).
     match /users/{uid}/progress/{episodeId} {
       allow read: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && isReasonableSize()
         && request.resource.data.keys().hasAll(['episodeId', 'position', 'duration', 'updatedAt'])
         && request.resource.data.episodeId is string
         && request.resource.data.position is number
         && request.resource.data.duration is number
         && request.resource.data.position >= 0
         && request.resource.data.duration >= 0
-        && request.resource.data.updatedAt is number;
+        && request.resource.data.updatedAt is number
+        && (!('completedAt' in request.resource.data) || request.resource.data.completedAt is number);
       allow delete: if isOwner(uid);
     }
 
@@ -51,7 +53,6 @@ service cloud.firestore {
     match /users/{uid}/queue/{itemId} {
       allow read: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && isReasonableSize()
         && request.resource.data.keys().hasAll(['episodeId', 'podcastId', 'order', 'addedAt'])
         && request.resource.data.episodeId is string
         && request.resource.data.podcastId is string
@@ -64,7 +65,6 @@ service cloud.firestore {
     match /users/{uid}/tokens/{tokenId} {
       allow read: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && isReasonableSize()
         && request.resource.data.keys().hasAll(['token', 'platform', 'updatedAt'])
         && request.resource.data.token is string
         && request.resource.data.platform is string
