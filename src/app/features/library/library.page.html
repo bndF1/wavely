@@ -24,6 +24,32 @@
           </ion-list>
         </ng-template>
       </ion-popover>
+      <!-- User profile / sign-out -->
+      @if (authStore.isAuthenticated()) {
+        <ion-button id="profile-popover-trigger" [attr.aria-label]="'Account: ' + (authStore.displayName() ?? 'Profile')">
+          @if (authStore.photoURL()) {
+            <img [src]="authStore.photoURL()!" [alt]="authStore.displayName() ?? 'Profile'" class="profile-avatar" slot="icon-only" />
+          } @else {
+            <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+          }
+        </ion-button>
+        <ion-popover trigger="profile-popover-trigger" triggerAction="click">
+          <ng-template>
+            <ion-list>
+              <ion-item lines="none">
+                <ion-label>
+                  <p class="profile-name">{{ authStore.displayName() }}</p>
+                  <p class="profile-email">{{ authStore.email() }}</p>
+                </ion-label>
+              </ion-item>
+              <ion-item button (click)="signOut()" lines="none">
+                <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
+                <ion-label color="danger">Sign out</ion-label>
+              </ion-item>
+            </ion-list>
+          </ng-template>
+        </ion-popover>
+      }
       <!-- Add podcasts -->
       <ion-button (click)="navigateToBrowse()" aria-label="Add podcasts">
         <ion-icon slot="icon-only" name="add-outline"></ion-icon>
