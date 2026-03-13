@@ -1,6 +1,6 @@
 name: Deploy Firebase Preview Channel
 
-# Deploys a temporary preview channel on every PR to main.
+# Deploys a temporary preview channel on every PR to main or dev.
 # Preview URL is posted as a PR comment.
 # Channel expires after 7 days and is deleted when the PR closes.
 # Uses the same Firebase project as production (wavely-f659c).
@@ -10,13 +10,16 @@ name: Deploy Firebase Preview Channel
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
     types: [opened, synchronize, reopened, closed]
 
 jobs:
   deploy-preview:
     if: github.event.action != 'closed'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -49,12 +52,10 @@ jobs:
             --expires 7d \
             --project wavely-f659c \
             --json 2>/dev/null)
-          URL=$(echo "$OUTPUT" | node -e "
-            let d=''; process.stdin.on('data',c=>d+=c).on('end',()=>{
-              try { const r=JSON.parse(d); console.log(r.result?.['wavely-f659c']?.url||''); }
-              catch { console.log(''); }
-            });
-          " <<< "$OUTPUT")
+          URL=$(node -e "
+            try { const r=JSON.parse(process.argv[1]); console.log(r.result?.['wavely-f659c']?.url||''); }
+            catch { console.log(''); }
+          " "$OUTPUT")
           echo "url=$URL" >> $GITHUB_OUTPUT
           echo "channel=$CHANNEL" >> $GITHUB_OUTPUT
         env:
@@ -93,6 +94,8 @@ jobs:
   cleanup-preview:
     if: github.event.action == 'closed'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
