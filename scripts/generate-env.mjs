@@ -71,7 +71,7 @@ if (target === 'all' || target === 'prod') {
   console.log('✅ src/environments/environment.prod.ts generated (prod)');
 }
 
-if (target === 'staging') {
+if (target === 'all' || target === 'staging') {
   writeFileSync('src/environments/environment.staging.ts', firebaseConfig(false));
   console.log('✅ src/environments/environment.staging.ts generated (staging)');
 }
