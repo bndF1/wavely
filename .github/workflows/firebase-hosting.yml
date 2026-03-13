@@ -29,15 +29,10 @@ jobs:
           NG_APP_FIREBASE_APP_ID: ${{ secrets.NG_APP_FIREBASE_APP_ID }}
           NG_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.NG_APP_FIREBASE_MEASUREMENT_ID }}
 
-      - name: Deploy to Firebase Hosting + Firestore Rules
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WAVELY_F659C }}
-          channelId: live
-          projectId: wavely-f659c
-          target: hosting
-          entryPoint: .
+      - name: Deploy to Firebase Hosting
+        run: bunx firebase deploy --only hosting --project wavely-f659c
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
       - name: Deploy Firestore Rules
         run: bunx firebase deploy --only firestore:rules --project wavely-f659c
