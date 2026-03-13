@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User-owned subcollections: only the authenticated user can read/write their own data
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Public podcast/episode metadata cache (read-only for authenticated users)
+    match /podcasts/{podcastId} {
+      allow read: if request.auth != null;
+      allow write: if false; // only written server-side
+    }
+
+    match /episodes/{episodeId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
