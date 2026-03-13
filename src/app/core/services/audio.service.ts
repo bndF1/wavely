@@ -1,6 +1,8 @@
 import { inject, Injectable, PLATFORM_ID, effect, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PlayerStore } from '../../store/player/player.store';
+import { AuthStore } from '../../store/auth/auth.store';
+import { ProgressSyncService } from './progress-sync.service';
 
 /**
  * AudioService
@@ -14,6 +16,8 @@ import { PlayerStore } from '../../store/player/player.store';
 @Injectable({ providedIn: 'root' })
 export class AudioService {
   private readonly store = inject(PlayerStore);
+  private readonly authStore = inject(AuthStore);
+  private readonly progressSync = inject(ProgressSyncService);
   private readonly platformId = inject(PLATFORM_ID);
 
   private audio: HTMLAudioElement | null = null;
@@ -23,6 +27,20 @@ export class AudioService {
    * Prevents the timeupdate handler from overwriting the seek target.
    */
   private seeking = false;
+
+  /** Position fetched from Firestore, waiting to be applied once metadata loads. */
+  private pendingRestorePosition: number | null = null;
+  /** Set to true by loadedmetadata — used to decide whether to seek immediately. */
+  private metadataLoaded = false;
+
+  /**
+   * Tracks which episode is actually loaded in the HTMLAudioElement.
+   * Updated only when audio.src is set — NOT read from the store in DOM event handlers,
+   * because the store's currentEpisode() may advance to the next episode before audio.src
+   * is updated (the effect runs asynchronously), causing timeupdate to write the old
+   * timestamp under the new episode's ID.
+   */
+  private activeEpisodeId: string | null = null;
 
   constructor() {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -36,11 +54,40 @@ export class AudioService {
       const episode = this.store.currentEpisode();
       untracked(() => {
         if (!this.audio) return;
-        // Reset seeking flag — a source swap cancels any in-flight seek
+        // Reset state for new episode
         this.seeking = false;
+        this.pendingRestorePosition = null;
+        this.metadataLoaded = false;
+
         if (episode) {
+          // Flush any pending progress write for the previous episode
+          this.progressSync.flush();
+
           this.audio.src = episode.audioUrl;
+          // Update activeEpisodeId AFTER setting src — DOM event handlers must use
+          // this field, not store.currentEpisode(), to avoid writing timestamps to
+          // a new episode ID before audio.src has been updated.
+          this.activeEpisodeId = episode.id;
           this.audio.load();
+
+          // Asynchronously load saved position; apply it once metadata is ready
+          const episodeId = episode.id;
+          const uid = this.authStore.user()?.uid ?? null;
+          this.progressSync.loadProgress(episodeId, uid).then((savedPosition) => {
+            // Guard: discard if the episode changed while fetch was in-flight
+            if (this.store.currentEpisode()?.id !== episodeId) return;
+            if (savedPosition <= 1) return;
+
+            if (this.metadataLoaded) {
+              // Metadata already arrived — seek immediately
+              this.seeking = true;
+              this.audio!.currentTime = savedPosition;
+            } else {
+              // Metadata not yet loaded — defer to loadedmetadata handler
+              this.pendingRestorePosition = savedPosition;
+            }
+          });
+
           // If already in "playing" state, play() after load.
           // This handles playNext() advancing to next episode while isPlaying stays true.
           if (this.store.isPlaying()) {
@@ -50,6 +97,8 @@ export class AudioService {
             });
           }
         } else {
+          this.progressSync.flush();
+          this.activeEpisodeId = null;
           this.audio.src = '';
           this.audio.load();
         }
@@ -98,18 +147,56 @@ export class AudioService {
   private wireEvents(): void {
     if (!this.audio) return;
 
+    this.audio.addEventListener('loadedmetadata', () => {
+      this.metadataLoaded = true;
+      if (this.pendingRestorePosition !== null && this.pendingRestorePosition > 1) {
+        this.seeking = true;
+        this.audio!.currentTime = this.pendingRestorePosition;
+        this.pendingRestorePosition = null;
+      }
+    });
+
     this.audio.addEventListener('timeupdate', () => {
       if (this.seeking || !this.audio) return;
       this.store.updateProgress(
         this.audio.currentTime,
         isFinite(this.audio.duration) ? this.audio.duration : 0
       );
+      // Throttled Firestore write during playback
+      const uid = this.authStore.user()?.uid ?? null;
+      // Use activeEpisodeId (not store) — store.currentEpisode() may already reflect
+      // the next episode while audio.src still plays the previous one.
+      const episodeId = this.activeEpisodeId;
+      if (episodeId) {
+        this.progressSync.scheduleWrite(
+          episodeId,
+          this.audio.currentTime,
+          isFinite(this.audio.duration) ? this.audio.duration : 0,
+          uid
+        );
+      }
     });
 
     this.audio.addEventListener('durationchange', () => {
       if (!this.audio) return;
       const dur = isFinite(this.audio.duration) ? this.audio.duration : 0;
       this.store.updateProgress(this.audio.currentTime, dur);
+    });
+
+    this.audio.addEventListener('pause', () => {
+      // Flush progress on any pause (user-initiated or programmatic).
+      // Use activeEpisodeId — same race reason as timeupdate handler.
+      const uid = this.authStore.user()?.uid ?? null;
+      const episodeId = this.activeEpisodeId;
+      if (episodeId && this.audio) {
+        this.progressSync.scheduleWrite(
+          episodeId,
+          this.audio.currentTime,
+          isFinite(this.audio.duration) ? this.audio.duration : 0,
+          uid
+        );
+        this.progressSync.flush();
+      }
     });
 
     this.audio.addEventListener('seeked', () => {
@@ -122,6 +209,12 @@ export class AudioService {
     this.audio.addEventListener('emptied', resetSeeking);
 
     this.audio.addEventListener('ended', () => {
+      const uid = this.authStore.user()?.uid ?? null;
+      const episodeId = this.activeEpisodeId;
+      const duration = this.store.duration();
+      if (episodeId) {
+        this.progressSync.markCompleted(episodeId, duration, uid);
+      }
       this.store.playNext();
     });
 
