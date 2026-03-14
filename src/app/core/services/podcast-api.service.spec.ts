@@ -37,9 +37,28 @@ describe('PodcastApiService', () => {
         (r) =>
           r.url === `${ITUNES_BASE}/search` &&
           r.params.get('term') === 'javascript' &&
-          r.params.get('media') === 'podcast'
+          r.params.get('media') === 'podcast' &&
+          r.params.get('limit') === '50'
       );
       expect(req.request.method).toBe('GET');
+      req.flush({ results: [] });
+    });
+
+    it('includes country param when provided', () => {
+      service.searchPodcasts('music', 'es').subscribe();
+
+      const req = httpMock.expectOne(
+        (r) => r.url === `${ITUNES_BASE}/search` && r.params.get('country') === 'es'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ results: [] });
+    });
+
+    it('omits country param when not provided', () => {
+      service.searchPodcasts('music').subscribe();
+
+      const req = httpMock.expectOne((r) => r.url === `${ITUNES_BASE}/search`);
+      expect(req.request.params.has('country')).toBe(false);
       req.flush({ results: [] });
     });
 
@@ -184,6 +203,40 @@ describe('PodcastApiService', () => {
         `${ITUNES_BASE}/us/rss/toppodcasts/limit=5/genre/1310/json`
       );
       req.flush({ feed: { entry: [] } });
+    });
+  });
+
+  describe('detectCountry()', () => {
+    const originalLanguage = Object.getOwnPropertyDescriptor(navigator, 'language');
+
+    afterEach(() => {
+      if (originalLanguage) {
+        Object.defineProperty(navigator, 'language', originalLanguage);
+      }
+    });
+
+    function setLocale(lang: string): void {
+      Object.defineProperty(navigator, 'language', { value: lang, configurable: true });
+    }
+
+    it('extracts country from a full BCP-47 locale (e.g. es-ES → es)', () => {
+      setLocale('es-ES');
+      expect(service.detectCountry()).toBe('es');
+    });
+
+    it('extracts country from a locale with language and region (e.g. en-US → us)', () => {
+      setLocale('en-US');
+      expect(service.detectCountry()).toBe('us');
+    });
+
+    it('maps language-only codes via fallback map (e.g. pt → br)', () => {
+      setLocale('pt');
+      expect(service.detectCountry()).toBe('br');
+    });
+
+    it('falls back to "us" for unknown language-only codes', () => {
+      setLocale('xx');
+      expect(service.detectCountry()).toBe('us');
     });
   });
 });

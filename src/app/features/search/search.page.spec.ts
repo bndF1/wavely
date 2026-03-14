@@ -11,11 +11,12 @@ import { mockPodcast } from '../../../testing/podcast-fixtures';
 describe('SearchPage', () => {
   let fixture: ComponentFixture<SearchPage>;
   let component: SearchPage;
-  let api: { searchPodcasts: jest.Mock };
+  let api: { searchPodcasts: jest.Mock; detectCountry: jest.Mock };
   let router: { navigate: jest.Mock };
 
   const store = {
     query: signal(''),
+    searchQuery: signal(''),
     searchResults: signal([]),
     isLoading: signal(false),
     error: signal<string | null>(null),
@@ -26,7 +27,10 @@ describe('SearchPage', () => {
   };
 
   async function createComponent(): Promise<void> {
-    api = { searchPodcasts: jest.fn().mockReturnValue(of([mockPodcast({ id: 'search-1' })])) };
+    api = {
+      searchPodcasts: jest.fn().mockReturnValue(of([mockPodcast({ id: 'search-1' })])),
+      detectCountry: jest.fn().mockReturnValue('us'),
+    };
     router = { navigate: jest.fn() };
 
     await TestBed.configureTestingModule({
@@ -68,7 +72,7 @@ describe('SearchPage', () => {
     jest.advanceTimersByTime(300);
 
     expect(store.setQuery).toHaveBeenCalledWith('angular');
-    expect(api.searchPodcasts).toHaveBeenCalledWith('angular');
+    expect(api.searchPodcasts).toHaveBeenCalledWith('angular', 'us');
     expect(store.setSearchResults).toHaveBeenCalledWith(expect.any(Array), 'angular');
   });
 

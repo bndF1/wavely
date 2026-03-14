@@ -9,13 +9,26 @@
     <ion-searchbar
       placeholder="Podcasts, shows, creators…"
       [debounce]="0"
-      [value]="store.searchQuery()"
       (ionInput)="onSearchInput($event)"
       (ionClear)="onSearchClear()"
       animated
       enterkeyhint="search"
       aria-label="Search podcasts">
     </ion-searchbar>
+
+    @if (!globalSearch) {
+      <button class="scope-toggle" (click)="toggleGlobalSearch()" type="button">
+        <span class="scope-toggle__flag">{{ countryFlag }}</span>
+        <span class="scope-toggle__label">{{ detectedCountry.toUpperCase() }}</span>
+        <span class="scope-toggle__hint">Search all regions</span>
+      </button>
+    } @else {
+      <button class="scope-toggle scope-toggle--global" (click)="toggleGlobalSearch()" type="button">
+        <span class="scope-toggle__flag">🌍</span>
+        <span class="scope-toggle__label">Global</span>
+        <span class="scope-toggle__hint">Back to local results</span>
+      </button>
+    }
   </div>
 
   <!-- Loading skeletons -->
@@ -50,17 +63,22 @@
   }
 
   <!-- Empty: typed a query but got nothing -->
-  @if (!store.isLoading() && !store.error() && store.searchQuery() && store.searchResults().length === 0) {
-    <div
-      class="state-message">
+  @if (!store.isLoading() && !store.error() && displayQuery && store.searchResults().length === 0) {
+    <div class="state-message">
       <ion-text color="medium">
-        <p>No podcasts found for "<strong>{{ store.searchQuery() }}</strong>"</p>
+        <p>No podcasts found for "<strong>{{ displayQuery }}</strong>"</p>
+        @if (!globalSearch) {
+          <p class="global-search-hint">
+            Only showing results from your region.
+            <button class="inline-link" (click)="toggleGlobalSearch()" type="button">Search all regions</button>
+          </p>
+        }
       </ion-text>
     </div>
   }
 
   <!-- Idle: nothing typed yet -->
-  @if (!store.isLoading() && !store.searchQuery()) {
+  @if (!store.isLoading() && !displayQuery) {
     <div
       class="state-message state-message--idle">
       <ion-text color="medium">

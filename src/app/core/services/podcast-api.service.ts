@@ -1,20 +1,46 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Podcast, Episode } from '../models/podcast.model';
+
+// Maps BCP-47 language-only codes (no region) to best-guess country codes.
+const LANGUAGE_COUNTRY_MAP: Record<string, string> = {
+  en: 'us', pt: 'br', zh: 'cn', ja: 'jp', ko: 'kr',
+  ar: 'sa', hi: 'in', sw: 'ke', ms: 'my',
+};
 
 // Uses iTunes Search API (no key required) as primary data source.
 @Injectable({ providedIn: 'root' })
 export class PodcastApiService {
   private readonly http = inject(HttpClient);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly itunesBase = 'https://itunes.apple.com';
 
-  searchPodcasts(term: string): Observable<Podcast[]> {
-    const params = new HttpParams()
+  /**
+   * Detect the user's country from the browser locale.
+   * Returns an ISO 3166-1 alpha-2 lowercase country code (e.g. "es", "us").
+   * Falls back to "us" in SSR or when locale is unknown.
+   */
+  detectCountry(): string {
+    if (!isPlatformBrowser(this.platformId)) return 'us';
+    const lang = navigator.language ?? '';
+    const parts = lang.split('-');
+    if (parts.length >= 2) {
+      return parts[parts.length - 1].toLowerCase();
+    }
+    return LANGUAGE_COUNTRY_MAP[parts[0].toLowerCase()] ?? 'us';
+  }
+
+  searchPodcasts(term: string, country?: string): Observable<Podcast[]> {
+    let params = new HttpParams()
       .set('term', term)
       .set('media', 'podcast')
       .set('entity', 'podcast')
-      .set('limit', '20');
+      .set('limit', '50');
+    if (country) {
+      params = params.set('country', country);
+    }
     return this.http
       .get<{ results: ItunesPodcast[] }>(`${this.itunesBase}/search`, { params })
       .pipe(map((res) => res.results.map(this.mapItunesPodcast)));
