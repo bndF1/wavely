@@ -13,8 +13,9 @@ import { Router } from '@angular/router';
     <ion-content class="login-content">
       <div class="login-container">
         <div class="logo-section">
-          <img src="assets/icon/favicon.png" alt="Wavely" class="app-logo" />
+          <img src="icons/icon-192x192.png" alt="Wavely" class="app-logo" />
           <h1 class="app-name">Wavely</h1>
+          <span class="early-access-badge">Early Access</span>
           <p class="app-tagline">Your podcasts, beautifully organized</p>
         </div>
         <div class="auth-section">
@@ -62,6 +63,17 @@ import { Router } from '@angular/router';
         font-size: 2rem;
         font-weight: 700;
         margin: 0;
+      }
+      .early-access-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: var(--ion-color-warning);
+        color: var(--ion-color-warning-contrast);
       }
       .app-tagline {
         color: var(--ion-color-medium);

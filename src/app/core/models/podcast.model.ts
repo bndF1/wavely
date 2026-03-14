@@ -17,6 +17,7 @@ export interface Episode {
   description: string;
   audioUrl: string;
   imageUrl?: string;
+  podcastTitle?: string;
   duration: number;
   releaseDate: string;
   fileSize?: number;

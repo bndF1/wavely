@@ -149,10 +149,10 @@ describe('PodcastDetailPage', () => {
     component['playEpisode'](episodes[0]);
 
     expect(mockPlayer.clearQueue).toHaveBeenCalledTimes(1);
-    expect(mockPlayer.addToQueue).toHaveBeenCalledWith(episodes[1]);
-    expect(mockPlayer.play).toHaveBeenCalledWith(episodes[0]);
+    expect(mockPlayer.addToQueue).toHaveBeenCalledWith({ ...episodes[1], podcastTitle: podcast.title });
+    expect(mockPlayer.play).toHaveBeenCalledWith({ ...episodes[0], podcastTitle: podcast.title });
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/episode', 'ep-1'], {
-      state: { episode: episodes[0], podcast },
+      state: { episode: { ...episodes[0], podcastTitle: podcast.title }, podcast },
     });
   });
 
