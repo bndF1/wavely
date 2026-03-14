@@ -47,10 +47,15 @@ async function globalSetup(config: FullConfig): Promise<void> {
   const context = await browser.newContext();
   const page = await context.newPage();
 
+  // Capture browser console and page errors so CI logs show what went wrong
+  page.on('console', (msg) => console.log(`[browser:${msg.type()}] ${msg.text()}`));
+  page.on('pageerror', (err) => console.error('[browser:pageerror]', err.message));
+
   await page.goto(`${baseURL}/e2e-auth/${customToken}`, {
     waitUntil: 'load',
     timeout: 30_000,
   });
+  console.log('[global-setup] URL after goto:', page.url());
 
   await page.waitForURL(/\/tabs\/home/, { timeout: 60_000 });
   await context.storageState({ path: AUTH_STATE_FILE });
