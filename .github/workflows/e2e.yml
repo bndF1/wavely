@@ -55,7 +55,6 @@ jobs:
         run: |
           bunx firebase-tools emulators:start \
             --only auth,firestore \
-            --no-ui \
             --project wavely-f659c &
           # Wait for auth emulator; first run downloads JARs (~2-4 min), cached runs start in <30s
           timeout 300 bash -c \
