@@ -16,6 +16,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    path: 'browse/category/:genreId',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: 'podcast/:id',
     renderMode: RenderMode.Server,
   },
