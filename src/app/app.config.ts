@@ -9,8 +9,8 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import { PreloadAllModules, Router, provideRouter, withPreloading } from '@angular/router';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideServiceWorker } from '@angular/service-worker';
-import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { getApp } from 'firebase/app';
+import { provideFirebaseApp } from '@angular/fire/app';
+import { getApp, getApps, initializeApp } from 'firebase/app';
 import {
   ScreenTrackingService,
   getAnalytics,
@@ -33,13 +33,20 @@ import * as Sentry from '@sentry/angular';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 
+// Eagerly initialize the Firebase App at module load time.
+// Angular's DI hydration can call provideAuth's factory before provideFirebaseApp's,
+// causing getApp() to throw 'app/no-app'. Module-level init prevents this race.
+if (getApps().length === 0) {
+  initializeApp(environment.firebase);
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideClientHydration(withEventReplay()),
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     provideHttpClient(withFetch()),
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideFirebaseApp(() => getApp()),
     provideAuth(() => {
       if (environment.useEmulators) {
         // Force localStorage persistence so Playwright's storageState can capture auth
