@@ -48,11 +48,11 @@ async function globalSetup(config: FullConfig): Promise<void> {
   const page = await context.newPage();
 
   await page.goto(`${baseURL}/e2e-auth/${customToken}`, {
-    waitUntil: 'networkidle',
+    waitUntil: 'load',
     timeout: 30_000,
   });
 
-  await page.waitForURL(/\/tabs\/home/, { timeout: 30_000 });
+  await page.waitForURL(/\/tabs\/home/, { timeout: 60_000 });
   await context.storageState({ path: AUTH_STATE_FILE });
 
   await browser.close();
