@@ -149,7 +149,7 @@ export class SearchPage implements OnDestroy {
   protected useSuggestion(term: string): void {
     this.displayQuery = term;
     this.store.setQuery(term);
-    this.searchbar?.value = term;
+    if (this.searchbar) this.searchbar.value = term;
     this.search$.next(term);
   }
 
