@@ -9,8 +9,7 @@ import { provideHttpClient, withFetch } from '@angular/common/http';
 import { PreloadAllModules, Router, provideRouter, withPreloading } from '@angular/router';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideServiceWorker } from '@angular/service-worker';
-import { provideFirebaseApp } from '@angular/fire/app';
-import { getApp, getApps, initializeApp } from 'firebase/app';
+import { provideFirebaseApp, getApp, getApps, initializeApp } from '@angular/fire/app';
 import {
   ScreenTrackingService,
   getAnalytics,
