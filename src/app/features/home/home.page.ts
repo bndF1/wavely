@@ -8,20 +8,28 @@ import {
   IonContent,
   IonRefresher,
   IonRefresherContent,
-  IonText,
   IonButtons,
   IonButton,
   IonIcon,
+  IonCard,
+  IonCardContent,
+  IonSkeletonText,
   RefresherCustomEvent,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { searchOutline } from 'ionicons/icons';
+import {
+  alertCircleOutline,
+  libraryOutline,
+  refreshOutline,
+  searchOutline,
+  sparklesOutline,
+} from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { Podcast } from '../../core/models/podcast.model';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
-/** Dummy skeleton items used while data loads */
 const SKELETON_COUNT = 6;
 
 @Component({
@@ -35,21 +43,23 @@ const SKELETON_COUNT = 6;
     IonContent,
     IonRefresher,
     IonRefresherContent,
-    IonText,
     IonButtons,
     IonButton,
     IonIcon,
-    PodcastCardComponent
-],
+    IonCard,
+    IonCardContent,
+    IonSkeletonText,
+    PodcastCardComponent,
+    EmptyStateComponent,
+  ],
 })
 export class HomePage implements OnInit {
   private readonly api = inject(PodcastApiService);
   protected readonly store = inject(PodcastsStore);
   private readonly router = inject(Router);
 
-  /** Skeleton placeholder array */
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
-  /** Dummy podcast used to satisfy required `podcast` input during skeleton render */
+
   protected readonly skeletonPodcast: Podcast = {
     id: '',
     title: '',
@@ -61,7 +71,13 @@ export class HomePage implements OnInit {
   };
 
   constructor() {
-    addIcons({ searchOutline });
+    addIcons({
+      searchOutline,
+      refreshOutline,
+      libraryOutline,
+      alertCircleOutline,
+      sparklesOutline,
+    });
   }
 
   ngOnInit(): void {
@@ -75,12 +91,20 @@ export class HomePage implements OnInit {
     event.detail.complete();
   }
 
+  protected retryTrending(): void {
+    void this.loadTrending();
+  }
+
   protected navigateToPodcast(podcast: Podcast): void {
     this.router.navigate(['/podcast', podcast.id]);
   }
 
   protected navigateToSearch(): void {
     this.router.navigate(['/tabs/search']);
+  }
+
+  protected navigateToBrowse(): void {
+    this.router.navigate(['/tabs/browse']);
   }
 
   private loadTrending(): Promise<void> {
