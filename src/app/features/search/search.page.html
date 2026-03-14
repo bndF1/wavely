@@ -31,56 +31,60 @@
     }
   </div>
 
-  <!-- Loading skeletons -->
+  <!-- Loading skeleton list -->
   @if (store.isLoading()) {
-    <div class="podcast-grid">
+    <ion-list class="search-skeleton-list" lines="none">
       @for (s of skeletons; track s) {
-        <wavely-podcast-card
-          [podcast]="skeletonPodcast"
-          [loading]="true">
-        </wavely-podcast-card>
+        <ion-item>
+          <ion-thumbnail slot="start">
+            <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+          </ion-thumbnail>
+          <ion-label>
+            <h3><ion-skeleton-text [animated]="true" style="width: 85%"></ion-skeleton-text></h3>
+            <p><ion-skeleton-text [animated]="true" style="width: 60%"></ion-skeleton-text></p>
+          </ion-label>
+        </ion-item>
       }
-    </div>
+    </ion-list>
   }
 
   <!-- Results -->
   @if (!store.isLoading() && store.searchResults().length > 0) {
     <div class="podcast-grid">
       @for (podcast of store.searchResults(); track podcast) {
-        <wavely-podcast-card
-          [podcast]="podcast"
-          (cardClick)="navigateToPodcast($event)">
-        </wavely-podcast-card>
+        <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
       }
     </div>
   }
 
   <!-- Error -->
   @if (store.error() && !store.isLoading()) {
-    <div class="state-message">
-      <ion-text color="medium"><p>{{ store.error() }}</p></ion-text>
-    </div>
+    <wavely-empty-state
+      icon="alert-circle-outline"
+      title="Search failed"
+      [subtitle]="store.error()!"
+      actionLabel="Retry"
+      (action)="retrySearch()">
+    </wavely-empty-state>
   }
 
   <!-- Empty: typed a query but got nothing -->
   @if (!store.isLoading() && !store.error() && displayQuery && store.searchResults().length === 0) {
-    <div class="state-message">
-      <ion-text color="medium">
-        <p>No podcasts found for "<strong>{{ displayQuery }}</strong>"</p>
-        @if (!globalSearch) {
-          <p class="global-search-hint">
-            Only showing results from your region.
-            <button class="inline-link" (click)="toggleGlobalSearch()" type="button">Search all regions</button>
-          </p>
-        }
-      </ion-text>
-    </div>
+    <wavely-empty-state
+      icon="search-outline"
+      title="No podcasts found"
+      [subtitle]="'No results for &quot;' + displayQuery + '&quot;' + (!globalSearch ? ' in your region.' : '.')">
+      @if (!globalSearch) {
+        <p class="global-search-hint">
+          <button class="inline-link" (click)="toggleGlobalSearch()" type="button">Search all regions</button>
+        </p>
+      }
+    </wavely-empty-state>
   }
 
   <!-- Idle: nothing typed yet -->
   @if (!store.isLoading() && !displayQuery) {
-    <div
-      class="state-message state-message--idle">
+    <div class="state-message state-message--idle">
       <ion-text color="medium">
         <p>Search for your favourite podcasts</p>
       </ion-text>

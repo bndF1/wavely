@@ -14,7 +14,6 @@ import {
   IonAvatar,
   IonLabel,
   IonNote,
-  IonText,
   IonButtons,
   IonButton,
   IonIcon,
@@ -24,7 +23,16 @@ import {
   IonRadio,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, moonOutline, sunnyOutline, contrastOutline, logOutOutline, personCircleOutline } from 'ionicons/icons';
+import {
+  addOutline,
+  moonOutline,
+  sunnyOutline,
+  contrastOutline,
+  logOutOutline,
+  personCircleOutline,
+  libraryOutline,
+  timeOutline,
+} from 'ionicons/icons';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
@@ -32,6 +40,7 @@ import { ThemeService, ThemeMode } from '../../core/services/theme.service';
 import { Podcast } from '../../core/models/podcast.model';
 
 import { environment } from '../../../environments/environment';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'wavely-library',
@@ -50,7 +59,6 @@ import { environment } from '../../../environments/environment';
     IonAvatar,
     IonLabel,
     IonNote,
-    IonText,
     IonButtons,
     IonButton,
     IonIcon,
@@ -58,7 +66,8 @@ import { environment } from '../../../environments/environment';
     IonListHeader,
     IonRadioGroup,
     IonRadio,
-],
+    EmptyStateComponent,
+  ],
 })
 export class LibraryPage {
   protected readonly store = inject(PodcastsStore);
@@ -68,6 +77,9 @@ export class LibraryPage {
   private readonly syncService = inject(SubscriptionSyncService);
   private readonly router = inject(Router);
 
+  /** Placeholder until listening history is implemented in the library screen */
+  protected readonly recentHistory: { id: string }[] = [];
+
   protected readonly themeOptions: { label: string; value: ThemeMode; icon: string }[] = [
     { label: 'System default', value: 'system', icon: 'contrast-outline' },
     { label: 'Light', value: 'light', icon: 'sunny-outline' },
@@ -75,7 +87,16 @@ export class LibraryPage {
   ];
 
   constructor() {
-    addIcons({ addOutline, moonOutline, sunnyOutline, contrastOutline, logOutOutline, personCircleOutline });
+    addIcons({
+      addOutline,
+      moonOutline,
+      sunnyOutline,
+      contrastOutline,
+      logOutOutline,
+      personCircleOutline,
+      timeOutline,
+      libraryOutline,
+    });
   }
 
   protected navigateToPodcast(podcast: Podcast): void {
