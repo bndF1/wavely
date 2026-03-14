@@ -7,9 +7,9 @@ name: Lighthouse CI
 # Can also be triggered manually with a specific URL.
 #
 # Targets (warn = informational, error = blocks future PRs to main):
-#   Performance   ≥ 70  (warn)   — SPA initial load is heavy; target 80+ for v1.1
+#   Performance   ≥ 85  (warn)
 #   Accessibility ≥ 90  (error)  — non-negotiable
-#   Best Practices ≥ 85 (warn)
+#   Best Practices ≥ 90 (warn)
 #   SEO           ≥ 80  (warn)
 
 on:
@@ -42,9 +42,11 @@ jobs:
 
       - name: Resolve audit URL
         id: url
+        env:
+          INPUT_URL: ${{ inputs.url }}
         run: |
-          if [ -n "${{ inputs.url }}" ]; then
-            echo "url=${{ inputs.url }}" >> $GITHUB_OUTPUT
+          if [ -n "$INPUT_URL" ]; then
+            echo "url=$INPUT_URL" >> $GITHUB_OUTPUT
           else
             # Fetch the staging deploy job summary to extract the channel URL
             SUMMARY_URL="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/jobs"
@@ -55,7 +57,7 @@ jobs:
               try {
                 const jobs = JSON.parse(d).jobs || [];
                 const deploy = jobs.find(j => j.name === 'build-and-deploy-staging');
-                console.log(deploy?.environment?.url || '');
+                console.log(deploy?.environment?.url || 'https://wavely-f659c--staging.web.app');
               } catch { console.log(''); }
             ")
             echo "url=$ENV_URL" >> $GITHUB_OUTPUT
