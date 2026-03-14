@@ -130,10 +130,11 @@ test.describe('Home page', () => {
     await page.getByRole('button', { name: /^subscribe$/i }).click();
 
     // Navigate within the SPA to preserve PodcastsStore state (page.goto would reload,
-    // potentially losing the subscription before the Firestore write completes)
-    await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/home');
-    await page.waitForURL('/tabs/home');
-    await expect(page.getByRole('heading', { name: 'My Podcasts' })).toBeVisible();
-    await expect(page.locator('.podcast-card__title', { hasText: SUBSCRIPTION_PODCAST.title })).toBeVisible();
+    // potentially losing the subscription before the Firestore write completes).
+    // Use void + .catch() to handle context destruction that can occur during navigation.
+    void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/home').catch(() => {});
+    await page.waitForURL('/tabs/home', { timeout: 10000 });
+    await expect(page.getByRole('heading', { name: 'My Podcasts' })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.podcast-card__title', { hasText: SUBSCRIPTION_PODCAST.title })).toBeVisible({ timeout: 10000 });
   });
 });
