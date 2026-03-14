@@ -73,7 +73,8 @@ test.describe.serial('Subscriptions', () => {
     await page.waitForURL('/tabs/library');
     // ion-title doesn't expose role="heading" — match via locator
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('.podcast-card__title', { hasText: podcast.title })).toBeVisible();
+    // Library renders subscriptions as ion-item with ion-label h2 (not wavely-podcast-card)
+    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible();
   });
 
   test('unsubscribe removes podcast from library', async ({ page }) => {
@@ -86,11 +87,11 @@ test.describe.serial('Subscriptions', () => {
     await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library');
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('.podcast-card__title', { hasText: podcast.title })).toBeVisible();
+    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible();
 
     await page
       .getByRole('button', { name: new RegExp(`Unsubscribe from ${podcast.title}`, 'i') })
       .click();
-    await expect(page.locator('.podcast-card__title', { hasText: podcast.title })).toHaveCount(0);
+    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toHaveCount(0);
   });
 });
