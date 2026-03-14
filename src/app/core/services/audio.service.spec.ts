@@ -1,6 +1,4 @@
-// AudioService imports AuthStore → AuthService → @angular/fire/auth → @firebase/auth,
-// which calls `fetch` at module load and crashes in Jest's Node environment.
-// Mocking @angular/fire/auth prevents the module from loading its real code.
+// Mock @angular/fire/auth to avoid firebase node fetch dependency in Jest.
 jest.mock('@angular/fire/auth', () => ({
   Auth: class MockAuth {},
   user: jest.fn(),
@@ -10,6 +8,7 @@ jest.mock('@angular/fire/auth', () => ({
 }));
 
 import { AudioService } from './audio.service';
+import { Episode } from '../models/podcast.model';
 
 describe('AudioService.formatTime()', () => {
   describe('valid inputs', () => {
@@ -67,11 +66,75 @@ describe('AudioService.formatTime()', () => {
   });
 });
 
-describe('Media Session API guard', () => {
-  it('does not throw when navigator.mediaSession is unavailable', () => {
-    // In Jest (Node), navigator.mediaSession does not exist.
-    // The service must handle this gracefully — the static method is all we
-    // can test here without a full TestBed + browser environment.
-    expect(() => AudioService.formatTime(0)).not.toThrow();
+describe('AudioService Media Session wiring', () => {
+  const episode: Episode = {
+    id: 'ep-1',
+    podcastId: 'pod-1',
+    title: 'Episode 1',
+    description: 'Description',
+    audioUrl: 'https://cdn.example.com/ep-1.mp3',
+    imageUrl: 'https://cdn.example.com/ep-1.jpg',
+    releaseDate: '2025-01-01T00:00:00.000Z',
+    duration: 600,
+  };
+
+  afterEach(() => {
+    delete (navigator as Partial<Navigator> & { mediaSession?: unknown }).mediaSession;
+    delete (globalThis as { MediaMetadata?: unknown }).MediaMetadata;
+  });
+
+  it('registers action handlers and updates metadata when mediaSession is available', () => {
+    const mockStore = {
+      resume: jest.fn(),
+      pause: jest.fn(),
+      skipBack: jest.fn(),
+      skipForward: jest.fn(),
+      playNext: jest.fn(),
+      currentTime: jest.fn(() => 0),
+    };
+
+    const mockMediaSession = {
+      metadata: null as unknown,
+      playbackState: 'none' as MediaSessionPlaybackState,
+      setActionHandler: jest.fn(),
+      setPositionState: jest.fn(),
+    };
+
+    Object.defineProperty(navigator, 'mediaSession', {
+      configurable: true,
+      value: mockMediaSession,
+    });
+
+    (globalThis as { MediaMetadata: unknown }).MediaMetadata = class {
+      constructor(init: unknown) {
+        Object.assign(this, init as object);
+      }
+    } as unknown as typeof MediaMetadata;
+
+    const service = Object.create(AudioService.prototype) as {
+      platformId: object;
+      store: typeof mockStore;
+      setupMediaSession: () => void;
+      updateMediaSession: (episode: Episode | null) => void;
+    };
+
+    service.platformId = 'browser';
+    service.store = mockStore;
+
+    service.setupMediaSession();
+    service.updateMediaSession(episode);
+
+    expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('play', expect.any(Function));
+    expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('pause', expect.any(Function));
+    expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('seekbackward', expect.any(Function));
+    expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('seekforward', expect.any(Function));
+    expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('previoustrack', expect.any(Function));
+    expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('nexttrack', expect.any(Function));
+
+    expect(mockMediaSession.metadata).toMatchObject({
+      title: episode.title,
+      artist: episode.podcastId,
+      artwork: [{ src: episode.imageUrl, sizes: '512x512', type: 'image/jpeg' }],
+    });
   });
 });
