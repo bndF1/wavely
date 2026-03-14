@@ -81,7 +81,7 @@
           </header>
           <div class="recent-searches__chips">
             @for (term of recentSearches; track term) {
-              <ion-chip class="recent-searches__chip" [button]="true" (click)="useSuggestion(term)">
+              <ion-chip class="recent-searches__chip" (click)="useSuggestion(term)">
                 <ion-icon name="time-outline" slot="start" aria-hidden="true"></ion-icon>
                 <ion-label>{{ term }}</ion-label>
                 <button class="recent-searches__remove" aria-label="Remove {{ term }}" type="button" (click)="removeRecentSearch(term, $event)">
