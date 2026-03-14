@@ -3,11 +3,22 @@
 > A beautiful, open-source podcast player for **iOS**, **Android**, and the **Web**.  
 > Inspired by Google Podcasts. Built with Angular 21, Ionic 8, and Capacitor 8.
 
-[![CI](https://github.com/bndF1/wavely/actions/workflows/ci.yml/badge.svg)](https://github.com/bndF1/wavely/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)](https://angular.io)
 [![Ionic](https://img.shields.io/badge/Ionic-8-blue?logo=ionic)](https://ionicframework.com)
 [![Capacitor](https://img.shields.io/badge/Capacitor-8-green?logo=capacitor)](https://capacitorjs.com)
+[![Status](https://img.shields.io/badge/status-alpha-orange)](https://wavely-f659c.web.app)
+
+> ⚠️ **Early Alpha** — The app is live but pre-MVP. Expect rough edges and frequent changes.
+
+## 🌐 Live Environments
+
+| Environment | URL | Notes |
+|-------------|-----|-------|
+| 🏠 **Landing Page** | [bndf1.github.io/wavely](https://bndf1.github.io/wavely/) | GitHub Pages |
+| 🚀 **Production** | [wavely-f659c.web.app](https://wavely-f659c.web.app) | Stable releases |
+| 🧪 **Staging** | [wavely-f659c--staging.web.app](https://wavely-f659c--staging.web.app) | Pre-release validation |
+| 🔧 **Dev** | [wavely-f659c--dev.web.app](https://wavely-f659c--dev.web.app) | Latest integration |
 
 ---
 
