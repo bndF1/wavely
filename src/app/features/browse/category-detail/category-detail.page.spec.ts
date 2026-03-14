@@ -21,6 +21,7 @@ describe('CategoryDetailPage', () => {
         )
       )
     ),
+    detectCountry: jest.fn(() => 'us'),
   };
 
   const mockRouter = {
@@ -60,14 +61,14 @@ describe('CategoryDetailPage', () => {
 
   it('loads podcasts for route genreId and maps category name', () => {
     expect(component).toBeTruthy();
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(50, 1489);
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(50, 1489, 'us');
     expect((component as any).genreName()).toBe('News');
   });
 
   it('reacts to route param changes', () => {
     routeParams$.next(convertToParamMap({ genreId: '1304' }));
 
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(50, 1304);
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(50, 1304, 'us');
     expect((component as any).genreName()).toBe('Education');
   });
 

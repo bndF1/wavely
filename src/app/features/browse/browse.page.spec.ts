@@ -15,6 +15,7 @@ describe('BrowsePage', () => {
     getTrendingPodcasts: jest.fn((limit: number) =>
       of([mockPodcast({ id: `pod-${limit}` })])
     ),
+    detectCountry: jest.fn(() => 'us'),
   };
   const mockRouter = { navigate: jest.fn() };
 
@@ -42,12 +43,12 @@ describe('BrowsePage', () => {
 
   it('creates and loads all browse sections for the default category', () => {
     expect(component).toBeTruthy();
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(25);
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(5);
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(10);
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(25, undefined, 'us');
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(5, 1489, 'us');
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(10, 1318, 'us');
   });
 
-  it('navigates to category detail for non-all category chips', () => {
+  it('navigates to category detail for non-all category chips without making extra API calls', () => {
     const allCallsBeforeSelect = mockApi.getTrendingPodcasts.mock.calls.length;
 
     (component as any).selectCategory(PODCAST_CATEGORIES[1]);
@@ -56,19 +57,22 @@ describe('BrowsePage', () => {
       '/browse/category',
       PODCAST_CATEGORIES[1].id,
     ]);
+    // Bug fix: selecting a category now only navigates — no extra API calls.
     expect(mockApi.getTrendingPodcasts.mock.calls.length).toBe(allCallsBeforeSelect);
   });
 
   it('reloads in-page sections when switching back to all category', () => {
+    mockApi.getTrendingPodcasts.mockClear();
+
     const allCategory = PODCAST_CATEGORIES[0];
     const categoryDetail = PODCAST_CATEGORIES[1];
 
     (component as any).selectCategory(categoryDetail);
     (component as any).selectCategory(allCategory);
 
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(25);
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(5);
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(10);
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(25, undefined, 'us');
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(5, 1489, 'us');
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(10, 1318, 'us');
   });
 
   it('navigates to podcast detail', () => {

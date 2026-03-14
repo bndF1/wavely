@@ -60,6 +60,8 @@ export class CategoryDetailPage {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
+  private readonly country: string;
+
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
 
   protected readonly genreId = signal<number | null>(null);
@@ -77,6 +79,7 @@ export class CategoryDetailPage {
   );
 
   constructor() {
+    this.country = this.api.detectCountry();
     addIcons({ searchOutline, alertCircleOutline, refreshOutline });
 
     this.route.paramMap
@@ -103,7 +106,7 @@ export class CategoryDetailPage {
               'Category'
           );
 
-          return this.api.getTrendingPodcasts(50, rawGenreId).pipe(
+          return this.api.getTrendingPodcasts(50, rawGenreId, this.country).pipe(
             catchError(() => {
               this.error.set('Could not load this category. Please try again.');
               return of([] as Podcast[]);
@@ -135,7 +138,7 @@ export class CategoryDetailPage {
     this.isLoading.set(true);
     this.error.set(null);
     this.api
-      .getTrendingPodcasts(50, currentGenreId)
+      .getTrendingPodcasts(50, currentGenreId, this.country)
       .pipe(
         catchError(() => {
           this.error.set('Could not load this category. Please try again.');

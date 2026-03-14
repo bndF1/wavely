@@ -58,6 +58,8 @@ export class HomePage implements OnInit {
   protected readonly store = inject(PodcastsStore);
   private readonly router = inject(Router);
 
+  private readonly country: string;
+
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
 
   protected readonly skeletonPodcast: Podcast = {
@@ -71,6 +73,7 @@ export class HomePage implements OnInit {
   };
 
   constructor() {
+    this.country = this.api.detectCountry();
     addIcons({
       searchOutline,
       refreshOutline,
@@ -110,7 +113,7 @@ export class HomePage implements OnInit {
   private loadTrending(): Promise<void> {
     this.store.setLoading(true);
     return new Promise((resolve) => {
-      this.api.getTrendingPodcasts(25).subscribe({
+      this.api.getTrendingPodcasts(25, undefined, this.country).subscribe({
         next: (podcasts) => {
           this.store.setTrending(podcasts);
           this.store.setLoading(false);

@@ -1,15 +1,28 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Browse</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        class="country-toggle"
+        [class.country-toggle--global]="globalBrowse"
+        (click)="toggleGlobalBrowse()"
+        [attr.aria-label]="globalBrowse ? 'Showing global content, tap for local' : 'Showing local content, tap for global'">
+        @if (globalBrowse) {
+          <span class="country-toggle__flag">🌍</span>
+        } @else {
+          <span class="country-toggle__flag">{{ countryFlag }}</span>
+        }
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <section class="browse-section">
-    <h2 class="section-title">Featured</h2>
+    <h2 class="section-title">Top in News</h2>
 
     @if (isLoading()) {
-      <div class="podcast-carousel" aria-label="Loading featured podcasts">
+      <div class="podcast-carousel" aria-label="Loading top news podcasts">
         @for (s of skeletons; track s) {
           <ion-card class="skeleton-card" aria-hidden="true">
             <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
@@ -56,10 +69,10 @@
   </div>
 
   <section class="browse-section">
-    <h2 class="section-title">New &amp; Noteworthy</h2>
+    <h2 class="section-title">Top in Technology</h2>
 
     @if (isLoading()) {
-      <div class="podcast-carousel" aria-label="Loading new and noteworthy podcasts">
+      <div class="podcast-carousel" aria-label="Loading top technology podcasts">
         @for (s of skeletons; track s) {
           <ion-card class="skeleton-card" aria-hidden="true">
             <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
