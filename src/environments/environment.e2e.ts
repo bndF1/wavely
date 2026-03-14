@@ -3,6 +3,7 @@
 // Never deployed to production.
 export const environment = {
   production: false,
+  appVersion: '0.5.0-e2e',
   useEmulators: true,
   sentryDsn: '',
   firebase: {

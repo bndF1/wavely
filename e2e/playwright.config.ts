@@ -27,11 +27,12 @@ export default defineConfig({
   webServer: isCI
     ? {
         // In CI: serve the pre-built e2e output (built with --configuration=e2e).
-        command:
-          'bunx serve dist/wavely/browser -p 4200 --no-clipboard --single',
+        // Use absolute path — playwright.config.ts runs from e2e/ so relative paths
+        // would resolve to e2e/dist/... which doesn't exist.
+        command: `bunx serve "${workspaceRoot}/dist/wavely/browser" -p 4200 --no-clipboard --single`,
         url: 'http://localhost:4200',
         reuseExistingServer: false,
-        timeout: 30_000,
+        timeout: 60_000,
       }
     : {
         // Local dev: use nx serve with live reload.

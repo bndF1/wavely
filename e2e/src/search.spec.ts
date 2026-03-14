@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect } from './fixtures/auth.fixture';
 
 const ITUNES_SEARCH_URL = /itunes\.apple\.com\/search/;
 
@@ -40,7 +40,7 @@ test.describe('Search page', () => {
 
     await page.goto('/tabs/search');
     const searchbar = page.locator('ion-searchbar');
-    await searchbar.fill('javascript');
+    await searchbar.locator('input').fill('javascript');
     await page.waitForSelector('wavely-podcast-card', { timeout: 5000 });
     const cards = page.locator('wavely-podcast-card');
     await expect(cards).toHaveCount(1);
@@ -57,7 +57,7 @@ test.describe('Search page', () => {
 
     await page.goto('/tabs/search');
     const searchbar = page.locator('ion-searchbar');
-    await searchbar.fill('xyznoexist');
+    await searchbar.locator('input').fill('xyznoexist');
     await page.waitForTimeout(500);
     const cards = page.locator('wavely-podcast-card');
     await expect(cards).toHaveCount(0);

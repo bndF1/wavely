@@ -137,5 +137,44 @@ describe('SubscriptionSyncService', () => {
       await service.loadFromFirestore('uid-1', () => false);
       expect(store.subscriptions()).not.toContainEqual(podcast);
     });
+
+    it('merges locally-added subscriptions with Firestore data (race condition)', async () => {
+      const remotePodcast = mockPodcast({ id: 'remote-pod' });
+      const localPodcast = mockPodcast({ id: 'local-pod' });
+
+      let resolveGetDocs!: (value: unknown) => void;
+      mockGetDocs.mockReturnValue(new Promise((res) => (resolveGetDocs = res)));
+
+      // Start loading — does not await yet
+      const loadPromise = service.loadFromFirestore('uid-1', () => true);
+
+      // Simulate user subscribing while getDocs is still in-flight
+      store.addSubscription(localPodcast);
+
+      // Now resolve getDocs with remote data
+      resolveGetDocs({ docs: [{ data: () => remotePodcast }] });
+      await loadPromise;
+
+      const subs = store.subscriptions();
+      expect(subs).toContainEqual(remotePodcast);
+      expect(subs).toContainEqual(localPodcast);
+      expect(subs).toHaveLength(2);
+    });
+
+    it('does not duplicate subscriptions present in both Firestore and local store', async () => {
+      const sharedPodcast = mockPodcast({ id: 'shared-pod' });
+
+      // Pre-populate local store
+      store.addSubscription(sharedPodcast);
+
+      // Firestore also returns this podcast
+      mockGetDocs.mockResolvedValue({ docs: [{ data: () => sharedPodcast }] });
+
+      await service.loadFromFirestore('uid-1', () => true);
+
+      const subs = store.subscriptions();
+      expect(subs).toContainEqual(sharedPodcast);
+      expect(subs.filter((p) => p.id === sharedPodcast.id)).toHaveLength(1);
+    });
   });
 });

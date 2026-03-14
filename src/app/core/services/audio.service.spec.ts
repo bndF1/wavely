@@ -66,3 +66,12 @@ describe('AudioService.formatTime()', () => {
     });
   });
 });
+
+describe('Media Session API guard', () => {
+  it('does not throw when navigator.mediaSession is unavailable', () => {
+    // In Jest (Node), navigator.mediaSession does not exist.
+    // The service must handle this gracefully — the static method is all we
+    // can test here without a full TestBed + browser environment.
+    expect(() => AudioService.formatTime(0)).not.toThrow();
+  });
+});

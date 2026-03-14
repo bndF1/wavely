@@ -3,26 +3,40 @@
 > A beautiful, open-source podcast player for **iOS**, **Android**, and the **Web**.  
 > Inspired by Google Podcasts. Built with Angular 21, Ionic 8, and Capacitor 8.
 
-[![CI](https://github.com/bndF1/wavely/actions/workflows/ci.yml/badge.svg)](https://github.com/bndF1/wavely/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)](https://angular.io)
 [![Ionic](https://img.shields.io/badge/Ionic-8-blue?logo=ionic)](https://ionicframework.com)
 [![Capacitor](https://img.shields.io/badge/Capacitor-8-green?logo=capacitor)](https://capacitorjs.com)
+[![Status](https://img.shields.io/badge/status-alpha-orange)](https://wavely-f659c.web.app)
+[![Release](https://img.shields.io/github/v/release/bndF1/wavely)](https://github.com/bndF1/wavely/releases)
+
+> ⚠️ **Early Alpha** — The app is live but pre-MVP. Expect rough edges and frequent changes.
+
+## 🌐 Live Environments
+
+| Environment | URL | Notes |
+|-------------|-----|-------|
+| 🏠 **Landing Page** | [bndf1.github.io/wavely](https://bndf1.github.io/wavely/) | GitHub Pages |
+| 🚀 **Production** | [wavely-f659c.web.app](https://wavely-f659c.web.app) | Stable releases (tagged) |
+| 🧪 **Staging** | [wavely-f659c--staging.web.app](https://wavely-f659c--staging.web.app) | Pre-release validation |
+| 🔧 **Dev** | [wavely-f659c--dev.web.app](https://wavely-f659c--dev.web.app) | Latest integration |
+
+Every PR also gets an ephemeral preview channel: `https://wavely-f659c--pr-<number>-<hash>.web.app` (expires in 7 days).
 
 ---
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| 🔊 **Audio Player** | Full-screen player with scrubber, speed control (0.5×–2×), skip ±30s, and mini-player |
-| 📱 **Cross-Platform** | iOS + Android (Capacitor) + Web (PWA) from a single codebase |
-| 🌙 **Dark Mode** | System-aware with manual override, persisted to localStorage |
-| 📡 **Offline / PWA** | Angular service worker — app shell, artwork (7d), iTunes API cache (1h) |
-| 🔍 **Search & Browse** | Real-time debounced search, browse by category, trending podcasts |
-| 📚 **Podcast Detail** | Episode list, subscribe/unsubscribe, share |
-| 🎧 **Episode Detail** | Full description, progress scrubber, playback controls |
-| 🗃 **State Management** | NgRx SignalStore for player and podcast data |
+| Feature | Status | Description |
+|---------|--------|-------------|
+| 🔊 **Audio Player** | ✅ | Full-screen player with scrubber, speed control (0.5×–2×), skip ±30s, mini-player |
+| 🔑 **Firebase Auth** | ✅ | Google Sign-In + email/password; syncs data across devices |
+| 📱 **Cross-Platform** | ✅ | iOS + Android (Capacitor) + Web (PWA) from a single codebase |
+| 🌙 **Dark Mode** | ✅ | System-aware with manual override, persisted to localStorage |
+| 📡 **PWA / Offline** | ✅ | Angular service worker — app shell, artwork cached 7 days |
+| 🔍 **Search & Browse** | ✅ | Real-time debounced search, browse by category, trending podcasts |
+| 📚 **Library** | ✅ | Subscribe/unsubscribe with Firestore sync |
+| 🗃 **State Management** | ✅ | NgRx SignalStore for player, podcasts, and auth |
 
 ---
 
@@ -38,7 +52,10 @@ cd wavely
 # 2. Install
 bun install
 
-# 3. Dev server (web)
+# 3. Set up environment (copy and fill in Firebase config)
+cp .env.example .env
+
+# 4. Dev server (web)
 bun start
 # → http://localhost:4200
 ```
@@ -50,12 +67,13 @@ bun start
 | Command | Description |
 |---------|-------------|
 | `bun start` | Dev server at `localhost:4200` |
-| `bun run build` | Production build (SSR) |
-| `bun test` | Unit tests with Jest |
-| `bun run cap:sync` | Build + sync to iOS and Android |
+| `bun run build` | Production build (SSR + service worker) |
+| `bun test` | Unit tests (Jest) |
+| `bun run cap:build` | Production build + sync to native platforms |
+| `bun run cap:sync` | Sync latest web build to iOS and Android |
 | `bun run cap:ios` | Sync + open Xcode |
 | `bun run cap:android` | Sync + open Android Studio |
-| `bun run cap:serve` | Live-reload dev on iOS simulator (`CAP_ENV=local`) |
+| `bun run cap:serve` | Live-reload dev on iOS simulator |
 
 ---
 
@@ -71,8 +89,9 @@ bun start
 | Podcast data | iTunes Search API | — |
 | Workspace | Nx | 22.5.x |
 | Package manager | Bun | 1.3.x |
-| Testing | Jest + Playwright | 30.x / 1.36.x |
-| CI | GitHub Actions | — |
+| Unit tests | Jest | 30.x |
+| E2E tests | Playwright | 1.36.x |
+| CI/CD | GitHub Actions + Firebase Hosting | — |
 
 ---
 
@@ -82,29 +101,37 @@ bun start
 wavely/
 ├── src/
 │   └── app/
-│       ├── core/                 # Services, models, guards, interceptors
-│       │   ├── services/
-│       │   │   ├── podcast-api.service.ts   # iTunes Search API client
-│       │   │   └── theme.service.ts         # Dark/light mode
-│       │   └── models/
+│       ├── core/                 # Services, guards, interceptors, models
+│       │   └── services/
+│       │       ├── audio.service.ts             # HTMLMediaElement wrapper
+│       │       ├── podcast-api.service.ts       # iTunes Search API client
+│       │       ├── auth.service.ts              # Firebase Auth wrapper
+│       │       ├── subscription-sync.service.ts # Firestore ↔ store sync
+│       │       └── progress-sync.service.ts     # Playback progress sync
 │       ├── features/             # Lazy-loaded pages
 │       │   ├── home/             # Subscriptions feed + trending
 │       │   ├── browse/           # Categories + trending
 │       │   ├── search/           # Real-time search
-│       │   ├── library/          # Subscriptions + history
+│       │   ├── library/          # Subscribed podcasts
 │       │   ├── podcast-detail/   # Episode list + subscribe
 │       │   └── episode-detail/   # Player + description
 │       ├── store/                # NgRx SignalStores
+│       │   ├── auth/             # AuthStore — user session
 │       │   ├── player/           # PlayerStore — playback state
 │       │   └── podcasts/         # PodcastsStore — subscriptions, search
 │       └── shared/               # Reusable components, pipes, directives
+├── e2e/                          # Playwright E2E tests + Firebase emulator setup
 ├── android/                      # Capacitor Android (Gradle)
 ├── ios/                          # Capacitor iOS (Xcode / Swift)
 ├── docs/                         # Landing page (GitHub Pages)
+├── scripts/
+│   └── generate-env.mjs          # Injects secrets into environment files at build time
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml                # Build, lint, test, type-check
-│       └── pages.yml             # Deploy docs/ to GitHub Pages
+│       ├── firebase-hosting.yml          # Deploy to production (push to main)
+│       ├── firebase-hosting-staging.yml  # Deploy to staging (push to staging)
+│       ├── firebase-hosting-preview.yml  # Preview channel per PR
+│       └── e2e.yml                       # Playwright E2E (required gate for staging/main)
 ├── ngsw-config.json              # Service worker caching rules
 ├── capacitor.config.ts           # Capacitor configuration
 └── project.json                  # Nx build targets
@@ -140,85 +167,85 @@ bun run cap:serve       # starts Angular dev server + runs on iOS simulator
 
 ---
 
-## 🔥 Firebase Auth (Optional)
-
-Issue #8. Requires a Firebase project. Once you have credentials:
-
-1. Create `src/environments/environment.ts`:
-
-```typescript
-export const environment = {
-  production: false,
-  firebaseConfig: {
-    apiKey:            'YOUR_API_KEY',
-    authDomain:        'YOUR_PROJECT.firebaseapp.com',
-    projectId:         'YOUR_PROJECT',
-    storageBucket:     'YOUR_PROJECT.appspot.com',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    appId:             'YOUR_APP_ID',
-  }
-};
-```
-
-2. Open an issue or PR — the Firebase Auth integration is [tracked in #8](https://github.com/bndF1/wavely/issues/8).
-
----
-
 ## 🧪 Testing
 
 ```bash
-bun test                          # all unit tests
-bunx nx test --watch              # watch mode
-bunx nx test --coverage           # with coverage report
-# E2E (Playwright) — target not yet configured in project.json
-# bunx nx e2e
+# Unit tests
+bun test
+bunx nx test --watch
+bunx nx test --coverage
+
+# E2E (Playwright — requires Firebase emulators running)
+bunx nx e2e
 ```
+
+E2E tests use Firebase Auth + Firestore emulators and a dedicated `e2e` build configuration with `useEmulators: true`.
 
 ---
 
-## 🔄 CI Pipeline
+## 🔄 CI / CD Pipeline
 
-Every push to `main` / `develop` and every PR runs:
+| Trigger | Checks | Deploy |
+|---------|--------|--------|
+| PR opened | Unit tests + preview channel | `wavely-f659c--pr-<n>-<hash>.web.app` |
+| Push to `staging` | Unit tests | `wavely-f659c--staging.web.app` |
+| PR to `staging` | Unit tests + **E2E** | — |
+| PR to `main` | Unit tests + **E2E** + **Lighthouse CI** | — |
+| Push to `main` | Unit tests + build + semantic-release | `wavely-f659c.web.app` (production) |
 
-1. **Type check** — `tsc --noEmit`
-2. **Lint** — ESLint + angular-eslint
-3. **Build** — Nx production build (SSR + service worker)
-4. **Tests** — Jest with coverage
-5. Coverage artifact uploaded on PRs
+Secrets are injected at build time via `scripts/generate-env.mjs` — **no credentials are committed to the repository**.
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repo
-2. Create a branch: `git checkout -b feat/your-feature`
-3. Make your changes following the Angular patterns in this codebase:
-   - Standalone components with `OnPush` change detection
-   - `inject()` for dependency injection (no constructor injection)
-   - Signal inputs/outputs (`input()` / `output()`)
-   - `signal<T>()` for local state, `computed()` for derived state
-   - `takeUntilDestroyed(DestroyRef)` for subscriptions
-4. Commit: `git commit -m "feat: description"`
-5. Push and open a PR against `main`
+This project follows a strict git flow: `feature/*` → `dev` → `staging` → `main`.
+
+```bash
+# Start a feature
+git checkout dev && git pull origin dev
+git checkout -b feature/my-feature
+
+# Code, then commit using Conventional Commits
+git commit -m "feat(player): add sleep timer"
+
+# Push and open a PR → dev
+gh pr create --base dev
+```
+
+**Angular patterns to follow:**
+- Standalone components with `OnPush` change detection
+- `inject()` for dependency injection (no constructor injection)
+- Signal inputs/outputs (`input()` / `output()`)
+- `signal<T>()` for local state, `computed()` for derived state
+- `takeUntilDestroyed(DestroyRef)` for subscriptions
 
 ---
 
 ## 🗺 Roadmap
 
-- [x] Tab navigation shell
-- [x] Home page (subscriptions + trending)
-- [x] Search + Browse pages
-- [x] Library page
-- [x] Podcast Detail page
-- [x] Episode Detail page + player controls
-- [x] Dark mode (signal-based ThemeService)
-- [x] PWA / Offline support (Angular service worker)
-- [x] CI pipeline (GitHub Actions)
-- [x] Native platforms (iOS + Android via Capacitor)
-- [ ] Firebase Authentication (Google Sign-In + email) — [#8](https://github.com/bndF1/wavely/issues/8)
-- [ ] Download episodes (Capacitor Filesystem)
-- [ ] Push notifications (Capacitor Push + Firebase)
-- [ ] Background audio (Media Session API + Capacitor Media)
+### v0.5.0 — Security & Stability ✅ Shipped
+- [x] Firestore security rules
+- [x] Firebase Authentication (Google Sign-In + email/password)
+- [x] Comprehensive E2E test suite (Playwright + emulators)
+- [x] Unit test coverage ≥ 80%
+
+### v1.0.0 — MVP (in progress)
+- [ ] Background audio & lockscreen controls ([#35](https://github.com/bndF1/wavely/issues/35))
+- [ ] Up Next queue ([#34](https://github.com/bndF1/wavely/issues/34))
+- [ ] Listening history ([#28](https://github.com/bndF1/wavely/issues/28))
+- [ ] Error states & offline handling ([#36](https://github.com/bndF1/wavely/issues/36))
+- [ ] Lighthouse CI ([#37](https://github.com/bndF1/wavely/issues/37))
+
+### v1.1.0 — Discovery & Library
+- [ ] Search history ([#38](https://github.com/bndF1/wavely/issues/38))
+- [ ] Episode filtering ([#39](https://github.com/bndF1/wavely/issues/39))
+- [ ] Browse improvements ([#40](https://github.com/bndF1/wavely/issues/40))
+
+### v1.2.0 — Native Platform
+- [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
+- [ ] Deep links / Universal Links ([#42](https://github.com/bndF1/wavely/issues/42))
+- [ ] App Store + Play Store submission ([#43](https://github.com/bndF1/wavely/issues/43))
 
 ---
 

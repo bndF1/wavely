@@ -22,6 +22,28 @@
 
 <!-- nx configuration end-->
 
+## 🔒 Security — ABSOLUTE RULES (never break, no exceptions)
+
+**NEVER commit secrets, credentials, or tokens to the repository.** This has caused real leaks before.
+
+| What | Where it lives instead |
+|------|----------------------|
+| Firebase config (apiKey, projectId, etc.) | GitHub Actions secrets → `scripts/generate-env.mjs` generates env files at build time |
+| Firebase Admin SDK service account JSON | GitHub Actions secret `FIREBASE_SERVICE_ACCOUNT_WAVELY` |
+| Sentry DSN | GitHub Actions secret `NG_APP_SENTRY_DSN` |
+| API keys (Podcast Index, etc.) | GitHub Actions secrets or `.env` (gitignored) |
+| Firebase auth tokens / storage state | `e2e/.auth/` (gitignored) |
+
+**Rules for agents:**
+1. **Never hardcode** API keys, tokens, passwords, or any secret in source files
+2. **Never print or log** secret values — not even partially (no `key.substring(0,8)`)
+3. **If a file contains secrets, it must be in `.gitignore`** — verify before committing
+4. **Use `NG_APP_*` prefix** for env vars injected via `generate-env.mjs` — they are build-time only
+5. **When in doubt, use a placeholder** like `process.env.MY_SECRET` and document where to set it
+6. **Before every commit, mentally scan staged files** — if any file contains a real key/token, abort
+
+The environment files (`src/environments/environment*.ts`) are gitignored **on purpose** — they are generated at build time. Do not regenerate them with real credentials and commit them.
+
 ## Project Management
 
 - **Task tracker**: GitHub Issues on `bndF1/wavely` (NOT Linear)

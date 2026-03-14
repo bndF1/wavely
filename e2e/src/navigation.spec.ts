@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect } from './fixtures/auth.fixture';
 
 // These tests require the Firebase Auth Emulator.
 // In CI: set USE_EMULATORS=true and start emulators before running.

@@ -20,7 +20,7 @@ feature/*  ──PR──►  dev  ──PR──►  staging  ──PR──►
 |--------|---------|-------------------|
 | `main` | Production-stable | https://wavely-f659c.web.app (prod) + semantic-release tag |
 | `staging` | Pre-production validation | https://wavely-f659c--staging.web.app |
-| `dev` | Active integration | CI tests only (no deploy) |
+| `dev` | Active integration | https://wavely-f659c--dev.web.app |
 | `feature/*` | Feature work | Preview channel (ephemeral) |
 | `hotfix/*` | Emergency production fixes | PR directly to `main` + backport to `dev` |
 
@@ -132,4 +132,19 @@ Closes #<issue number>
 - Merge without a passing CI check
 - Skip the `dev` → `staging` → `main` promotion chain
 - Use personal branch names like `bene/fix` — use `fix/description` instead
-- Commit secrets, credentials, or `.env` files
+- **Commit secrets, credentials, API keys, or tokens — EVER** (this has caused real leaks)
+- Commit generated environment files (`src/environments/environment*.ts`) — they are gitignored on purpose
+- Hardcode Firebase config, Sentry DSN, or any API key directly in source files
+- Log or print secret values, even partially
+
+## Where Secrets Live
+
+All secrets are stored in **GitHub Actions secrets** and injected at build time via `scripts/generate-env.mjs`:
+
+| Secret | Used for |
+|--------|----------|
+| `FIREBASE_CONFIG` | Firebase web app config (apiKey, projectId, etc.) |
+| `FIREBASE_SERVICE_ACCOUNT_WAVELY` | Firebase Admin SDK (E2E global setup) |
+| `NG_APP_SENTRY_DSN` | Sentry error tracking DSN |
+
+For local dev, copy `.env.example` → `.env` and fill in values. The `.env` file is gitignored.

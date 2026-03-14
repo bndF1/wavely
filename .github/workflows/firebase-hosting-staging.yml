@@ -43,7 +43,7 @@ jobs:
       - name: Deploy to staging channel
         run: |
           bunx firebase-tools hosting:channel:deploy staging \
-            --expires 365d \
+            --expires 30d \
             --project wavely-f659c
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
