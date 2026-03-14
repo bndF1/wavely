@@ -52,7 +52,7 @@ jobs:
         if: steps.firebase-cache.outputs.cache-hit != 'true'
         run: |
           # Download emulator JARs before starting; avoids timeout during health-check wait
-          npx --yes firebase-tools@15 emulators:start \
+          bunx firebase-tools emulators:start \
             --only auth,firestore \
             --project wavely-f659c &
           EMU_PID=$!
