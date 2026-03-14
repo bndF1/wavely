@@ -53,19 +53,20 @@ test.describe('Browse page', () => {
     await expect(page.locator('wavely-podcast-card').first()).toBeVisible();
   });
 
-  test('clicking category shows relevant podcasts', async ({ page }) => {
+  test('clicking category navigates to category detail page', async ({ page }) => {
     await page.goto('/tabs/browse');
     // Wait for initial podcasts to load before interacting
     await page.locator('wavely-podcast-card').first().waitFor({ timeout: 10000 });
 
-    // Promise.all ensures the Comedy HTTP request is actually triggered by the click.
-    // waitForResponse will fail if the click doesn't reach Angular's event handler.
+    // Clicking a non-"All" category chip now navigates to /browse/category/:genreId
     await Promise.all([
-      page.waitForResponse(r => r.url().includes('genre/1303'), { timeout: 10000 }),
+      page.waitForURL(/\/browse\/category\/1303/, { timeout: 10000 }),
       page.locator('ion-chip').filter({ hasText: /^Comedy$/ }).locator('ion-label').click(),
     ]);
+    await expect(page.url()).toContain('/browse/category/1303');
+    // Category detail page should load and show results for genre 1303
+    await expect(page.locator('wavely-podcast-card').first()).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Comedy Gold', { exact: false })).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('All Category Podcast', { exact: false })).toHaveCount(0);
   });
 
   test('trending/new sections visible', async ({ page }) => {
