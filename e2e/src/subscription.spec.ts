@@ -66,6 +66,8 @@ test.describe.serial('Subscriptions', () => {
 
     await page.goto(`/podcast/${podcast.id}`);
     await page.getByRole('button', { name: /^subscribe$/i }).click();
+    // Wait for the optimistic update to reflect in the UI before navigating
+    await expect(page.getByRole('button', { name: /^subscribed$/i })).toBeVisible({ timeout: 5000 });
 
     // SPA navigation preserves PodcastsStore state; page.goto would reload and
     // lose the subscription before the Firestore write completes.
@@ -73,10 +75,8 @@ test.describe.serial('Subscriptions', () => {
     // so page.evaluate rejects with "Execution context was destroyed" — that's expected.
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
-    // ion-title doesn't expose role="heading" — match via locator
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    // Library renders subscriptions as ion-item with ion-label h2 (not wavely-podcast-card)
-    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible();
+    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 10000 });
   });
 
   test('unsubscribe removes podcast from library', async ({ page }) => {
@@ -92,15 +92,10 @@ test.describe.serial('Subscriptions', () => {
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 15000 });
 
-    // ion-button[aria-label] is unreliable after Ionic hydration: Ionic forwards
-    // the host aria-label to the shadow <button> and clears the host attribute.
-    // Use ion-button[slot="end"] scoped to the podcast's ion-item-sliding instead.
-    const podcastItem = page.locator('ion-item-sliding').filter({
-      has: page.locator('ion-label h2').filter({ hasText: podcast.title }),
-    });
+    const podcastItem = page.locator('ion-item-sliding').filter({ hasText: podcast.title });
     await podcastItem.locator('ion-button[slot="end"]').click();
-    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toHaveCount(0);
+    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toHaveCount(0);
   });
 });
