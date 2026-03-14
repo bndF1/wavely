@@ -14,6 +14,8 @@ import { LibraryPage } from './library.page';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
+import { HistorySyncService } from '../../core/services/history-sync.service';
+import { HistoryStore } from '../../store/history/history.store';
 import { ThemeService } from '../../core/services/theme.service';
 import { mockPodcast } from '../../../testing/podcast-fixtures';
 
@@ -26,11 +28,22 @@ describe('LibraryPage', () => {
     user: signal({ uid: 'uid-1' }),
     signOut: jest.fn().mockResolvedValue(undefined),
   };
+  const mockHistoryStore = {
+    entries: signal([]),
+    isLoading: signal(false),
+    setLoading: jest.fn(),
+    setEntries: jest.fn(),
+    clear: jest.fn(),
+  };
   const mockThemeService = {
     mode: signal<'system' | 'light' | 'dark'>('system'),
     setMode: jest.fn(),
   };
   const mockSyncService = { removeSubscription: jest.fn() };
+  const mockHistorySyncService = {
+    loadHistory: jest.fn().mockResolvedValue([]),
+    clearHistory: jest.fn().mockResolvedValue(undefined),
+  };
   const mockRouter = { navigate: jest.fn() };
 
   beforeEach(async () => {
@@ -41,6 +54,8 @@ describe('LibraryPage', () => {
         { provide: AuthStore, useValue: mockAuthStore },
         { provide: ThemeService, useValue: mockThemeService },
         { provide: SubscriptionSyncService, useValue: mockSyncService },
+        { provide: HistorySyncService, useValue: mockHistorySyncService },
+        { provide: HistoryStore, useValue: mockHistoryStore },
         { provide: Router, useValue: mockRouter },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -60,6 +75,11 @@ describe('LibraryPage', () => {
 
   it('creates successfully', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('loads history on init', () => {
+    expect(mockHistoryStore.setLoading).toHaveBeenCalledWith(true);
+    expect(mockHistorySyncService.loadHistory).toHaveBeenCalledWith('uid-1');
   });
 
   it('delegates unsubscribe and signOut behaviors', async () => {

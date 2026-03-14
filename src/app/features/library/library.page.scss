@@ -66,3 +66,24 @@ ion-note {
   text-align: center;
   letter-spacing: 0.03em;
 }
+
+.history-thumbnail {
+  --size: 52px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 8px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.history-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0 8px;
+}
