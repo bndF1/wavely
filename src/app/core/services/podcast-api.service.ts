@@ -78,6 +78,26 @@ export class PodcastApiService {
   }
 
   /**
+   * Fetch all podcasts published by a given iTunes artist/publisher.
+   * Returns up to 100 podcasts sorted by iTunes default ranking.
+   */
+  getPublisherPodcasts(artistId: string): Observable<Podcast[]> {
+    const params = new HttpParams()
+      .set('id', artistId)
+      .set('entity', 'podcast')
+      .set('limit', '100');
+    return this.http
+      .get<{ results: Array<ItunesPodcast | ItunesArtistResult> }>(`${this.itunesBase}/lookup`, { params })
+      .pipe(
+        map((res) =>
+          res.results
+            .filter((r): r is ItunesPodcast => r.wrapperType === 'collection')
+            .map(this.mapItunesPodcast)
+        )
+      );
+  }
+
+  /**
    * Fetch episodes for a podcast via iTunes lookup.
    * Returns up to `limit` most recent episodes.
    */
@@ -108,6 +128,7 @@ export class PodcastApiService {
       genres: raw.genres ?? [],
       episodeCount: raw.trackCount,
       latestReleaseDate: raw.releaseDate,
+      artistId: raw.artistId != null ? String(raw.artistId) : undefined,
     };
   }
 
@@ -141,10 +162,12 @@ export class PodcastApiService {
 }
 
 interface ItunesPodcast {
+  wrapperType: 'collection';
   collectionId: number;
   collectionName: string;
   collectionCensoredName?: string;
   artistName: string;
+  artistId?: number;
   artworkUrl600: string;
   artworkUrl100: string;
   feedUrl: string;
@@ -177,4 +200,10 @@ interface ItunesEpisodeRaw {
   artworkUrl160?: string;
   trackTimeMillis?: number;
   releaseDate: string;
+}
+
+interface ItunesArtistResult {
+  wrapperType: 'artist';
+  artistId: number;
+  artistName: string;
 }
