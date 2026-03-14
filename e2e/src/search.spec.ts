@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth.fixture';
+import { test, expect } from './fixtures/auth.fixture';
 
 const ITUNES_SEARCH_URL = /itunes\.apple\.com\/search/;
 
