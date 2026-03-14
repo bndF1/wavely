@@ -69,7 +69,9 @@ test.describe.serial('Subscriptions', () => {
 
     // SPA navigation preserves PodcastsStore state; page.goto would reload and
     // lose the subscription before the Firestore write completes.
-    await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library');
+    // Fire-and-forget: Angular router navigation destroys the JS execution context,
+    // so page.evaluate rejects with "Execution context was destroyed" — that's expected.
+    void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     // ion-title doesn't expose role="heading" — match via locator
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
@@ -87,10 +89,9 @@ test.describe.serial('Subscriptions', () => {
     // (button changes to 'Subscribed' as soon as the store adds the podcast)
     await expect(page.getByRole('button', { name: /^subscribed$/i })).toBeVisible({ timeout: 5000 });
 
-    await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library');
+    void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    // Library renders subscriptions as ion-item with ion-label h2 (not wavely-podcast-card)
     await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible({ timeout: 15000 });
 
     // ion-button[aria-label] is unreliable after Ionic hydration: Ionic forwards
