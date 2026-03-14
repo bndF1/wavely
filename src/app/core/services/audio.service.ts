@@ -45,6 +45,7 @@ export class AudioService {
 
   private static readonly MEDIA_SESSION_POSITION_UPDATE_MS = 5000;
   private lastMediaSessionPositionUpdateMs = 0;
+  private mediaSessionHandlersRegistered = false;
 
   constructor() {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -165,7 +166,7 @@ export class AudioService {
 
   private setupMediaSession(): void {
     const mediaSession = this.getMediaSession();
-    if (!mediaSession) return;
+    if (!mediaSession || this.mediaSessionHandlersRegistered) return;
 
     mediaSession.setActionHandler('play', () => this.store.resume());
     mediaSession.setActionHandler('pause', () => this.store.pause());
@@ -181,6 +182,8 @@ export class AudioService {
       }
     });
     mediaSession.setActionHandler('nexttrack', () => this.store.playNext());
+
+    this.mediaSessionHandlersRegistered = true;
   }
 
   private updateMediaSession(episode: Episode | null): void {
