@@ -1,7 +1,6 @@
 import { inject, Injectable, PLATFORM_ID, effect, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PlayerStore } from '../../store/player/player.store';
-import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { ProgressSyncService } from './progress-sync.service';
 import { HistorySyncService } from './history-sync.service';
@@ -20,7 +19,6 @@ import { HistoryEntry } from '../../store/history/history.store';
 @Injectable({ providedIn: 'root' })
 export class AudioService {
   private readonly store = inject(PlayerStore);
-  private readonly podcastsStore = inject(PodcastsStore);
   private readonly authStore = inject(AuthStore);
   private readonly progressSync = inject(ProgressSyncService);
   private readonly historySync = inject(HistorySyncService);
@@ -48,9 +46,9 @@ export class AudioService {
    */
   private activeEpisodeId: string | null = null;
 
-  /** Throttle interval for Media Session setPositionState updates. */
-  private readonly mediaSessionPositionThrottleMs = 5000;
-  private lastMediaSessionPositionUpdateAt = 0;
+  private static readonly MEDIA_SESSION_POSITION_UPDATE_MS = 5000;
+  private lastMediaSessionPositionUpdateMs = 0;
+  private mediaSessionHandlersRegistered = false;
 
   constructor() {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -69,6 +67,7 @@ export class AudioService {
         this.seeking = false;
         this.pendingRestorePosition = null;
         this.metadataLoaded = false;
+        this.lastMediaSessionPositionUpdateMs = 0;
 
         if (episode) {
           // Flush any pending progress write for the previous episode
@@ -80,7 +79,7 @@ export class AudioService {
           // a new episode ID before audio.src has been updated.
           this.activeEpisodeId = episode.id;
           this.audio.load();
-          this.updateMediaSessionMetadata(episode);
+          this.updateMediaSession(episode);
 
           // Asynchronously load saved position; apply it once metadata is ready
           const episodeId = episode.id;
@@ -113,7 +112,7 @@ export class AudioService {
           this.activeEpisodeId = null;
           this.audio.src = '';
           this.audio.load();
-          this.clearMediaSession();
+          this.updateMediaSession(null);
         }
       });
     });
@@ -161,101 +160,104 @@ export class AudioService {
   // Media Session API — lockscreen / notification controls
   // ---------------------------------------------------------------------------
 
-  private get mediaSession(): MediaSession | null {
+  private getMediaSession(): MediaSession | null {
     if (!isPlatformBrowser(this.platformId)) return null;
-    return typeof navigator !== 'undefined' && 'mediaSession' in navigator
-      ? navigator.mediaSession
-      : null;
+    if (typeof navigator === 'undefined') return null;
+    if (!('mediaSession' in navigator)) return null;
+    return navigator.mediaSession;
   }
 
   private setupMediaSession(): void {
-    const ms = this.mediaSession;
-    if (!ms) return;
+    const mediaSession = this.getMediaSession();
+    if (!mediaSession || this.mediaSessionHandlersRegistered) return;
 
-    ms.setActionHandler('play', () => this.store.resume());
-    ms.setActionHandler('pause', () => this.store.pause());
-    ms.setActionHandler('seekbackward', (details) =>
+    mediaSession.setActionHandler('play', () => this.store.resume());
+    mediaSession.setActionHandler('pause', () => this.store.pause());
+    mediaSession.setActionHandler('stop', () => this.store.close());
+    mediaSession.setActionHandler('seekbackward', (details) =>
       this.store.skipBack(details.seekOffset ?? 15)
     );
-    ms.setActionHandler('seekforward', (details) =>
+    mediaSession.setActionHandler('seekforward', (details) =>
       this.store.skipForward(details.seekOffset ?? 30)
     );
-    ms.setActionHandler('previoustrack', () => {
+    mediaSession.setActionHandler('seekto', (details) => {
+      if (details.seekTime !== undefined) {
+        this.store.seek(details.seekTime);
+      }
+    });
+    mediaSession.setActionHandler('previoustrack', () => {
       if (this.store.currentTime() > 5) {
         this.store.seek(0);
       }
     });
-    ms.setActionHandler('nexttrack', () => this.store.playNext());
+    mediaSession.setActionHandler('nexttrack', () => this.store.playNext());
+
+    this.mediaSessionHandlersRegistered = true;
   }
 
-  private updateMediaSessionMetadata(episode: Episode): void {
-    const ms = this.mediaSession;
-    if (!ms) return;
+  private updateMediaSession(episode: Episode | null): void {
+    const mediaSession = this.getMediaSession();
+    if (!mediaSession) return;
 
-    ms.metadata = new MediaMetadata({
+    if (!episode) {
+      mediaSession.metadata = null;
+      mediaSession.playbackState = 'none';
+      return;
+    }
+
+    const artist = (episode as Episode & { podcastTitle?: string }).podcastTitle ?? episode.podcastId;
+    mediaSession.metadata = new MediaMetadata({
       title: episode.title,
-      artist: episode.podcastId,
+      artist,
       artwork: episode.imageUrl
-        ? [{ src: episode.imageUrl, sizes: '512x512', type: 'image/jpeg' }]
+        ? [{ src: episode.imageUrl, sizes: '512x512' }]
         : [],
     });
   }
 
   private updateMediaSessionPlaybackState(playing: boolean): void {
-    const ms = this.mediaSession;
-    if (ms) {
-      ms.playbackState = playing ? 'playing' : 'paused';
-    }
+    const mediaSession = this.getMediaSession();
+    if (!mediaSession) return;
+    mediaSession.playbackState = playing ? 'playing' : 'paused';
   }
 
-  private updateMediaSessionPositionState(): void {
-    const ms = this.mediaSession;
-    if (!ms) return;
-    if (!("setPositionState" in ms)) return;
-
-    const duration = this.store.duration();
+  private updateMediaSessionPositionState(currentTime: number, duration: number): void {
+    const mediaSession = this.getMediaSession();
+    if (!mediaSession) return;
     if (duration <= 0) return;
+    if (typeof mediaSession.setPositionState !== 'function') return;
 
     const now = Date.now();
-    if (now - this.lastMediaSessionPositionUpdateAt < this.mediaSessionPositionThrottleMs) {
+    if (now - this.lastMediaSessionPositionUpdateMs < AudioService.MEDIA_SESSION_POSITION_UPDATE_MS) {
       return;
     }
 
-    this.lastMediaSessionPositionUpdateAt = now;
+    this.lastMediaSessionPositionUpdateMs = now;
 
     try {
-      ms.setPositionState({
+      mediaSession.setPositionState({
         duration,
         playbackRate: this.store.playbackRate(),
-        position: Math.min(Math.max(this.store.currentTime(), 0), duration),
+        position: Math.min(Math.max(currentTime, 0), duration),
       });
     } catch {
-      // setPositionState throws if values are invalid — ignore silently
+      // setPositionState throws if duration/position is invalid — ignore silently
     }
-  }
-
-  private clearMediaSession(): void {
-    const ms = this.mediaSession;
-    if (!ms) return;
-    ms.metadata = null;
-    ms.playbackState = 'none';
   }
 
   private buildHistoryEntry(
     episode: Episode,
     position: number,
     duration: number,
-    completed: boolean
+    completed: boolean,
   ): HistoryEntry {
-    const podcast = this.podcastsStore
-      .subscriptions()
-      .find((subscription) => subscription.id === episode.podcastId);
-
+    const podcastTitle =
+      (episode as Episode & { podcastTitle?: string }).podcastTitle ?? episode.podcastId;
     return {
       episodeId: episode.id,
       episodeTitle: episode.title,
-      podcastTitle: podcast?.title ?? episode.podcastId,
-      imageUrl: episode.imageUrl ?? podcast?.artworkUrl ?? '/default-artwork.svg',
+      podcastTitle,
+      imageUrl: episode.imageUrl ?? '/default-artwork.svg',
       position,
       duration,
       lastPlayedAt: Date.now(),
@@ -279,15 +281,12 @@ export class AudioService {
       const currentTime = this.audio.currentTime;
       const duration = isFinite(this.audio.duration) ? this.audio.duration : 0;
       this.store.updateProgress(currentTime, duration);
-      if (this.store.isPlaying()) {
-        this.updateMediaSessionPositionState();
-      }
-
+      this.updateMediaSessionPositionState(currentTime, duration);
       // Throttled Firestore write during playback
       const uid = this.authStore.user()?.uid ?? null;
       // Use activeEpisodeId (not store) — store.currentEpisode() may already reflect
       // the next episode while audio.src still plays the previous one.
-      const episodeId = this.activeEpisodeId ?? this.store.currentEpisode()?.id ?? null;
+      const episodeId = this.activeEpisodeId;
       if (episodeId) {
         this.progressSync.scheduleWrite(
           episodeId,
@@ -310,15 +309,13 @@ export class AudioService {
       const uid = this.authStore.user()?.uid ?? null;
       const episode = this.store.currentEpisode();
       const episodeId = this.activeEpisodeId;
-      if (!uid || !episode || episode.id !== episodeId) {
-        return;
+      if (uid && episode && episode.id === episodeId) {
+        const duration = this.store.duration() || episode.duration || 0;
+        this.historySync.recordPlay(
+          this.buildHistoryEntry(episode, this.audio!.currentTime, duration, false),
+          uid,
+        );
       }
-
-      const duration = this.store.duration() || episode.duration || 0;
-      this.historySync.recordPlay(
-        this.buildHistoryEntry(episode, this.store.currentTime(), duration, false),
-        uid
-      );
     });
 
     this.audio.addEventListener('pause', () => {
@@ -326,7 +323,7 @@ export class AudioService {
       // Flush progress on any pause (user-initiated or programmatic).
       // Use activeEpisodeId — same race reason as timeupdate handler.
       const uid = this.authStore.user()?.uid ?? null;
-      const episodeId = this.activeEpisodeId ?? this.store.currentEpisode()?.id ?? null;
+      const episodeId = this.activeEpisodeId;
       if (episodeId && this.audio) {
         this.progressSync.scheduleWrite(
           episodeId,
@@ -349,7 +346,7 @@ export class AudioService {
 
     this.audio.addEventListener('ended', () => {
       const uid = this.authStore.user()?.uid ?? null;
-      const episodeId = this.activeEpisodeId ?? this.store.currentEpisode()?.id ?? null;
+      const episodeId = this.activeEpisodeId;
       const duration = this.store.duration();
       if (episodeId) {
         this.progressSync.markCompleted(episodeId, duration, uid);
@@ -359,21 +356,11 @@ export class AudioService {
       if (uid && episode && episode.id === episodeId) {
         this.historySync.recordPlay(
           this.buildHistoryEntry(episode, duration, duration, true),
-          uid
+          uid,
         );
       }
 
       this.store.playNext();
-
-      if (this.store.isPlaying() && this.audio) {
-        queueMicrotask(() => {
-          if (!this.audio || !this.store.isPlaying()) return;
-          this.audio.play().catch((err) => {
-            console.error('[AudioService] auto-play on ended failed:', err);
-            this.store.pause();
-          });
-        });
-      }
     });
 
     this.audio.addEventListener('error', (e) => {
