@@ -55,9 +55,15 @@ test.describe('Browse page', () => {
 
   test('clicking category shows relevant podcasts', async ({ page }) => {
     await page.goto('/tabs/browse');
+    // Wait for initial podcasts to load before interacting
+    await page.locator('wavely-podcast-card').first().waitFor({ timeout: 10000 });
 
-    // force: true bypasses Ionic shadow DOM pointer-events checks
-    await page.locator('ion-chip', { hasText: /^Comedy$/ }).click({ force: true });
+    // Promise.all ensures the Comedy HTTP request is actually triggered by the click.
+    // waitForResponse will fail if the click doesn't reach Angular's event handler.
+    await Promise.all([
+      page.waitForResponse(r => r.url().includes('genre/1303'), { timeout: 10000 }),
+      page.locator('ion-chip').filter({ hasText: /^Comedy$/ }).locator('ion-label').click(),
+    ]);
     await expect(page.getByText('Comedy Gold', { exact: false })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('All Category Podcast', { exact: false })).toHaveCount(0);
   });
