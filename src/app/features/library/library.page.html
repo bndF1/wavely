@@ -65,12 +65,37 @@
   <section class="library-section">
     <h2 class="section-title">Recently Played</h2>
 
-    @if (recentHistory.length === 0) {
+    @if (recentHistory().length === 0) {
       <wavely-empty-state
         icon="time-outline"
         title="No listening history"
         subtitle="Start an episode and your recent listens will appear here.">
       </wavely-empty-state>
+    } @else {
+      <ion-list lines="none">
+        <ion-button slot="end" fill="clear" size="small" class="clear-history-btn" (click)="clearHistory()">
+          Clear history
+        </ion-button>
+
+        @for (entry of recentHistory(); track entry.episodeId) {
+          <ion-item>
+            <ion-thumbnail slot="start" class="history-thumbnail">
+              <img [src]="entry.imageUrl || '/default-artwork.svg'" [alt]="entry.episodeTitle" (error)="onImageError($event)" />
+            </ion-thumbnail>
+            <ion-label>
+              <h2>{{ entry.episodeTitle }}</h2>
+              <ion-note>{{ entry.podcastTitle }}</ion-note>
+              <div class="history-meta">
+                <ion-note>{{ formatTime(entry.position) }} / {{ formatTime(entry.duration) }}</ion-note>
+                @if (entry.completed) {
+                  <ion-note color="success">Completed</ion-note>
+                }
+              </div>
+              <ion-progress-bar [value]="progressValue(entry)"></ion-progress-bar>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
     }
   </section>
 

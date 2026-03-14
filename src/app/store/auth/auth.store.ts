@@ -10,6 +10,8 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { tap } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
+import { HistorySyncService } from '../../core/services/history-sync.service';
+import { HistoryStore } from '../history/history.store';
 import type { User } from 'firebase/auth';
 
 interface AuthState {
@@ -33,7 +35,13 @@ export const AuthStore = signalStore(
     photoURL: computed(() => user()?.photoURL ?? null),
     email: computed(() => user()?.email ?? null),
   })),
-  withMethods((store, authService = inject(AuthService), syncService = inject(SubscriptionSyncService)) => ({
+  withMethods((
+    store,
+    authService = inject(AuthService),
+    syncService = inject(SubscriptionSyncService),
+    historySyncService = inject(HistorySyncService),
+    historyStore = inject(HistoryStore)
+  ) => ({
     init: rxMethod<void>(
       tap(() => {
         authService.user$.subscribe((user) => {
@@ -43,11 +51,37 @@ export const AuthStore = signalStore(
           if (user && user.uid !== previousUid) {
             // Clear any previous user's subscriptions first (handles direct user-switch A→B)
             syncService.clearSubscriptions();
+            historyStore.clear();
+            historyStore.setLoading(true);
+
             // Pass a stale-result guard: discard getDocs result if user changed mid-flight
             syncService.loadFromFirestore(user.uid, () => store.user()?.uid === user.uid);
+            historySyncService
+              .loadHistory(user.uid)
+              .then((entries) => {
+                if (store.user()?.uid !== user.uid) return;
+
+                const mergedByEpisodeId = new Map(
+                  historyStore.entries().map((entry) => [entry.episodeId, entry])
+                );
+
+                for (const entry of entries) {
+                  const existing = mergedByEpisodeId.get(entry.episodeId);
+                  if (!existing || entry.lastPlayedAt >= existing.lastPlayedAt) {
+                    mergedByEpisodeId.set(entry.episodeId, entry);
+                  }
+                }
+
+                historyStore.setEntries(Array.from(mergedByEpisodeId.values()));
+              })
+              .catch((err) => {
+                console.error('[AuthStore] Failed to load history', err);
+                historyStore.setLoading(false);
+              });
           } else if (!user && previousUid) {
             // User just signed out — clear in-memory subscriptions
             syncService.clearSubscriptions();
+            historyStore.clear();
           }
         });
       })
