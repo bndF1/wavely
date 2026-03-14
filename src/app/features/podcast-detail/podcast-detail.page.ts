@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import {
@@ -61,6 +61,7 @@ export class PodcastDetailPage {
   protected readonly playerStore = inject(PlayerStore);
   private readonly authStore = inject(AuthStore);
   private readonly syncService = inject(SubscriptionSyncService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected podcast: Podcast | null = null;
   protected episodes: Episode[] = [];
@@ -102,6 +103,7 @@ export class PodcastDetailPage {
         this.podcast = podcast;
         this.episodes = episodes;
         this.isLoading = false;
+        this.cdr.markForCheck();
       });
   }
 

@@ -48,7 +48,7 @@ test.describe('Browse page', () => {
   test('browse tab/category grid renders', async ({ page }) => {
     await page.goto('/tabs/browse');
 
-    await expect(page.getByRole('heading', { name: 'Browse' })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ hasText: 'Browse' })).toBeVisible();
     await expect(page.locator('.category-row ion-chip')).toHaveCount(12);
     await expect(page.locator('wavely-podcast-card').first()).toBeVisible();
   });
