@@ -47,26 +47,19 @@ test.skip(() => !process.env['USE_EMULATORS'], 'Requires Firebase emulators');
 
 test.describe('Player', () => {
   test.beforeEach(async ({ page }) => {
-    // Prevent the <audio> element from making real network requests or firing error
-    // events (which would cause AudioService to call store.pause() in CI).
-    // We suppress src (no fetch), override play() (resolves immediately), and
-    // no-op load() — keeping PlayerStore.isPlaying in sync with test clicks.
+    // Prevent AudioService from calling store.pause() in CI where real audio
+    // URLs can't load. Two guard layers:
+    // 1. play() always resolves — the .catch() path in AudioService never fires.
+    // 2. Suppress 'error' addEventListener on media elements — the browser's
+    //    audio-load-failure error event has no handler to call store.pause().
     await page.addInitScript(() => {
       HTMLMediaElement.prototype.play = function () {
         return Promise.resolve();
       };
-      const srcDesc = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src');
-      Object.defineProperty(HTMLMediaElement.prototype, 'src', {
-        get() {
-          return srcDesc?.get?.call(this) ?? '';
-        },
-        set(_v) {
-          /* suppress src to prevent network fetch and error events */
-        },
-        configurable: true,
-      });
-      HTMLMediaElement.prototype.load = function () {
-        /* suppress */
+      const origAddEventListener = HTMLMediaElement.prototype.addEventListener;
+      HTMLMediaElement.prototype.addEventListener = function (type, listener, options) {
+        if (type === 'error') return; // block AudioService's error → store.pause() path
+        origAddEventListener.call(this, type, listener, options);
       };
     });
 
@@ -99,14 +92,18 @@ test.describe('Player', () => {
   });
 
   test('play/pause toggle', async ({ page }) => {
+    // Ionic 8 forwards aria-label from the ion-button host to its shadow <button>
+    // and clears it on the host, so toHaveAttribute('aria-label') on ion-button is
+    // unreliable. Assert on ion-icon[name] instead — it directly reflects isPlaying.
+    const icon = page.locator('wavely-mini-player ion-button.mini-player__play-btn ion-icon');
     const toggleButton = page.locator('wavely-mini-player').locator('ion-button.mini-player__play-btn');
 
-    await expect(toggleButton).toHaveAttribute('aria-label', /pause/i);
+    await expect(icon).toHaveAttribute('name', 'pause-circle');
     await toggleButton.click();
-    await expect(toggleButton).toHaveAttribute('aria-label', /play/i);
+    await expect(icon).toHaveAttribute('name', 'play-circle');
 
     await toggleButton.click();
-    await expect(toggleButton).toHaveAttribute('aria-label', /pause/i);
+    await expect(icon).toHaveAttribute('name', 'pause-circle');
   });
 
   test('clicking mini player opens full player', async ({ page }) => {
