@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import {
@@ -23,6 +23,7 @@ import {
   IonRadio,
   IonThumbnail,
   IonProgressBar,
+  IonChip,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -37,7 +38,7 @@ import {
 } from 'ionicons/icons';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
-import { HistoryStore, HistoryEntry } from '../../store/history/history.store';
+import { HistoryStore, HistoryEntry, HistoryFilter } from '../../store/history/history.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { HistorySyncService } from '../../core/services/history-sync.service';
 import { ThemeService, ThemeMode } from '../../core/services/theme.service';
@@ -50,6 +51,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
   selector: 'wavely-library',
   templateUrl: './library.page.html',
   styleUrls: ['./library.page.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     IonHeader,
     IonToolbar,
@@ -72,6 +74,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
     IonRadio,
     IonThumbnail,
     IonProgressBar,
+    IonChip,
     EmptyStateComponent,
   ],
 })
@@ -85,7 +88,14 @@ export class LibraryPage {
   private readonly historySyncService = inject(HistorySyncService);
   private readonly router = inject(Router);
 
-  protected readonly recentHistory = computed(() => this.historyStore.entries().slice(0, 10));
+  protected readonly recentHistory = computed(() => this.historyStore.filteredEntries());
+
+  protected readonly historyFilters: { label: string; value: HistoryFilter }[] = [
+    { label: 'All', value: 'all' },
+    { label: 'Unplayed', value: 'unplayed' },
+    { label: 'In Progress', value: 'inProgress' },
+    { label: 'Completed', value: 'completed' },
+  ];
 
   protected readonly themeOptions: { label: string; value: ThemeMode; icon: string }[] = [
     { label: 'System default', value: 'system', icon: 'contrast-outline' },
@@ -122,6 +132,26 @@ export class LibraryPage {
       console.error('[LibraryPage] Failed to load history', err);
       this.historyStore.setLoading(false);
     }
+  }
+
+  protected selectFilter(filter: HistoryFilter): void {
+    this.historyStore.setFilter(filter);
+  }
+
+  protected async markPlayed(episodeId: string): Promise<void> {
+    this.historyStore.markPlayed(episodeId);
+    const uid = this.authStore.user()?.uid ?? '';
+    if (!uid) return;
+
+    await this.historySyncService.updateEntry(episodeId, { completed: true }, uid);
+  }
+
+  protected async markUnplayed(episodeId: string): Promise<void> {
+    this.historyStore.markUnplayed(episodeId);
+    const uid = this.authStore.user()?.uid ?? '';
+    if (!uid) return;
+
+    await this.historySyncService.updateEntry(episodeId, { completed: false, position: 0 }, uid);
   }
 
   protected navigateToPodcast(podcast: Podcast): void {
