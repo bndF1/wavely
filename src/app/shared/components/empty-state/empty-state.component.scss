@@ -1,0 +1,28 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 32px 16px;
+}
+
+.empty-state__icon {
+  font-size: 64px;
+  color: var(--wavely-on-surface-muted);
+}
+
+.empty-state__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--wavely-on-surface);
+}
+
+.empty-state__subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--wavely-on-surface-muted);
+}
