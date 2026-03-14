@@ -13,6 +13,8 @@ import type { User } from 'firebase/auth';
 import { AuthStore } from './auth.store';
 import { AuthService } from '../../core/auth/auth.service';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
+import { HistorySyncService } from '../../core/services/history-sync.service';
+import { HistoryStore } from '../history/history.store';
 
 describe('AuthStore', () => {
   let store: InstanceType<typeof AuthStore>;
@@ -27,6 +29,16 @@ describe('AuthStore', () => {
   const syncServiceMock = {
     clearSubscriptions: jest.fn(),
     loadFromFirestore: jest.fn(),
+  };
+
+  const historySyncServiceMock = {
+    loadHistory: jest.fn().mockResolvedValue([]),
+  };
+
+  const historyStoreMock = {
+    clear: jest.fn(),
+    setLoading: jest.fn(),
+    setEntries: jest.fn(),
   };
 
   const makeUser = (uid: string): User => ({
@@ -47,6 +59,8 @@ describe('AuthStore', () => {
         AuthStore,
         { provide: AuthService, useValue: authServiceMock },
         { provide: SubscriptionSyncService, useValue: syncServiceMock },
+        { provide: HistorySyncService, useValue: historySyncServiceMock },
+        { provide: HistoryStore, useValue: historyStoreMock },
       ],
     });
 
@@ -81,6 +95,7 @@ describe('AuthStore', () => {
     expect(store.user()).toEqual(signedInUser);
     expect(store.isAuthenticated()).toBe(true);
     expect(syncServiceMock.loadFromFirestore).toHaveBeenCalledWith('uid-1', expect.any(Function));
+    expect(historySyncServiceMock.loadHistory).toHaveBeenCalledWith('uid-1');
   });
 
   it('signOut clears user via user$ subscriber', async () => {
@@ -94,6 +109,7 @@ describe('AuthStore', () => {
     expect(authServiceMock.signOut).toHaveBeenCalledTimes(1);
     expect(store.user()).toBeNull();
     expect(syncServiceMock.clearSubscriptions).toHaveBeenCalled();
+    expect(historyStoreMock.clear).toHaveBeenCalled();
   });
 
   it('computed properties reflect current user values', () => {

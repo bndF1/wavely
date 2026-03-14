@@ -62,6 +62,35 @@
 </ion-header>
 
 <ion-content>
+  @if (recentHistory().length > 0) {
+    <ion-list lines="none">
+      <ion-list-header>
+        <ion-label>Recently Played</ion-label>
+        <ion-button slot="end" fill="clear" size="small" (click)="clearHistory()">Clear history</ion-button>
+      </ion-list-header>
+
+      @for (entry of recentHistory(); track entry.episodeId) {
+        <ion-item>
+          <ion-thumbnail slot="start" class="history-thumbnail">
+            <img [src]="entry.imageUrl || '/default-artwork.svg'" [alt]="entry.episodeTitle" (error)="onImageError($event)" />
+          </ion-thumbnail>
+
+          <ion-label>
+            <h2>{{ entry.episodeTitle }}</h2>
+            <ion-note>{{ entry.podcastTitle }}</ion-note>
+            <div class="history-meta">
+              <ion-note>{{ formatTime(entry.position) }} / {{ formatTime(entry.duration) }}</ion-note>
+              @if (entry.completed) {
+                <ion-note color="success">Completed</ion-note>
+              }
+            </div>
+            <ion-progress-bar [value]="progressValue(entry)"></ion-progress-bar>
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
   <!-- Subscriptions list -->
   @if (store.subscriptions().length > 0) {
     <p class="list-hint">Swipe left to unsubscribe</p>
@@ -113,6 +142,4 @@
       </ion-button>
     </div>
   }
-
-  <!-- Empty state -->
 </ion-content>
