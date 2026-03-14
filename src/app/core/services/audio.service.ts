@@ -3,7 +3,9 @@ import { isPlatformBrowser } from '@angular/common';
 import { PlayerStore } from '../../store/player/player.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { ProgressSyncService } from './progress-sync.service';
+import { HistorySyncService } from './history-sync.service';
 import { Episode } from '../models/podcast.model';
+import { HistoryEntry } from '../../store/history/history.store';
 
 /**
  * AudioService
@@ -19,6 +21,7 @@ export class AudioService {
   private readonly store = inject(PlayerStore);
   private readonly authStore = inject(AuthStore);
   private readonly progressSync = inject(ProgressSyncService);
+  private readonly historySync = inject(HistorySyncService);
   private readonly platformId = inject(PLATFORM_ID);
 
   private audio: HTMLAudioElement | null = null;
@@ -242,6 +245,26 @@ export class AudioService {
     }
   }
 
+  private buildHistoryEntry(
+    episode: Episode,
+    position: number,
+    duration: number,
+    completed: boolean,
+  ): HistoryEntry {
+    const podcastTitle =
+      (episode as Episode & { podcastTitle?: string }).podcastTitle ?? episode.podcastId;
+    return {
+      episodeId: episode.id,
+      episodeTitle: episode.title,
+      podcastTitle,
+      imageUrl: episode.imageUrl ?? '/default-artwork.svg',
+      position,
+      duration,
+      lastPlayedAt: Date.now(),
+      completed,
+    };
+  }
+
   private wireEvents(): void {
 
     this.audio.addEventListener('loadedmetadata', () => {
@@ -282,6 +305,17 @@ export class AudioService {
 
     this.audio.addEventListener('play', () => {
       this.updateMediaSessionPlaybackState(true);
+
+      const uid = this.authStore.user()?.uid ?? null;
+      const episode = this.store.currentEpisode();
+      const episodeId = this.activeEpisodeId;
+      if (uid && episode && episode.id === episodeId) {
+        const duration = this.store.duration() || episode.duration || 0;
+        this.historySync.recordPlay(
+          this.buildHistoryEntry(episode, this.audio!.currentTime, duration, false),
+          uid,
+        );
+      }
     });
 
     this.audio.addEventListener('pause', () => {
@@ -317,6 +351,15 @@ export class AudioService {
       if (episodeId) {
         this.progressSync.markCompleted(episodeId, duration, uid);
       }
+
+      const episode = this.store.currentEpisode();
+      if (uid && episode && episode.id === episodeId) {
+        this.historySync.recordPlay(
+          this.buildHistoryEntry(episode, duration, duration, true),
+          uid,
+        );
+      }
+
       this.store.playNext();
     });
 
