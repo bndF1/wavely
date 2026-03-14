@@ -8,6 +8,8 @@ export interface Podcast {
   genres: string[];
   episodeCount?: number;
   latestReleaseDate?: string;
+  /** iTunes artist/publisher ID — present on search/lookup results, absent on RSS chart entries. */
+  artistId?: string;
 }
 
 export interface Episode {
