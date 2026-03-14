@@ -73,10 +73,7 @@ test.describe.serial('Subscriptions', () => {
     await page.waitForURL('/tabs/library');
     // ion-title doesn't expose role="heading" — match via locator
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.getByText(podcast.title, { exact: false })).toBeVisible();
-  });
-
-  test('unsubscribe removes podcast from library', async ({ page }) => {
+    await expect(page.locator('.podcast-card__title', { hasText: podcast.title })).toBeVisible(); async ({ page }) => {
     const podcast = { id: '62002', title: 'Unsubscribe Flow Podcast' };
     await mockPodcastEndpoints(page, podcast);
 
@@ -86,11 +83,11 @@ test.describe.serial('Subscriptions', () => {
     await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library');
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.getByText(podcast.title, { exact: false })).toBeVisible();
+    await expect(page.locator('.podcast-card__title', { hasText: podcast.title })).toBeVisible();
 
     await page
       .getByRole('button', { name: new RegExp(`Unsubscribe from ${podcast.title}`, 'i') })
       .click();
-    await expect(page.getByText(podcast.title, { exact: false })).toHaveCount(0);
+    await expect(page.locator('.podcast-card__title', { hasText: podcast.title })).toHaveCount(0);
   });
 });

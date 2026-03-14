@@ -11,7 +11,7 @@
       @for (cat of categories; track cat) {
         <ion-chip
           button
-          [class.selected]="selectedCategory.id === cat.id"
+          [class.selected]="selectedCategory().id === cat.id"
           [style.--chip-color]="cat.color"
           (click)="selectCategory(cat)">
           <ion-label>{{ cat.name }}</ion-label>
@@ -21,7 +21,7 @@
   </div>
 
   <!-- Loading skeletons -->
-  @if (isLoading) {
+  @if (isLoading()) {
     <div class="podcast-grid">
       @for (s of skeletons; track s) {
         <wavely-podcast-card
@@ -33,9 +33,9 @@
   }
 
   <!-- Results -->
-  @if (!isLoading && topPodcasts.length > 0) {
+  @if (!isLoading() && topPodcasts().length > 0) {
     <div class="podcast-grid">
-      @for (podcast of topPodcasts; track podcast) {
+      @for (podcast of topPodcasts(); track podcast) {
         <wavely-podcast-card
           [podcast]="podcast"
           (cardClick)="navigateToPodcast($event)">
@@ -45,14 +45,14 @@
   }
 
   <!-- Error -->
-  @if (error && !isLoading) {
+  @if (error() && !isLoading()) {
     <div class="state-message">
-      <ion-text color="medium"><p>{{ error }}</p></ion-text>
+      <ion-text color="medium"><p>{{ error() }}</p></ion-text>
     </div>
   }
 
   <!-- Empty -->
-  @if (!isLoading && !error && topPodcasts.length === 0) {
+  @if (!isLoading() && !error() && topPodcasts().length === 0) {
     <div class="state-message">
       <ion-text color="medium"><p>No podcasts found in this category.</p></ion-text>
     </div>

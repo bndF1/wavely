@@ -76,7 +76,7 @@ test.describe('Player', () => {
   });
 
   test('play/pause toggle', async ({ page }) => {
-    const toggleButton = page.locator('wavely-mini-player').getByRole('button', { name: /pause|play/i });
+    const toggleButton = page.locator('wavely-mini-player').locator('ion-button.mini-player__play-btn');
 
     await expect(toggleButton).toHaveAttribute('aria-label', /pause/i);
     await toggleButton.click();
@@ -100,6 +100,6 @@ test.describe('Player', () => {
     await expect(fullPlayer.locator('.full-player__title')).toHaveText(PLAYER_EPISODE.title);
     await expect(fullPlayer.getByRole('button', { name: /skip back 15 seconds/i })).toBeVisible();
     await expect(fullPlayer.getByRole('button', { name: /skip forward 30 seconds/i })).toBeVisible();
-    await expect(fullPlayer.getByRole('button', { name: /pause|play/i })).toBeVisible();
+    await expect(fullPlayer.locator('button.full-player__play-pause-btn')).toBeVisible();
   });
 });
