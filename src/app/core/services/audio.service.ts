@@ -170,12 +170,18 @@ export class AudioService {
 
     mediaSession.setActionHandler('play', () => this.store.resume());
     mediaSession.setActionHandler('pause', () => this.store.pause());
+    mediaSession.setActionHandler('stop', () => this.store.close());
     mediaSession.setActionHandler('seekbackward', (details) =>
       this.store.skipBack(details.seekOffset ?? 15)
     );
     mediaSession.setActionHandler('seekforward', (details) =>
       this.store.skipForward(details.seekOffset ?? 30)
     );
+    mediaSession.setActionHandler('seekto', (details) => {
+      if (details.seekTime !== undefined) {
+        this.store.seek(details.seekTime);
+      }
+    });
     mediaSession.setActionHandler('previoustrack', () => {
       if (this.store.currentTime() > 5) {
         this.store.seek(0);
@@ -196,11 +202,12 @@ export class AudioService {
       return;
     }
 
+    const artist = (episode as Episode & { podcastTitle?: string }).podcastTitle ?? episode.podcastId;
     mediaSession.metadata = new MediaMetadata({
       title: episode.title,
-      artist: episode.podcastId,
+      artist,
       artwork: episode.imageUrl
-        ? [{ src: episode.imageUrl, sizes: '512x512', type: 'image/jpeg' }]
+        ? [{ src: episode.imageUrl, sizes: '512x512' }]
         : [],
     });
   }
@@ -228,7 +235,7 @@ export class AudioService {
       mediaSession.setPositionState({
         duration,
         playbackRate: this.store.playbackRate(),
-        position: Math.min(currentTime, duration),
+        position: Math.min(Math.max(currentTime, 0), duration),
       });
     } catch {
       // setPositionState throws if duration/position is invalid — ignore silently
