@@ -60,7 +60,19 @@ export const AuthStore = signalStore(
               .loadHistory(user.uid)
               .then((entries) => {
                 if (store.user()?.uid !== user.uid) return;
-                historyStore.setEntries(entries);
+
+                const mergedByEpisodeId = new Map(
+                  historyStore.entries().map((entry) => [entry.episodeId, entry])
+                );
+
+                for (const entry of entries) {
+                  const existing = mergedByEpisodeId.get(entry.episodeId);
+                  if (!existing || entry.lastPlayedAt >= existing.lastPlayedAt) {
+                    mergedByEpisodeId.set(entry.episodeId, entry);
+                  }
+                }
+
+                historyStore.setEntries(Array.from(mergedByEpisodeId.values()));
               })
               .catch((err) => {
                 console.error('[AuthStore] Failed to load history', err);

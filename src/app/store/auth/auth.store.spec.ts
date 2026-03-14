@@ -37,6 +37,7 @@ describe('AuthStore', () => {
 
   const historyStoreMock = {
     clear: jest.fn(),
+    entries: jest.fn().mockReturnValue([]),
     setLoading: jest.fn(),
     setEntries: jest.fn(),
   };

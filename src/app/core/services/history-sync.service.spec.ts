@@ -174,6 +174,21 @@ describe('HistorySyncService', () => {
       });
     });
 
+    it('falls back to Firestore document id when episodeId is missing in data', async () => {
+      mockGetDocs.mockResolvedValue({
+        docs: [
+          {
+            id: 'ep-from-doc-id',
+            data: () => ({ episodeTitle: 'From doc id' }),
+          },
+        ],
+      });
+
+      const result = await service.loadHistory('uid-1');
+      expect(result).toHaveLength(1);
+      expect(result[0].episodeId).toBe('ep-from-doc-id');
+    });
+
     it('filters out entries with empty episodeId', async () => {
       mockGetDocs.mockResolvedValue({
         docs: [
