@@ -121,6 +121,9 @@ export class PodcastDetailPage {
     } else {
       this.syncService.addSubscription(this.podcast, uid);
     }
+    // Store is updated synchronously (optimistic) but the getter `isSubscribed`
+    // isn't a signal — OnPush won't re-evaluate it without an explicit nudge.
+    this.cdr.markForCheck();
   }
 
   protected playEpisode(episode: Episode): void {
