@@ -9,22 +9,21 @@ import {
   IonContent,
   IonSearchbar,
   IonText,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonSkeletonText,
+  IonThumbnail,
   SearchbarCustomEvent,
 } from '@ionic/angular/standalone';
-import {
-  Subject,
-  debounceTime,
-  distinctUntilChanged,
-  switchMap,
-  of,
-  takeUntil,
-  catchError,
-  map,
-} from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, of, takeUntil, catchError, map } from 'rxjs';
+import { addIcons } from 'ionicons';
+import { alertCircleOutline, refreshOutline, searchOutline } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { Podcast } from '../../core/models/podcast.model';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 const SKELETON_COUNT = 6;
 const DEBOUNCE_MS = 300;
@@ -41,8 +40,14 @@ const DEBOUNCE_MS = 300;
     IonContent,
     IonSearchbar,
     IonText,
-    PodcastCardComponent
-],
+    IonList,
+    IonItem,
+    IonLabel,
+    IonSkeletonText,
+    IonThumbnail,
+    PodcastCardComponent,
+    EmptyStateComponent,
+  ],
 })
 export class SearchPage implements OnDestroy {
   private readonly api = inject(PodcastApiService);
@@ -51,13 +56,21 @@ export class SearchPage implements OnDestroy {
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
   protected readonly skeletonPodcast: Podcast = {
-    id: '', title: '', author: '', description: '', artworkUrl: '', feedUrl: '', genres: [],
+    id: '',
+    title: '',
+    author: '',
+    description: '',
+    artworkUrl: '',
+    feedUrl: '',
+    genres: [],
   };
 
   private readonly search$ = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
+    addIcons({ searchOutline, alertCircleOutline, refreshOutline });
+
     this.search$
       .pipe(
         debounceTime(DEBOUNCE_MS),
@@ -75,10 +88,10 @@ export class SearchPage implements OnDestroy {
             catchError(() => {
               this.store.setError('Search failed. Please try again.');
               return of(null);
-            }),
+            })
           );
         }),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe((payload) => {
         if (payload !== null) {
@@ -101,6 +114,14 @@ export class SearchPage implements OnDestroy {
   protected onSearchClear(): void {
     // Emit empty string immediately so switchMap cancels any in-flight request
     this.search$.next('');
+  }
+
+  protected retrySearch(): void {
+    const query = this.store.searchQuery();
+    if (!query.trim()) {
+      return;
+    }
+    this.search$.next(query);
   }
 
   protected navigateToPodcast(podcast: Podcast): void {
