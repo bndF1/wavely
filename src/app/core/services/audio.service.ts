@@ -211,11 +211,9 @@ export class AudioService {
     mediaSession.playbackState = playing ? 'playing' : 'paused';
   }
 
-  private updateMediaSessionPositionState(): void {
+  private updateMediaSessionPositionState(currentTime: number, duration: number): void {
     const mediaSession = this.getMediaSession();
     if (!mediaSession) return;
-
-    const duration = this.store.duration();
     if (duration <= 0) return;
     if (typeof mediaSession.setPositionState !== 'function') return;
 
@@ -230,7 +228,7 @@ export class AudioService {
       mediaSession.setPositionState({
         duration,
         playbackRate: this.store.playbackRate(),
-        position: this.store.currentTime(),
+        position: Math.min(currentTime, duration),
       });
     } catch {
       // setPositionState throws if duration/position is invalid — ignore silently
@@ -253,9 +251,7 @@ export class AudioService {
       const currentTime = this.audio.currentTime;
       const duration = isFinite(this.audio.duration) ? this.audio.duration : 0;
       this.store.updateProgress(currentTime, duration);
-      if (this.store.isPlaying()) {
-        this.updateMediaSessionPositionState();
-      }
+      this.updateMediaSessionPositionState(currentTime, duration);
       // Throttled Firestore write during playback
       const uid = this.authStore.user()?.uid ?? null;
       // Use activeEpisodeId (not store) — store.currentEpisode() may already reflect
