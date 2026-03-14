@@ -49,7 +49,11 @@
       <div class="podcast-meta">
         <h1 class="podcast-title">{{ podcast.title }}</h1>
         @if (podcast.artistId) {
-          <p class="podcast-author podcast-author--link" (click)="navigateToPublisher()">{{ podcast.author }}</p>
+          <p class="podcast-author podcast-author--link"
+            tabindex="0"
+            role="link"
+            (click)="navigateToPublisher()"
+            (keydown.enter)="navigateToPublisher()">{{ podcast.author }}</p>
         } @else {
           <p class="podcast-author">{{ podcast.author }}</p>
         }
