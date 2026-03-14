@@ -48,19 +48,6 @@ jobs:
           bunx nx build --configuration=e2e
           cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html
 
-      - name: Pre-download Firebase Emulator JARs
-        if: steps.firebase-cache.outputs.cache-hit != 'true'
-        run: |
-          # Download emulator JARs before starting; avoids timeout during health-check wait
-          bunx firebase-tools emulators:start \
-            --only auth,firestore \
-            --project wavely-f659c &
-          EMU_PID=$!
-          # Give it 90s to download JARs and start
-          sleep 90
-          kill $EMU_PID 2>/dev/null || true
-          echo "✅ Emulator JARs pre-downloaded"
-
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
 
@@ -68,9 +55,10 @@ jobs:
         run: |
           bunx firebase-tools emulators:start \
             --only auth,firestore \
+            --no-ui \
             --project wavely-f659c &
-          # Wait for auth emulator (JARs are now cached — should start in <10s)
-          timeout 120 bash -c \
+          # Wait for auth emulator; first run downloads JARs (~2-4 min), cached runs start in <30s
+          timeout 300 bash -c \
             'until curl -sf http://localhost:9099 > /dev/null 2>&1; do sleep 2; done'
           echo "✅ Auth emulator ready"
           # Wait for Firestore emulator
