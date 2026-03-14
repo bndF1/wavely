@@ -1,0 +1,8 @@
+<div class="state-container">
+  <ion-icon class="state-icon" [name]="icon()" aria-hidden="true"></ion-icon>
+  <h3 class="state-title">{{ title() }}</h3>
+  <p class="state-message">{{ message() }}</p>
+  <ion-button (click)="retry.emit()" fill="solid" color="primary">
+    {{ retryLabel() }}
+  </ion-button>
+</div>

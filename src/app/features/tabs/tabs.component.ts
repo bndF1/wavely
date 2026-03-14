@@ -23,12 +23,22 @@ import {
 import { PlayerStore } from '../../store/player/player.store';
 import { MiniPlayerComponent } from '../player/mini-player/mini-player.component';
 import { FullPlayerComponent } from '../player/full-player/full-player.component';
+import { OfflineBannerComponent } from '../../shared/components/offline-banner/offline-banner.component';
 
 @Component({
   selector: 'wavely-tabs',
   templateUrl: './tabs.component.html',
   styleUrls: ['./tabs.component.scss'],
-  imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, IonFooter, MiniPlayerComponent],
+  imports: [
+    IonTabs,
+    IonTabBar,
+    IonTabButton,
+    IonIcon,
+    IonLabel,
+    IonFooter,
+    MiniPlayerComponent,
+    OfflineBannerComponent,
+  ],
 })
 export class TabsComponent {
   readonly store = inject(PlayerStore);
@@ -36,10 +46,14 @@ export class TabsComponent {
 
   constructor() {
     addIcons({
-      homeOutline, home,
-      compassOutline, compass,
-      searchOutline, search,
-      libraryOutline, library,
+      homeOutline,
+      home,
+      compassOutline,
+      compass,
+      searchOutline,
+      search,
+      libraryOutline,
+      library,
     });
   }
 

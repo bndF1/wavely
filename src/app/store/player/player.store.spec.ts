@@ -156,6 +156,34 @@ describe('PlayerStore', () => {
     });
   });
 
+
+  describe('removeFromQueue()', () => {
+    it('removes only the matching episode id', () => {
+      const keep = mockEpisode({ id: 'keep-1' });
+      const remove = mockEpisode({ id: 'remove-1' });
+      store.addToQueue(keep);
+      store.addToQueue(remove);
+
+      store.removeFromQueue('remove-1');
+
+      expect(store.queue()).toEqual([keep]);
+    });
+
+    it('keeps other queued episodes after removal', () => {
+      const ep1 = mockEpisode({ id: 'ep-1' });
+      const ep2 = mockEpisode({ id: 'ep-2' });
+      const ep3 = mockEpisode({ id: 'ep-3' });
+      store.addToQueue(ep1);
+      store.addToQueue(ep2);
+      store.addToQueue(ep3);
+
+      store.removeFromQueue('ep-2');
+
+      expect(store.queue()).toHaveLength(2);
+      expect(store.queue()).toEqual([ep1, ep3]);
+    });
+  });
+
   describe('playNext()', () => {
     it('advances to the next episode in the queue', () => {
       const ep1 = mockEpisode();

@@ -7,6 +7,10 @@ import {
   IonIcon,
   IonContent,
   IonRange,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonNote,
   ModalController,
   ActionSheetController,
 } from '@ionic/angular/standalone';
@@ -19,6 +23,8 @@ import {
   playSkipForward,
   speedometer,
   ellipsisHorizontal,
+  closeCircleOutline,
+  listOutline,
 } from 'ionicons/icons';
 import { PlayerStore } from '../../../store/player/player.store';
 import { AudioService } from '../../../core/services/audio.service';
@@ -35,8 +41,12 @@ import { RangeCustomEvent } from '@ionic/angular';
     IonButton,
     IonIcon,
     IonContent,
-    IonRange
-],
+    IonRange,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonNote,
+  ],
 })
 export class FullPlayerComponent {
   readonly store = inject(PlayerStore);
@@ -46,7 +56,7 @@ export class FullPlayerComponent {
   readonly rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
   constructor() {
-    addIcons({ chevronDown, playCircle, pauseCircle, playSkipBack, playSkipForward, speedometer, ellipsisHorizontal });
+    addIcons({ chevronDown, playCircle, pauseCircle, playSkipBack, playSkipForward, speedometer, ellipsisHorizontal, closeCircleOutline, listOutline });
   }
 
   get progressValue(): number {

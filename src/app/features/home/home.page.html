@@ -16,10 +16,10 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- ── My Subscriptions ── -->
-  @if (store.subscriptions().length > 0) {
-    <section class="home-section">
-      <h2 class="section-title">My Podcasts</h2>
+  <section class="home-section">
+    <h2 class="section-title">My Podcasts</h2>
+
+    @if (store.subscriptions().length > 0) {
       <div class="subscriptions-scroll">
         <div class="subscriptions-row">
           @for (podcast of store.subscriptions(); track podcast) {
@@ -31,54 +31,60 @@
           }
         </div>
       </div>
-    </section>
-  }
+    } @else {
+      <wavely-empty-state
+        icon="library-outline"
+        title="No subscriptions yet"
+        subtitle="Subscribe to podcasts to quickly access them here."
+        actionLabel="Browse podcasts"
+        (action)="navigateToBrowse()">
+      </wavely-empty-state>
+    }
+  </section>
 
-  <!-- ── Trending ── -->
   <section class="home-section">
     <h2 class="section-title">Trending</h2>
 
-    <!-- Error state -->
     @if (store.error() && !store.isLoading()) {
-      <div class="error-state">
-        <ion-text color="medium">
-          <p>{{ store.error() }}</p>
-        </ion-text>
-      </div>
+      <wavely-empty-state
+        icon="alert-circle-outline"
+        title="Could not load trending podcasts"
+        [subtitle]="store.error()!"
+        actionLabel="Retry"
+        (action)="retryTrending()">
+      </wavely-empty-state>
     }
 
-    <!-- Loading skeletons -->
     @if (store.isLoading()) {
-      <div class="podcast-grid">
+      <div class="podcast-grid" aria-label="Loading trending podcasts">
         @for (s of skeletons; track s) {
-          <wavely-podcast-card
-            [podcast]="skeletonPodcast"
-            [loading]="true">
-          </wavely-podcast-card>
+          <ion-card class="skeleton-card" aria-hidden="true">
+            <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
+            <ion-card-content>
+              <ion-skeleton-text [animated]="true" style="width: 85%; height: 16px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width: 60%; height: 14px"></ion-skeleton-text>
+            </ion-card-content>
+          </ion-card>
         }
       </div>
     }
 
-    <!-- Trending grid -->
-    @if (!store.isLoading() && store.trending().length > 0) {
+    @if (!store.isLoading() && !store.error() && store.trending().length > 0) {
       <div class="podcast-grid">
         @for (podcast of store.trending(); track podcast) {
-          <wavely-podcast-card
-            [podcast]="podcast"
-            (cardClick)="navigateToPodcast($event)">
-          </wavely-podcast-card>
+          <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
         }
       </div>
     }
 
-    <!-- Empty state (no error, no loading, no results) -->
     @if (!store.isLoading() && !store.error() && store.trending().length === 0) {
-      <div
-        class="empty-state">
-        <ion-text color="medium">
-          <p>No trending podcasts found.</p>
-        </ion-text>
-      </div>
+      <wavely-empty-state
+        icon="sparkles-outline"
+        title="No trending podcasts"
+        subtitle="Pull to refresh and try again in a moment."
+        actionLabel="Retry"
+        (action)="retryTrending()">
+      </wavely-empty-state>
     }
   </section>
 </ion-content>

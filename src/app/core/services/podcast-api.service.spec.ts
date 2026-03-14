@@ -37,9 +37,28 @@ describe('PodcastApiService', () => {
         (r) =>
           r.url === `${ITUNES_BASE}/search` &&
           r.params.get('term') === 'javascript' &&
-          r.params.get('media') === 'podcast'
+          r.params.get('media') === 'podcast' &&
+          r.params.get('limit') === '50'
       );
       expect(req.request.method).toBe('GET');
+      req.flush({ results: [] });
+    });
+
+    it('includes country param when provided', () => {
+      service.searchPodcasts('music', 'es').subscribe();
+
+      const req = httpMock.expectOne(
+        (r) => r.url === `${ITUNES_BASE}/search` && r.params.get('country') === 'es'
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ results: [] });
+    });
+
+    it('omits country param when not provided', () => {
+      service.searchPodcasts('music').subscribe();
+
+      const req = httpMock.expectOne((r) => r.url === `${ITUNES_BASE}/search`);
+      expect(req.request.params.has('country')).toBe(false);
       req.flush({ results: [] });
     });
 
@@ -184,6 +203,50 @@ describe('PodcastApiService', () => {
         `${ITUNES_BASE}/us/rss/toppodcasts/limit=5/genre/1310/json`
       );
       req.flush({ feed: { entry: [] } });
+    });
+  });
+
+  describe('detectCountry()', () => {
+    const originalLanguage = Object.getOwnPropertyDescriptor(navigator, 'language');
+
+    afterEach(() => {
+      if (originalLanguage) {
+        Object.defineProperty(navigator, 'language', originalLanguage);
+      }
+    });
+
+    function setLocale(lang: string): void {
+      Object.defineProperty(navigator, 'language', { value: lang, configurable: true });
+    }
+
+    it('extracts 2-letter region from a full locale (e.g. es-ES → es)', () => {
+      setLocale('es-ES');
+      expect(service.detectCountry()).toBe('es');
+    });
+
+    it('extracts first 2-letter region even when script is present (e.g. zh-Hans-CN)', () => {
+      setLocale('zh-Hans-CN');
+      expect(service.detectCountry()).toBe('cn');
+    });
+
+    it('ignores unicode extension sequences (e.g. en-US-u-hc-h12)', () => {
+      setLocale('en-US-u-hc-h12');
+      expect(service.detectCountry()).toBe('us');
+    });
+
+    it('falls back to language map for locales without a 2-letter region (e.g. zh-Hans)', () => {
+      setLocale('zh-Hans');
+      expect(service.detectCountry()).toBe('cn');
+    });
+
+    it('falls back to language map for numeric region tags (e.g. es-419)', () => {
+      setLocale('es-419');
+      expect(service.detectCountry()).toBe('es');
+    });
+
+    it('falls back to "us" for unknown language-only codes', () => {
+      setLocale('xx');
+      expect(service.detectCountry()).toBe('us');
     });
   });
 });

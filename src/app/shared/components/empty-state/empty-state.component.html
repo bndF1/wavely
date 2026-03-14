@@ -1,0 +1,11 @@
+<div class="empty-state" role="status" aria-live="polite">
+  <ion-icon class="empty-state__icon" [name]="icon()"></ion-icon>
+  <ion-text>
+    <h3 class="empty-state__title">{{ title() }}</h3>
+    <p class="empty-state__subtitle">{{ subtitle() }}</p>
+  </ion-text>
+
+  @if (actionLabel()) {
+    <ion-button color="primary" (click)="emitAction()">{{ actionLabel() }}</ion-button>
+  }
+</div>

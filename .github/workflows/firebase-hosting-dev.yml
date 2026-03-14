@@ -1,7 +1,13 @@
 name: Deploy to Firebase Hosting (Dev)
 
-# Deploys the dev branch to a permanent dev channel.
-# URL: https://wavely-f659c--dev.web.app
+# Deploys the dev branch to a persistent Firebase Hosting preview channel.
+#
+# Firebase Hosting preview channel URLs include a random hash assigned at channel
+# creation: https://wavely-f659c--dev-<hash>.web.app
+# The actual URL is output as a GitHub deployment and job summary after each run.
+#
+# The channel is refreshed on every push to dev (--expires 30d resets the timer).
+# A weekly cron in firebase-channel-refresh.yml prevents accidental expiry.
 #
 # Flow: feature/* → dev (here) → PR → staging → PR → main (production)
 
@@ -13,6 +19,12 @@ on:
 jobs:
   build-and-deploy-dev:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    environment:
+      name: dev
+      url: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -41,9 +53,21 @@ jobs:
         run: bunx nx build --configuration=production && cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html
 
       - name: Deploy to dev channel
+        id: deploy
         run: |
-          bunx firebase-tools hosting:channel:deploy dev \
+          OUTPUT=$(bunx firebase-tools hosting:channel:deploy dev \
             --expires 30d \
-            --project wavely-f659c
+            --project wavely-f659c \
+            --json 2>/dev/null)
+          URL=$(node -e "
+            try { const r=JSON.parse(process.argv[1]); console.log(Object.values(r.result||{})[0]?.url||''); }
+            catch { console.log(''); }
+          " "$OUTPUT")
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "## 🔥 Dev deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URL**: [$URL]($URL)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> Channel expires in 30 days. Bookmark this URL — it stays stable as long as the channel is refreshed before expiry." >> $GITHUB_STEP_SUMMARY
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

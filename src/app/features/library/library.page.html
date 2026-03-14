@@ -62,57 +62,83 @@
 </ion-header>
 
 <ion-content>
-  <!-- Subscriptions list -->
-  @if (store.subscriptions().length > 0) {
-    <p class="list-hint">Swipe left to unsubscribe</p>
-    <ion-list lines="full">
-      @for (podcast of store.subscriptions(); track podcast) {
-        <ion-item-sliding
-          #slidingItem>
-          <ion-item
-            button
-            detail="true"
-            (click)="navigateToPodcast(podcast)">
-            <ion-avatar slot="start" class="podcast-avatar">
-              <img
-                [src]="podcast.artworkUrl || '/default-artwork.svg'"
-                [alt]="podcast.title"
-                (error)="onImageError($event)" />
-            </ion-avatar>
-            <ion-label>
-              <h2>{{ podcast.title }}</h2>
-              <ion-note>{{ podcast.author }}</ion-note>
-            </ion-label>
-            <!-- Always-visible unsubscribe for keyboard/a11y users -->
-            <ion-button
-              slot="end"
-              fill="clear"
-              color="medium"
-              size="small"
-              [attr.aria-label]="'Unsubscribe from ' + podcast.title"
-              (click)="$event.stopPropagation(); unsubscribe(podcast, slidingItem)">
-              ✕
-            </ion-button>
-          </ion-item>
-          <ion-item-options side="end">
-            <ion-item-option color="danger" (click)="unsubscribe(podcast, slidingItem)">
-              Unsubscribe
-            </ion-item-option>
-          </ion-item-options>
-        </ion-item-sliding>
-      }
-    </ion-list>
-  } @else {
-    <div class="empty-state">
-      <ion-text color="medium">
-        <p class="empty-state__title">No subscriptions yet</p>
-        <p class="empty-state__sub">Browse podcasts and subscribe to build your library.</p>
-      </ion-text>
-      <ion-button (click)="navigateToBrowse()" fill="solid" color="primary">
-        Browse Podcasts
-      </ion-button>
-    </div>
-  }
+  <section class="library-section">
+    <h2 class="section-title">Recently Played</h2>
 
-  <!-- Empty state -->
+    @if (recentHistory().length === 0) {
+      <wavely-empty-state
+        icon="time-outline"
+        title="No listening history"
+        subtitle="Start an episode and your recent listens will appear here.">
+      </wavely-empty-state>
+    } @else {
+      <ion-list lines="none">
+        <ion-button slot="end" fill="clear" size="small" class="clear-history-btn" (click)="clearHistory()">
+          Clear history
+        </ion-button>
+
+        @for (entry of recentHistory(); track entry.episodeId) {
+          <ion-item>
+            <ion-thumbnail slot="start" class="history-thumbnail">
+              <img [src]="entry.imageUrl || '/default-artwork.svg'" [alt]="entry.episodeTitle" (error)="onImageError($event)" />
+            </ion-thumbnail>
+            <ion-label>
+              <h2>{{ entry.episodeTitle }}</h2>
+              <ion-note>{{ entry.podcastTitle }}</ion-note>
+              <div class="history-meta">
+                <ion-note>{{ formatTime(entry.position) }} / {{ formatTime(entry.duration) }}</ion-note>
+                @if (entry.completed) {
+                  <ion-note color="success">Completed</ion-note>
+                }
+              </div>
+              <ion-progress-bar [value]="progressValue(entry)"></ion-progress-bar>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  </section>
+
+  <section class="library-section">
+    <h2 class="section-title">Subscriptions</h2>
+
+    @if (store.subscriptions().length > 0) {
+      <p class="list-hint">Swipe left to unsubscribe</p>
+      <ion-list lines="full">
+        @for (podcast of store.subscriptions(); track podcast) {
+          <ion-item-sliding #slidingItem>
+            <ion-item button detail="true" (click)="navigateToPodcast(podcast)">
+              <ion-avatar slot="start" class="podcast-avatar">
+                <img [src]="podcast.artworkUrl || '/default-artwork.svg'" [alt]="podcast.title" (error)="onImageError($event)" />
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ podcast.title }}</h2>
+                <ion-note>{{ podcast.author }}</ion-note>
+              </ion-label>
+              <ion-button
+                slot="end"
+                fill="clear"
+                color="medium"
+                size="small"
+                [attr.aria-label]="'Unsubscribe from ' + podcast.title"
+                (click)="$event.stopPropagation(); unsubscribe(podcast, slidingItem)">
+                ✕
+              </ion-button>
+            </ion-item>
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="unsubscribe(podcast, slidingItem)">Unsubscribe</ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </ion-list>
+    } @else {
+      <wavely-empty-state
+        icon="library-outline"
+        title="No subscriptions yet"
+        subtitle="Browse podcasts and subscribe to build your library."
+        actionLabel="Browse Podcasts"
+        (action)="navigateToBrowse()">
+      </wavely-empty-state>
+    }
+  </section>
 </ion-content>
