@@ -8,6 +8,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # semantic-release: push tags + create GitHub releases
+      issues: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
