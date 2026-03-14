@@ -63,28 +63,16 @@ test.describe.serial('Subscriptions', () => {
   test('subscribe to podcast then appears in library', async ({ page }) => {
     const podcast = { id: '62001', title: 'Subscribe Flow Podcast' };
 
-    // Diagnostic logging for CI debugging
-    page.on('console', (msg) => console.log(`[sub-test:${msg.type()}] ${msg.text()}`));
-    page.on('pageerror', (err) => console.error('[sub-test:pageerror]', err.message));
-    page.on('response', (res) => {
-      if (res.url().includes('itunes') || res.status() >= 400) {
-        console.log(`[sub-test:response] ${res.status()} ${res.url()}`);
-      }
-    });
-
     await mockPodcastEndpoints(page, podcast);
 
-    console.log('[sub-test] navigating to podcast detail...');
-    await page.goto(`/podcast/${podcast.id}`, { waitUntil: 'domcontentloaded' });
-    console.log('[sub-test] page loaded, URL:', page.url());
-
-    // Wait for Angular to finish rendering the podcast content
+    await page.goto(`/podcast/${podcast.id}`);
+    // Wait for podcast content to load before interacting
     await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
-    console.log('[sub-test] podcast header visible, looking for subscribe button...');
 
-    await page.locator('ion-button').filter({ hasText: /^Subscribe$/i }).click();
-    // Wait for the optimistic update to reflect in the UI before navigating
-    await expect(page.locator('ion-button').filter({ hasText: /^Subscribed$/i })).toBeVisible({ timeout: 10000 });
+    // Use \b word boundaries instead of ^$ anchors — textContent includes
+    // whitespace from Angular template interpolation so ^Subscribe$ never matches.
+    await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
+    await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     // SPA navigation preserves PodcastsStore state; page.goto would reload and
     // lose the subscription before the Firestore write completes.
@@ -101,10 +89,12 @@ test.describe.serial('Subscriptions', () => {
     await mockPodcastEndpoints(page, podcast);
 
     await page.goto(`/podcast/${podcast.id}`);
-    await page.locator('ion-button').filter({ hasText: /^Subscribe$/i }).click();
+    await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
+
+    await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
     // Wait for the optimistic update to reflect in the UI before navigating
     // (button changes to 'Subscribed' as soon as the store adds the podcast)
-    await expect(page.locator('ion-button').filter({ hasText: /^Subscribed$/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
