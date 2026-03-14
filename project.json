@@ -79,6 +79,10 @@
             {
               "replace": "src/environments/environment.ts",
               "with": "src/environments/environment.e2e.ts"
+            },
+            {
+              "replace": "src/app/app.routes.server.ts",
+              "with": "src/app/app.routes.server.e2e.ts"
             }
           ],
           "sourceMap": true,

@@ -10,7 +10,7 @@ test.describe('Login page', () => {
 
   test('displays a Google sign-in button', async ({ page }) => {
     await page.goto('/login');
-    const googleBtn = page.getByText(/sign in with google/i);
+    const googleBtn = page.getByText(/continue with google/i);
     await expect(googleBtn).toBeVisible({ timeout: 10000 });
   });
 

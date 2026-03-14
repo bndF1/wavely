@@ -1,17 +1,17 @@
-name: Deploy to Firebase Hosting (Staging)
+name: Deploy to Firebase Hosting (Dev)
 
-# Deploys the staging branch to a permanent staging channel.
-# URL: https://wavely-f659c--staging.web.app
+# Deploys the dev branch to a permanent dev channel.
+# URL: https://wavely-f659c--dev.web.app
 #
-# Flow: feature/* → dev → PR → staging (here) → PR → main (production)
+# Flow: feature/* → dev (here) → PR → staging → PR → main (production)
 
 on:
   push:
-    branches: [staging]
+    branches: [dev]
   workflow_dispatch:
 
 jobs:
-  build-and-deploy-staging:
+  build-and-deploy-dev:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,9 +40,9 @@ jobs:
       - name: Build
         run: bunx nx build --configuration=production && cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html
 
-      - name: Deploy to staging channel
+      - name: Deploy to dev channel
         run: |
-          bunx firebase-tools hosting:channel:deploy staging \
+          bunx firebase-tools hosting:channel:deploy dev \
             --expires 30d \
             --project wavely-f659c
         env:

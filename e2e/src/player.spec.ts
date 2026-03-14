@@ -47,6 +47,22 @@ test.skip(() => !process.env['USE_EMULATORS'], 'Requires Firebase emulators');
 
 test.describe('Player', () => {
   test.beforeEach(async ({ page }) => {
+    // Prevent AudioService from calling store.pause() in CI where real audio
+    // URLs can't load. Two guard layers:
+    // 1. play() always resolves — the .catch() path in AudioService never fires.
+    // 2. Suppress 'error' addEventListener on media elements — the browser's
+    //    audio-load-failure error event has no handler to call store.pause().
+    await page.addInitScript(() => {
+      HTMLMediaElement.prototype.play = function () {
+        return Promise.resolve();
+      };
+      const origAddEventListener = HTMLMediaElement.prototype.addEventListener;
+      HTMLMediaElement.prototype.addEventListener = function (type, listener, options) {
+        if (type === 'error') return; // block AudioService's error → store.pause() path
+        origAddEventListener.call(this, type, listener, options);
+      };
+    });
+
     await page.route(ITUNES_LOOKUP_URL, async (route) => {
       const url = new URL(route.request().url());
       const entity = url.searchParams.get('entity');
@@ -64,7 +80,9 @@ test.describe('Player', () => {
     await page.getByRole('button', { name: new RegExp(`Play ${PLAYER_EPISODE.title}`, 'i') }).click();
     await expect(page).toHaveURL(/\/episode\//);
 
-    await page.goto('/tabs/home');
+    // Navigate within the SPA to preserve PlayerStore state (page.goto would reload)
+    await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/home');
+    await page.waitForURL('/tabs/home');
     await expect(page.locator('wavely-mini-player')).toBeVisible();
   });
 
@@ -74,14 +92,18 @@ test.describe('Player', () => {
   });
 
   test('play/pause toggle', async ({ page }) => {
-    const toggleButton = page.locator('wavely-mini-player').getByRole('button', { name: /pause|play/i });
+    // Ionic 8 forwards aria-label from the ion-button host to its shadow <button>
+    // and clears it on the host, so toHaveAttribute('aria-label') on ion-button is
+    // unreliable. Assert on ion-icon[name] instead — it directly reflects isPlaying.
+    const icon = page.locator('wavely-mini-player ion-button.mini-player__play-btn ion-icon');
+    const toggleButton = page.locator('wavely-mini-player').locator('ion-button.mini-player__play-btn');
 
-    await expect(toggleButton).toHaveAttribute('aria-label', /pause/i);
+    await expect(icon).toHaveAttribute('name', 'pause-circle');
     await toggleButton.click();
-    await expect(toggleButton).toHaveAttribute('aria-label', /play/i);
+    await expect(icon).toHaveAttribute('name', 'play-circle');
 
     await toggleButton.click();
-    await expect(toggleButton).toHaveAttribute('aria-label', /pause/i);
+    await expect(icon).toHaveAttribute('name', 'pause-circle');
   });
 
   test('clicking mini player opens full player', async ({ page }) => {
@@ -98,6 +120,6 @@ test.describe('Player', () => {
     await expect(fullPlayer.locator('.full-player__title')).toHaveText(PLAYER_EPISODE.title);
     await expect(fullPlayer.getByRole('button', { name: /skip back 15 seconds/i })).toBeVisible();
     await expect(fullPlayer.getByRole('button', { name: /skip forward 30 seconds/i })).toBeVisible();
-    await expect(fullPlayer.getByRole('button', { name: /pause|play/i })).toBeVisible();
+    await expect(fullPlayer.locator('button.full-player__play-pause-btn')).toBeVisible();
   });
 });

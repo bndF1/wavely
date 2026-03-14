@@ -102,7 +102,7 @@ test.describe('Home page', () => {
 
     await expect(page.getByRole('heading', { name: 'Trending' })).toBeVisible();
     await expect(page.locator('wavely-podcast-card').first()).toBeVisible();
-    await expect(page.getByText(TRENDING_PODCAST.title, { exact: false })).toBeVisible();
+    await expect(page.locator('.podcast-card__title', { hasText: TRENDING_PODCAST.title })).toBeVisible();
   });
 
   test('authenticated state renders subscriptions section', async ({ page }) => {
@@ -129,8 +129,11 @@ test.describe('Home page', () => {
     await page.goto(`/podcast/${SUBSCRIPTION_PODCAST.id}`);
     await page.getByRole('button', { name: /^subscribe$/i }).click();
 
-    await page.goto('/tabs/home');
+    // Navigate within the SPA to preserve PodcastsStore state (page.goto would reload,
+    // potentially losing the subscription before the Firestore write completes)
+    await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/home');
+    await page.waitForURL('/tabs/home');
     await expect(page.getByRole('heading', { name: 'My Podcasts' })).toBeVisible();
-    await expect(page.getByText(SUBSCRIPTION_PODCAST.title, { exact: false })).toBeVisible();
+    await expect(page.locator('.podcast-card__title', { hasText: SUBSCRIPTION_PODCAST.title })).toBeVisible();
   });
 });
