@@ -6,6 +6,16 @@
   background: var(--wavely-background);
 }
 
+.search-skeleton-list {
+  padding: 8px 0;
+
+  ion-thumbnail {
+    --size: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+}
+
 .podcast-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -14,7 +14,6 @@ import {
   IonAvatar,
   IonLabel,
   IonNote,
-  IonText,
   IonButtons,
   IonButton,
   IonIcon,
@@ -33,6 +32,8 @@ import {
   contrastOutline,
   logOutOutline,
   personCircleOutline,
+  libraryOutline,
+  timeOutline,
 } from 'ionicons/icons';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
@@ -43,6 +44,7 @@ import { ThemeService, ThemeMode } from '../../core/services/theme.service';
 import { Podcast } from '../../core/models/podcast.model';
 
 import { environment } from '../../../environments/environment';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'wavely-library',
@@ -61,7 +63,6 @@ import { environment } from '../../../environments/environment';
     IonAvatar,
     IonLabel,
     IonNote,
-    IonText,
     IonButtons,
     IonButton,
     IonIcon,
@@ -71,6 +72,7 @@ import { environment } from '../../../environments/environment';
     IonRadio,
     IonThumbnail,
     IonProgressBar,
+    EmptyStateComponent,
   ],
 })
 export class LibraryPage {
@@ -92,7 +94,16 @@ export class LibraryPage {
   ];
 
   constructor() {
-    addIcons({ addOutline, moonOutline, sunnyOutline, contrastOutline, logOutOutline, personCircleOutline });
+    addIcons({
+      addOutline,
+      moonOutline,
+      sunnyOutline,
+      contrastOutline,
+      logOutOutline,
+      personCircleOutline,
+      timeOutline,
+      libraryOutline,
+    });
     this.loadHistory();
   }
 
