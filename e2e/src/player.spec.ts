@@ -49,8 +49,8 @@ test.describe('Player', () => {
   test.beforeEach(async ({ page }) => {
     // Prevent the <audio> element from making real network requests or firing error
     // events (which would cause AudioService to call store.pause() in CI).
-    // We mock play()/pause() at the prototype level so the PlayerStore's isPlaying
-    // signal stays in sync with what the test clicks — no actual audio needed.
+    // We suppress src (no fetch), override play() (resolves immediately), and
+    // no-op load() — keeping PlayerStore.isPlaying in sync with test clicks.
     await page.addInitScript(() => {
       HTMLMediaElement.prototype.play = function () {
         return Promise.resolve();
