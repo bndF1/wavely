@@ -66,7 +66,7 @@ jobs:
           echo "✅ Firestore emulator ready"
 
       - name: Run E2E tests (Chromium only)
-        run: bunx nx e2e --project=chromium
+        run: bunx nx run e2e:e2e
         env:
           CI: 'true'
           USE_EMULATORS: 'true'
