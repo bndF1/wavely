@@ -60,6 +60,28 @@ test.describe('Player', () => {
       });
     });
 
+    // Serve a minimal valid WAV so the <audio> element loads without error
+    // (prevents AudioService from calling store.pause() on load failure)
+    await page.route('https://example.com/player-episode.mp3', async (route) => {
+      const wav = Buffer.from([
+        0x52, 0x49, 0x46, 0x46, 0x26, 0x00, 0x00, 0x00, // RIFF, size=38
+        0x57, 0x41, 0x56, 0x45,                         // WAVE
+        0x66, 0x6d, 0x74, 0x20, 0x10, 0x00, 0x00, 0x00, // fmt , size=16
+        0x01, 0x00, 0x01, 0x00,                         // PCM, mono
+        0x44, 0xac, 0x00, 0x00,                         // 44100 Hz
+        0x88, 0x58, 0x01, 0x00,                         // byte rate
+        0x02, 0x00, 0x10, 0x00,                         // block align, 16-bit
+        0x64, 0x61, 0x74, 0x61, 0x02, 0x00, 0x00, 0x00, // data, size=2
+        0x00, 0x00,                                     // 1 sample of silence
+      ]);
+      await route.fulfill({
+        status: 200,
+        contentType: 'audio/wav',
+        body: wav,
+        headers: { 'Accept-Ranges': 'bytes' },
+      });
+    });
+
     await page.goto(`/podcast/${PLAYER_PODCAST.id}`);
     await page.getByRole('button', { name: new RegExp(`Play ${PLAYER_EPISODE.title}`, 'i') }).click();
     await expect(page).toHaveURL(/\/episode\//);
