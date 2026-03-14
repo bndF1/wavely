@@ -63,15 +63,41 @@ test.describe.serial('Subscriptions', () => {
   test('subscribe to podcast then appears in library', async ({ page }) => {
     const podcast = { id: '62001', title: 'Subscribe Flow Podcast' };
 
+    // Diagnostic listeners — capture browser state for CI debugging
+    const consoleLogs: string[] = [];
+    page.on('console', (msg) => consoleLogs.push(`[${msg.type()}] ${msg.text()}`));
+    page.on('pageerror', (err) => consoleLogs.push(`[pageerror] ${err.message}`));
+
     await mockPodcastEndpoints(page, podcast);
 
     await page.goto(`/podcast/${podcast.id}`);
     // Wait for podcast content to load before interacting
     await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
 
-    // Use \b word boundaries instead of ^$ anchors — textContent includes
-    // whitespace from Angular template interpolation so ^Subscribe$ never matches.
+    // Diagnostic: inspect all ion-button elements before click
+    const buttonsBefore = await page.locator('ion-button').all();
+    for (const btn of buttonsBefore) {
+      const text = await btn.textContent();
+      const fill = await btn.getAttribute('fill');
+      console.log(`[diag:before-click] ion-button text=${JSON.stringify(text)} fill=${fill}`);
+    }
+
     await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
+
+    // Small wait for Angular change detection + store update
+    await page.waitForTimeout(2000);
+
+    // Diagnostic: inspect all ion-button elements after click
+    const buttonsAfter = await page.locator('ion-button').all();
+    for (const btn of buttonsAfter) {
+      const text = await btn.textContent();
+      const fill = await btn.getAttribute('fill');
+      console.log(`[diag:after-click] ion-button text=${JSON.stringify(text)} fill=${fill}`);
+    }
+
+    // Print captured console logs
+    consoleLogs.forEach((log) => console.log(`[diag:console] ${log}`));
+
     await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     // SPA navigation preserves PodcastsStore state; page.goto would reload and
