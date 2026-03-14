@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { IonButton, IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { logoGoogle } from 'ionicons/icons';
@@ -94,12 +94,17 @@ export class LoginPage {
 
   constructor() {
     addIcons({ logoGoogle });
+    // Navigate reactively when auth state resolves — signInWithPopup updates
+    // user$ asynchronously, so checking isAuthenticated() right after await
+    // always returns false. The effect fires when the signal actually changes.
+    effect(() => {
+      if (this.authStore.isAuthenticated()) {
+        this.router.navigate(['/tabs/home']);
+      }
+    });
   }
 
   async signIn(): Promise<void> {
     await this.authStore.signInWithGoogle();
-    if (this.authStore.isAuthenticated()) {
-      this.router.navigate(['/tabs/home']);
-    }
   }
 }
