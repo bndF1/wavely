@@ -34,6 +34,13 @@ jobs:
           bunx nx build --configuration=e2e
           cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html
 
+      - name: Cache Firebase emulator binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ hashFiles('**/firebase.json') }}
+          restore-keys: firebase-emulators-
+
       - name: Install Playwright browsers
         run: bunx playwright install --with-deps chromium
 
@@ -42,12 +49,12 @@ jobs:
           bunx firebase-tools emulators:start \
             --only auth,firestore \
             --project wavely-f659c &
-          # Wait for auth emulator
-          timeout 30 bash -c \
+          # Wait for auth emulator (60s timeout — emulators download JARs on first CI run)
+          timeout 60 bash -c \
             'until curl -sf http://localhost:9099 > /dev/null 2>&1; do sleep 1; done'
           echo "✅ Auth emulator ready"
           # Wait for Firestore emulator
-          timeout 30 bash -c \
+          timeout 60 bash -c \
             'until curl -sf http://localhost:8080 > /dev/null 2>&1; do sleep 1; done'
           echo "✅ Firestore emulator ready"
 
