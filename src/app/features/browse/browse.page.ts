@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import {
@@ -63,10 +63,10 @@ export class BrowsePage implements OnDestroy {
     id: '', title: '', author: '', description: '', artworkUrl: '', feedUrl: '', genres: [],
   };
 
-  protected selectedCategory = PODCAST_CATEGORIES[0];
-  protected topPodcasts: Podcast[] = [];
-  protected isLoading = false;
-  protected error: string | null = null;
+  protected selectedCategory = signal(PODCAST_CATEGORIES[0]);
+  protected topPodcasts = signal<Podcast[]>([]);
+  protected isLoading = signal(false);
+  protected error = signal<string | null>(null);
 
   private readonly category$ = new Subject<PodcastCategory>();
   private readonly destroy$ = new Subject<void>();
@@ -76,9 +76,9 @@ export class BrowsePage implements OnDestroy {
     this.category$
       .pipe(
         tap(() => {
-          this.isLoading = true;
-          this.error = null;
-          this.topPodcasts = [];
+          this.isLoading.set(true);
+          this.error.set(null);
+          this.topPodcasts.set([]);
         }),
         switchMap((cat) => {
           const obs$ = cat.id === 0
@@ -86,7 +86,7 @@ export class BrowsePage implements OnDestroy {
             : this.api.getTrendingPodcasts(25, cat.id);
           return obs$.pipe(
             catchError(() => {
-              this.error = 'Could not load podcasts. Please try again.';
+              this.error.set('Could not load podcasts. Please try again.');
               return of([] as Podcast[]);
             }),
           );
@@ -94,12 +94,12 @@ export class BrowsePage implements OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe((podcasts) => {
-        this.topPodcasts = podcasts;
-        this.isLoading = false;
+        this.topPodcasts.set(podcasts);
+        this.isLoading.set(false);
       });
 
     // Load initial category
-    this.category$.next(this.selectedCategory);
+    this.category$.next(this.selectedCategory());
   }
 
   ngOnDestroy(): void {
@@ -108,8 +108,8 @@ export class BrowsePage implements OnDestroy {
   }
 
   protected selectCategory(category: PodcastCategory): void {
-    if (this.selectedCategory.id === category.id) return;
-    this.selectedCategory = category;
+    if (this.selectedCategory().id === category.id) return;
+    this.selectedCategory.set(category);
     this.category$.next(category);
   }
 
