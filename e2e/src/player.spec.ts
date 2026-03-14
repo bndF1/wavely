@@ -64,7 +64,9 @@ test.describe('Player', () => {
     await page.getByRole('button', { name: new RegExp(`Play ${PLAYER_EPISODE.title}`, 'i') }).click();
     await expect(page).toHaveURL(/\/episode\//);
 
-    await page.goto('/tabs/home');
+    // Navigate within the SPA to preserve PlayerStore state (page.goto would reload)
+    await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/home');
+    await page.waitForURL('/tabs/home');
     await expect(page.locator('wavely-mini-player')).toBeVisible();
   });
 
