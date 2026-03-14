@@ -64,6 +64,38 @@
           <span class="full-player__skip-label">30</span>
         </button>
       </div>
+
+      <!-- Up Next queue -->
+      @if (store.queue().length > 0) {
+        <div class="full-player__queue">
+          <div class="full-player__queue-header">
+            <ion-icon name="list-outline" class="full-player__queue-icon"></ion-icon>
+            <span class="full-player__queue-title">Up Next</span>
+            <button class="full-player__queue-clear" (click)="store.clearQueue()" aria-label="Clear queue">
+              Clear
+            </button>
+          </div>
+          <ion-list lines="none" class="full-player__queue-list">
+            @for (episode of store.queue(); track episode.id; let i = $index) {
+              <ion-item class="full-player__queue-item">
+                <ion-label>
+                  <p class="full-player__queue-ep-title">{{ episode.title }}</p>
+                  @if (episode.podcastTitle) {
+                    <ion-note class="full-player__queue-ep-podcast">{{ episode.podcastTitle }}</ion-note>
+                  }
+                </ion-label>
+                <ion-button
+                  fill="clear"
+                  slot="end"
+                  (click)="store.removeFromQueue(episode.id)"
+                  [attr.aria-label]="'Remove ' + episode.title + ' from queue'">
+                  <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+            }
+          </ion-list>
+        </div>
+      }
     </div>
   </ion-content>
 }

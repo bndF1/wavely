@@ -65,4 +65,40 @@ describe('EpisodeDetailPage', () => {
     component['goToPodcast']();
     expect(router.navigate).toHaveBeenCalledWith(['/podcast', 'pod-1']);
   });
+
+  describe('queue interactions', () => {
+    it('isInQueue returns true when current episode is already queued', () => {
+      const episode = component['episode']();
+      expect(episode).not.toBeNull();
+
+      playerStore.queue.set([mockEpisode({ id: episode!.id })]);
+
+      expect(component['isInQueue']).toBe(true);
+    });
+
+    it('addToQueue() includes podcastTitle when adding current episode', () => {
+      const podcastTitle = component['podcast']()?.title;
+
+      component['addToQueue']();
+
+      expect(playerStore.addToQueue).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'ep-1',
+          podcastTitle,
+        })
+      );
+    });
+
+    it('uses the correct Add to Up Next button label based on queue membership', () => {
+      const episode = component['episode']();
+      expect(episode).not.toBeNull();
+
+      playerStore.queue.set([]);
+      expect(component['isInQueue'] ? 'In Queue' : 'Up Next').toBe('Up Next');
+
+      playerStore.queue.set([mockEpisode({ id: episode!.id })]);
+      expect(component['isInQueue'] ? 'In Queue' : 'Up Next').toBe('In Queue');
+    });
+  });
+
 });

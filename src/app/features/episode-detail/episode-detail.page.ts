@@ -17,7 +17,6 @@ import {
   IonButton,
   IonIcon,
   IonRange,
-  IonLabel,
   IonSkeletonText,
   IonText,
   IonSelect,
@@ -29,6 +28,7 @@ import {
   pauseCircle,
   playSkipForward,
   playSkipBack,
+  addOutline,
 } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PlayerStore } from '../../store/player/player.store';
@@ -60,7 +60,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     IonButton,
     IonIcon,
     IonRange,
-    IonLabel,
     IonSkeletonText,
     IonText,
     IonSelect,
@@ -83,7 +82,7 @@ export class EpisodeDetailPage {
   readonly playbackRates = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
   constructor() {
-    addIcons({ playCircle, pauseCircle, playSkipForward, playSkipBack });
+    addIcons({ playCircle, pauseCircle, playSkipForward, playSkipBack, addOutline });
 
     this.route.paramMap
       .pipe(
@@ -196,5 +195,16 @@ export class EpisodeDetailPage {
   protected goToPodcast(): void {
     const pod = this.podcast();
     if (pod) this.router.navigate(['/podcast', pod.id]);
+  }
+
+  protected get isInQueue(): boolean {
+    const ep = this.episode();
+    return ep ? this.playerStore.queue().some((q) => q.id === ep.id) : false;
+  }
+
+  protected addToQueue(): void {
+    const ep = this.episode();
+    const pod = this.podcast();
+    if (ep) this.playerStore.addToQueue({ ...ep, podcastTitle: pod?.title });
   }
 }

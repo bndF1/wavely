@@ -1,0 +1,28 @@
+.offline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--ion-color-warning-tint);
+  color: var(--ion-color-warning-contrast);
+  border-bottom: 1px solid var(--ion-color-warning-shade);
+}
+
+.offline-banner__message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+
+  ion-icon {
+    font-size: 18px;
+    flex: 0 0 auto;
+  }
+}
+
+ion-button {
+  --color: var(--ion-color-warning-contrast);
+  margin: 0;
+}
