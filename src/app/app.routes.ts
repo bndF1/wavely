@@ -60,6 +60,13 @@ export const appRoutes: Route[] = [
     ],
   },
   {
+    path: 'browse/category/:genreId',
+    loadComponent: () =>
+      import('./features/browse/category-detail/category-detail.page').then(
+        (m) => m.CategoryDetailPage
+      ),
+  },
+  {
     path: 'podcast/:id',
     loadComponent: () =>
       import('./features/podcast-detail/podcast-detail.page').then(
