@@ -3,1547 +3,592 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wavely — Podcast Player for iOS, Android & Web</title>
-  <meta name="description" content="Wavely is a beautiful, free podcast player for iOS, Android, and the web. No ads. No tracking. Open source.">
+  <title>Wavely — Your podcasts. Beautifully organized.</title>
+  <meta name="description" content="Wavely is a beautiful, free podcast player for the web. Google OAuth, cross-device sync, and a clean material design interface.">
   <meta property="og:title" content="Wavely — Podcast Player">
-  <meta property="og:description" content="Your podcasts, everywhere. Free, open source, no ads.">
+  <meta property="og:description" content="Your podcasts. Beautifully organized. Free, open source, no ads.">
   <meta property="og:url" content="https://bndF1.github.io/wavely">
   <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Wavely — Podcast Player">
-  <meta name="theme-color" content="#1A73E8">
+  <meta name="theme-color" content="#FFFFFF">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+    /* ─── VARIABLES ─── */
     :root {
-      --bg:            #07070E;
-      --bg-card:       #0D0D1C;
-      --bg-card-2:     #111128;
-      --border:        rgba(255,255,255,0.07);
-      --border-bright: rgba(255,255,255,0.14);
+      --bg-page:       #F8F9FA;
+      --bg-surface:    #FFFFFF;
+      --bg-surface-2:  #F1F3F4;
       --primary:       #1A73E8;
-      --primary-glow:  rgba(26,115,232,0.3);
-      --primary-light: #4A9EFF;
-      --accent:        #EA4335;
-      --accent-glow:   rgba(234,67,53,0.25);
-      --green:         #34A853;
-      --yellow:        #FBBC04;
-      --text:          #E8EAED;
-      --text-muted:    #9AA0A6;
-      --text-faint:    #5F6368;
-      --radius:        16px;
-      --radius-sm:     10px;
+      --primary-hover: #1765CC;
+      --text-main:     #202124;
+      --text-muted:    #5F6368;
+      --border:        #DADCE0;
+      --accent-yellow: #FBBC04;
+      --shadow-sm:     0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      --shadow-md:     0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg:     0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --font-family:   'Roboto', sans-serif;
     }
 
-    html { scroll-behavior: smooth; }
-
+    /* ─── RESET & BASE ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      overflow-x: hidden;
+      font-family: var(--font-family);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 1000;
-      opacity: 0.4;
+    a { text-decoration: none; color: inherit; transition: color 0.2s; }
+    ul { list-style: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ─── LAYOUT ─── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
 
-    /* ── BLOBS ── */
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(120px);
-      pointer-events: none;
-    }
-    .blob-1 {
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(26,115,232,0.18) 0%, transparent 70%);
-      top: -200px; right: -100px;
-      animation: drift 18s ease-in-out infinite alternate;
-    }
-    .blob-2 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(74,158,255,0.12) 0%, transparent 70%);
-      top: 300px; left: -150px;
-      animation: drift 22s ease-in-out infinite alternate-reverse;
-    }
-    .blob-3 {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(234,67,53,0.07) 0%, transparent 70%);
-      bottom: 100px; right: 50px;
-      animation: drift 26s ease-in-out infinite alternate;
-    }
-    @keyframes drift {
-      0%   { transform: translate(0,0) scale(1); }
-      50%  { transform: translate(40px,-30px) scale(1.05); }
-      100% { transform: translate(-20px,20px) scale(0.95); }
-    }
-
-    /* ── NAV ── */
-    nav {
+    /* ─── NAVBAR ─── */
+    header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1000;
+    }
+    .nav-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 clamp(1.5rem, 5vw, 4rem);
-      height: 64px;
-      background: rgba(7,7,14,0.85);
-      backdrop-filter: blur(20px) saturate(150%);
-      -webkit-backdrop-filter: blur(20px) saturate(150%);
-      border-bottom: 1px solid var(--border);
     }
-    .nav-logo {
+    .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.25rem;
-      letter-spacing: -0.02em;
+      gap: 12px;
+      font-weight: 500;
+      font-size: 20px;
+      color: var(--text-main);
     }
-    .nav-logo .logo-icon {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    .logo img {
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
     }
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 2rem;
-      list-style: none;
+      gap: 24px;
     }
-    .nav-links a {
+    .nav-link {
+      font-size: 15px;
       color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
+      font-weight: 500;
     }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-link:hover { color: var(--primary); }
+    .github-link {
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+    }
+    .github-link:hover { color: var(--text-main); }
 
-    /* ── BUTTONS ── */
+    /* ─── HERO ─── */
+    .hero {
+      padding: 80px 0 60px;
+      overflow: hidden;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .hero-content {
+      max-width: 540px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      background: #FEF7E0;
+      color: #B06000;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge span { color: var(--text-main); margin-left: 6px; font-weight: 400; text-transform: none; }
+    
+    h1 {
+      font-size: 56px;
+      line-height: 1.1;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+    }
+    .hero-subtitle {
+      font-size: 20px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      font-weight: 300;
+      max-width: 480px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.625rem 1.25rem;
-      border-radius: 8px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.9rem;
+      justify-content: center;
+      padding: 12px 28px;
+      font-size: 16px;
       font-weight: 500;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
+      border-radius: 4px;
       transition: all 0.2s;
-      white-space: nowrap;
+      cursor: pointer;
     }
     .btn-primary {
       background: var(--primary);
-      color: #fff;
+      color: white;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
     .btn-primary:hover {
-      background: #1565C0;
+      background: var(--primary-hover);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
       transform: translateY(-1px);
-      box-shadow: 0 8px 24px var(--primary-glow);
     }
-    .btn-ghost {
+    .btn-outline {
       background: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--border-bright);
-    }
-    .btn-ghost:hover {
-      color: var(--text);
-      border-color: rgba(255,255,255,0.25);
-      background: rgba(255,255,255,0.04);
-    }
-    .btn-lg {
-      padding: 0.875rem 1.75rem;
-      font-size: 1rem;
-      border-radius: 10px;
-    }
-
-
-    /* ── REVEAL ANIMATION ── */
-    .reveal {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── HERO ── */
-    .hero {
-      position: relative;
-      min-height: calc(100vh - 64px);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: center;
-      gap: 4rem;
-      padding: clamp(3rem,8vh,6rem) clamp(1.5rem,5vw,4rem);
-      overflow: hidden;
-    }
-    .hero-content { position: relative; z-index: 2; }
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(26,115,232,0.12);
-      border: 1px solid rgba(26,115,232,0.3);
-      color: var(--primary-light);
-      font-size: 0.78rem;
-      font-family: 'DM Mono', monospace;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 0.35rem 0.875rem;
-      border-radius: 100px;
-      margin-bottom: 1.75rem;
-      animation: fadeSlideUp 0.6s ease both;
-    }
-    .eyebrow-dot {
-      width: 6px; height: 6px;
-      background: var(--primary);
-      border-radius: 50%;
-      animation: pulse 2s ease infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity:1; transform:scale(1); }
-      50%      { opacity:0.5; transform:scale(0.8); }
-    }
-    .hero h1 {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(3rem,6vw,5.5rem);
-      line-height: 0.95;
-      letter-spacing: -0.03em;
-      margin-bottom: 1.5rem;
-      animation: fadeSlideUp 0.6s 0.1s ease both;
-    }
-    .hero h1 .gradient-text {
-      background: linear-gradient(135deg, var(--text) 0%, var(--primary-light) 60%, var(--primary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-tagline {
-      font-size: clamp(1.05rem,2vw,1.25rem);
-      color: var(--text-muted);
-      font-weight: 300;
-      line-height: 1.6;
-      margin-bottom: 2.5rem;
-      max-width: 480px;
-      animation: fadeSlideUp 0.6s 0.2s ease both;
-    }
-    .hero-tagline strong { color: var(--text); font-weight: 500; }
-    .hero-downloads {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.875rem;
-      animation: fadeSlideUp 0.6s 0.3s ease both;
-      margin-bottom: 2rem;
-    }
-    .hero-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      animation: fadeSlideUp 0.6s 0.4s ease both;
-    }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.3rem 0.75rem;
-      border-radius: 100px;
-      font-size: 0.78rem;
-      font-family: 'DM Mono', monospace;
-      background: rgba(255,255,255,0.04);
+      color: var(--primary);
       border: 1px solid var(--border);
-      color: var(--text-faint);
     }
-    .pill .pill-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
+    .btn-outline:hover {
+      background: rgba(26,115,232,0.04);
+      border-color: var(--primary);
     }
-
-    /* ── PHONE MOCKUP ── */
-    .hero-phone {
+    
+    /* ─── PHONES MOCKUP ─── */
+    .phones-container {
       position: relative;
-      z-index: 2;
+      height: 600px;
       display: flex;
       justify-content: center;
-      animation: fadeSlideUp 0.7s 0.25s ease both;
     }
-    .phone-frame {
+    .phone {
       width: 280px;
-      background: #0a0a18;
-      border-radius: 44px;
-      border: 2px solid rgba(255,255,255,0.12);
-      box-shadow:
-        0 0 0 6px rgba(255,255,255,0.04),
-        0 40px 80px rgba(0,0,0,0.6),
-        0 0 120px rgba(26,115,232,0.15);
-      overflow: hidden;
-      position: relative;
-    }
-    .phone-notch {
-      height: 32px;
-      background: #0a0a18;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-    .phone-notch::after {
-      content: '';
-      width: 100px; height: 24px;
-      background: #000;
-      border-radius: 0 0 16px 16px;
+      height: 580px;
+      background: var(--bg-surface);
+      border: 8px solid #E0E0E0; /* Light bezel */
+      border-radius: 36px;
       position: absolute;
-      top: 0;
-    }
-    .phone-screen {
-      background: #0D0D1C;
-      min-height: 560px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
       display: flex;
       flex-direction: column;
     }
-    .app-header {
-      padding: 14px 16px 10px;
+    .phone-1 {
+      left: 20px;
+      top: 40px;
+      z-index: 1;
+      transform: rotate(-3deg);
+    }
+    .phone-2 {
+      right: 20px;
+      top: 0;
+      z-index: 2;
+      transform: rotate(3deg);
+    }
+
+    /* Mockup UI: Status Bar */
+    .status-bar {
+      height: 24px;
+      background: var(--bg-surface);
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 16px;
+      align-items: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      border-bottom: 1px solid #f1f1f1;
     }
-    .app-header-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--text);
+    
+    /* Mockup UI: Screen 1 (Home) */
+    .app-header {
+      padding: 16px;
+      border-bottom: 1px solid #f1f1f1;
     }
-    .app-header-icon {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: rgba(26,115,232,0.15);
+    .search-fake {
+      background: #F1F3F4;
+      height: 36px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 13px;
+      padding: 0 12px;
+      color: #9AA0A6;
+      font-size: 12px;
     }
-    .podcast-list {
+    .app-content {
       flex: 1;
-      padding: 8px 0;
-      overflow: hidden;
-    }
-    .podcast-row {
+      padding: 16px;
+      background: #fafafa;
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      transition: background 0.2s;
+      flex-direction: column;
+      gap: 12px;
     }
-    .podcast-row:hover { background: rgba(255,255,255,0.03); }
-    .podcast-art {
-      width: 48px; height: 48px;
-      border-radius: 10px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-    }
-    .art-blue  { background: linear-gradient(135deg,#1565C0,#1A73E8); }
-    .art-green { background: linear-gradient(135deg,#1B5E20,#34A853); }
-    .art-red   { background: linear-gradient(135deg,#B71C1C,#EA4335); }
-    .art-amber { background: linear-gradient(135deg,#E65100,#FBBC04); }
-    .podcast-info { flex: 1; min-width: 0; }
-    .podcast-name {
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .podcast-ep {
-      font-size: 0.68rem;
-      color: var(--text-faint);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 2px;
-    }
-    .podcast-duration {
-      font-size: 0.65rem;
-      font-family: 'DM Mono', monospace;
-      color: var(--text-faint);
-    }
-    .mini-player {
-      background: rgba(26,115,232,0.12);
-      border-top: 1px solid rgba(26,115,232,0.2);
-      padding: 10px 16px;
-    }
-    .mp-track {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .mp-art {
-      width: 32px; height: 32px;
-      border-radius: 6px;
-      background: linear-gradient(135deg,#1565C0,#1A73E8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-    .mp-info { flex: 1; min-width: 0; }
-    .mp-title {
-      font-size: 0.72rem;
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .mp-sub { font-size: 0.62rem; color: var(--text-faint); }
-    .mp-controls {
+    .podcast-card {
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .mp-btn {
-      font-size: 12px;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-    .mp-btn-play {
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: var(--primary);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-    }
-    .mp-progress {
-      height: 2px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 1px;
-      overflow: hidden;
-    }
-    .mp-progress-fill {
-      height: 100%;
-      width: 38%;
-      background: var(--primary);
-      border-radius: 1px;
-    }
-    .phone-tabs {
-      background: #0a0a18;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      padding: 8px 0 16px;
-    }
-    .tab-item {
+    .p-thumb { width: 48px; height: 48px; background: #eee; border-radius: 4px; flex-shrink: 0; position: relative; overflow: hidden; }
+    .p-thumb::after { content: ''; position: absolute; inset: 0; background: linear-gradient(45deg, #e0e0e0, #f5f5f5); }
+    .p-info { flex: 1; }
+    .p-title { height: 10px; width: 80%; background: #e0e0e0; border-radius: 4px; margin-bottom: 6px; }
+    .p-sub { height: 8px; width: 50%; background: #f1f1f1; border-radius: 4px; }
+    .p-play { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-surface-2); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 10px; }
+    
+    /* Mockup UI: Screen 2 (Player) */
+    .player-screen {
       flex: 1;
+      background: white;
+      padding: 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      font-size: 0.55rem;
-      color: var(--text-faint);
-      cursor: pointer;
     }
-    .tab-item.active { color: var(--primary); }
-    .tab-icon { font-size: 18px; }
-    .phone-glow {
+    .player-art {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #F1F3F4;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    .player-art::after {
+      content: '🎙';
+      font-size: 64px;
       position: absolute;
-      inset: -40px;
-      background: radial-gradient(ellipse at 50% 80%, rgba(26,115,232,0.12) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: -1;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.1;
+    }
+    .player-meta { width: 100%; text-align: left; margin-bottom: 24px; }
+    .pm-title { height: 16px; width: 70%; background: #202124; border-radius: 4px; margin-bottom: 8px; opacity: 0.8; }
+    .pm-sub { height: 12px; width: 40%; background: #5F6368; border-radius: 4px; opacity: 0.3; }
+    .player-progress { width: 100%; height: 4px; background: #E8EAED; border-radius: 2px; margin-bottom: 32px; position: relative; }
+    .player-progress::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 35%; background: var(--primary); border-radius: 2px; }
+    .player-controls { display: flex; justify-content: space-around; width: 100%; align-items: center; }
+    .pc-btn { width: 40px; height: 40px; border-radius: 50%; background: #F1F3F4; }
+    .pc-play { width: 64px; height: 64px; border-radius: 50%; background: var(--primary); box-shadow: 0 4px 8px rgba(26,115,232,0.3); display: flex; align-items: center; justify-content: center; }
+    .pc-play::after {
+      content: '';
+      width: 0; height: 0;
+      border-left: 14px solid white;
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+      margin-left: 4px;
     }
 
-    /* ── DIVIDER ── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 0 clamp(1.5rem,5vw,4rem);
+    /* ─── FEATURES ─── */
+    .features {
+      padding: 80px 0;
+      background: var(--bg-surface);
     }
-
-    /* ── TRUST BAR ── */
-    .trust-bar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0;
-      padding: 1.5rem clamp(1.5rem,5vw,4rem);
-    }
-    .trust-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 2rem;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      border-right: 1px solid var(--border);
-    }
-    .trust-item:last-child { border-right: none; }
-    .trust-icon { font-size: 1rem; }
-
-    /* ── SECTIONS ── */
-    section { position: relative; }
-    .section-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: clamp(4rem,8vw,7rem) clamp(1.5rem,5vw,4rem);
-    }
-    .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--primary-light);
-      margin-bottom: 1rem;
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 64px;
     }
     .section-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: clamp(2rem,4vw,3rem);
-      line-height: 1.05;
-      letter-spacing: -0.025em;
-      margin-bottom: 1.25rem;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text-main);
     }
-    .section-sub {
-      font-size: 1.05rem;
+    .section-desc {
+      font-size: 18px;
       color: var(--text-muted);
-      font-weight: 300;
-      max-width: 540px;
-      line-height: 1.7;
-      margin-bottom: 3rem;
     }
-
-    /* ── FEATURES ── */
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
     }
     .feature-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.75rem;
-      transition: border-color 0.2s, transform 0.2s;
+      padding: 32px;
+      border-radius: 12px;
+      background: var(--bg-page);
+      border: 1px solid transparent;
+      transition: all 0.2s;
     }
     .feature-card:hover {
-      border-color: var(--border-bright);
-      transform: translateY(-3px);
+      background: white;
+      box-shadow: var(--shadow-md);
+      border-color: var(--border);
     }
     .feature-icon {
-      width: 44px; height: 44px;
+      width: 48px;
+      height: 48px;
+      background: white;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
-      margin-bottom: 1.25rem;
+      font-size: 24px;
+      color: var(--primary);
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
     }
-    .fi-blue   { background: rgba(26,115,232,0.15); }
-    .fi-green  { background: rgba(52,168,83,0.15); }
-    .fi-yellow { background: rgba(251,188,4,0.15); }
-    .fi-teal   { background: rgba(0,188,212,0.15); }
-    .fi-red    { background: rgba(234,67,53,0.15); }
-    .fi-purple { background: rgba(156,39,176,0.15); }
-    .fi-orange { background: rgba(255,152,0,0.15); }
-    .fi-pink   { background: rgba(233,30,99,0.15); }
-    .feature-card h3 {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-      margin-bottom: 0.625rem;
-      letter-spacing: -0.01em;
-    }
-    .feature-card p {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      line-height: 1.65;
-    }
-
-    /* ── SCREENSHOTS ── */
-    .screens-section { background: var(--bg-card); }
-    .screens-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-    }
-    .screens-phones {
-      display: flex;
-      gap: 1.5rem;
-      align-items: flex-end;
-    }
-    .screen-phone {
-      flex: 1;
-      background: #0a0a18;
-      border-radius: 32px;
-      border: 2px solid rgba(255,255,255,0.1);
-      overflow: hidden;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
-    }
-    .screen-phone.elevated { transform: translateY(-20px); }
-    .screen-notch {
-      height: 24px;
-      background: #0a0a18;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .screen-notch::after {
-      content: '';
-      width: 70px; height: 18px;
-      background: #000;
-      border-radius: 0 0 12px 12px;
-      position: absolute;
-      margin-top: -6px;
-    }
-
-    /* Full player screen */
-    .full-player-screen {
-      background: linear-gradient(160deg,#0D1B35 0%,#0D0D1C 60%);
-      padding: 16px;
-    }
-    .fp-back {
-      font-size: 0.6rem;
-      color: var(--text-faint);
+    .feature-title {
+      font-size: 20px;
+      font-weight: 500;
       margin-bottom: 12px;
-      font-family: 'DM Mono', monospace;
-      letter-spacing: 0.06em;
+      color: var(--text-main);
     }
-    .fp-artwork {
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: 16px;
-      background: linear-gradient(135deg,#1565C0 0%,#1A73E8 50%,#4A9EFF 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      margin-bottom: 16px;
-      box-shadow: 0 16px 40px rgba(26,115,232,0.3);
-    }
-    .fp-track { margin-bottom: 12px; }
-    .fp-title { font-family:'Syne',sans-serif; font-weight:700; font-size:0.82rem; color:var(--text); }
-    .fp-author { font-size:0.65rem; color:var(--text-faint); margin-top:2px; }
-    .fp-scrubber {
-      margin-bottom: 10px;
-    }
-    .fp-track-bar {
-      height: 3px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      overflow: hidden;
-      margin-bottom: 4px;
-    }
-    .fp-track-fill {
-      height: 100%;
-      width: 55%;
-      background: linear-gradient(90deg,var(--primary),var(--primary-light));
-    }
-    .fp-times { display:flex; justify-content:space-between; font-family:'DM Mono',monospace; font-size:0.55rem; color:var(--text-faint); }
-    .fp-controls {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 4px;
-    }
-    .fp-ctrl { font-size: 14px; color: var(--text-muted); }
-    .fp-ctrl-main {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .feature-text {
       font-size: 16px;
-      box-shadow: 0 4px 16px rgba(26,115,232,0.4);
-    }
-    .fp-speed {
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-    }
-    .fp-speed-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(255,255,255,0.06);
-      color: var(--text-faint);
-      border: 1px solid var(--border);
-    }
-    .fp-speed-badge.active { background: rgba(26,115,232,0.2); color: var(--primary-light); border-color: rgba(26,115,232,0.4); }
-
-    /* Podcast list screen */
-    .list-screen {
-      background: #0D0D1C;
-      padding: 12px 0;
-    }
-    .list-header {
-      padding: 4px 14px 12px;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.8rem;
-      color: var(--text);
-    }
-    .list-ep {
-      padding: 8px 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-    .list-ep-title {
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 2px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .list-ep-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.58rem;
-      color: var(--text-faint);
-      font-family: 'DM Mono', monospace;
-    }
-    .list-ep-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-faint); }
-    .list-ep-play {
-      margin-top: 6px;
-      width: 100%;
-      height: 28px;
-      background: rgba(26,115,232,0.1);
-      border: 1px solid rgba(26,115,232,0.2);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      font-size: 0.6rem;
-      color: var(--primary-light);
-    }
-    .screens-copy .section-sub { margin-bottom: 2rem; }
-    .screens-highlights {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .highlight-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-    .highlight-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--primary);
-      padding-top: 0.1rem;
-      min-width: 24px;
-    }
-    .highlight-text strong {
-      display: block;
-      font-weight: 500;
-      font-size: 0.925rem;
-      margin-bottom: 0.15rem;
-    }
-    .highlight-text span { font-size:0.83rem; color:var(--text-muted); }
-
-    /* ── DOWNLOAD SECTION ── */
-    .download-section { background: var(--bg-card); }
-    .download-section .section-inner { text-align: center; }
-    .download-section .section-sub { margin: 0 auto 3rem; }
-    .download-cards {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 1.25rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .dl-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 2rem 1.5rem;
-      text-align: center;
-      text-decoration: none;
-      color: var(--text);
-      transition: all 0.25s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .dl-card:hover {
-      border-color: var(--border-bright);
-      transform: translateY(-4px);
-      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
-    }
-    .dl-card.featured {
-      border-color: rgba(26,115,232,0.4);
-      background: rgba(26,115,232,0.07);
-    }
-    .dl-card.featured:hover { box-shadow: 0 16px 48px rgba(26,115,232,0.15); }
-    .dl-card-icon { font-size: 2.5rem; }
-    .dl-card-platform {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 1.05rem;
-    }
-    .dl-card-note {
-      font-size: 0.78rem;
-      color: var(--text-faint);
-      font-family: 'DM Mono', monospace;
-    }
-    .dl-card-badge {
-      font-size: 0.7rem;
-      padding: 0.25rem 0.625rem;
-      border-radius: 100px;
-      font-family: 'DM Mono', monospace;
-    }
-    .badge-soon { background: rgba(251,188,4,0.12); color: var(--yellow); border: 1px solid rgba(251,188,4,0.25); }
-    .badge-live { background: rgba(52,168,83,0.12); color: var(--green); border: 1px solid rgba(52,168,83,0.25); }
-    .badge-source { background: rgba(26,115,232,0.12); color: var(--primary-light); border: 1px solid rgba(26,115,232,0.25); }
-
-    /* ── CONTRIBUTE SECTION ── */
-    .contribute-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: start;
-    }
-    .contribute-steps {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .contribute-step {
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-      padding: 1.25rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      text-decoration: none;
-      color: var(--text);
-      transition: all 0.2s;
-    }
-    .contribute-step:hover {
-      border-color: var(--border-bright);
-      transform: translateX(4px);
-    }
-    .step-num {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--primary);
-      min-width: 24px;
-      padding-top: 0.1rem;
-    }
-    .step-content strong { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 0.2rem; }
-    .step-content span { font-size: 0.82rem; color: var(--text-muted); }
-    .tech-chips-section .section-sub { margin-bottom: 1.5rem; }
-    .tech-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.375rem 0.75rem;
-      border-radius: 8px;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
       color: var(--text-muted);
-      transition: all 0.15s;
-    }
-    .chip:hover { border-color: var(--border-bright); color: var(--text); background: rgba(255,255,255,0.05); }
-    .chip-dot { width: 6px; height: 6px; border-radius: 50%; }
-    .c-blue   { background: var(--primary); }
-    .c-green  { background: var(--green); }
-    .c-red    { background: var(--accent); }
-    .c-yellow { background: var(--yellow); }
-    .c-teal   { background: #00BCD4; }
-    .c-purple { background: #9C27B0; }
-    .c-gray   { background: #5F6368; }
-    .contribute-cta {
-      margin-top: 2rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+      line-height: 1.6;
     }
 
-    /* ── FOOTER ── */
+    /* ─── FOOTER ─── */
     footer {
+      padding: 48px 0;
+      background: var(--bg-page);
       border-top: 1px solid var(--border);
-      padding: 2.5rem clamp(1.5rem,5vw,4rem);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1.5rem;
+      text-align: center;
     }
-    .footer-left {
-      display: flex;
-      flex-direction: column;
-      gap: 0.375rem;
-    }
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1rem;
-    }
-    .footer-left p { font-size: 0.82rem; color: var(--text-faint); }
     .footer-links {
       display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      list-style: none;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 24px;
     }
-    .footer-links a {
-      color: var(--text-faint);
-      text-decoration: none;
-      font-size: 0.85rem;
-      transition: color 0.2s;
+    .footer-link {
+      color: var(--text-muted);
+      font-size: 14px;
     }
-    .footer-links a:hover { color: var(--text-muted); }
+    .footer-link:hover { color: var(--primary); }
+    .copyright {
+      color: #9AA0A6;
+      font-size: 14px;
+    }
 
-    /* ── RESPONSIVE ── */
-
-    /* Tablet / large mobile (≤ 900px) */
+    /* ─── RESPONSIVE ─── */
     @media (max-width: 900px) {
-      .hero {
-        grid-template-columns: 1fr;
-        min-height: auto;
-        padding-top: clamp(3rem, 8vw, 5rem);
-        padding-bottom: clamp(3rem, 8vw, 5rem);
-      }
-      .hero-phone { display: none; }
-      .hero h1 { font-size: clamp(2.5rem, 8vw, 4rem); }
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
-      .screens-layout,
-      .contribute-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-      .screens-phones { justify-content: center; }
-      .download-cards { grid-template-columns: repeat(3, 1fr); max-width: 100%; }
-      .nav-links { display: none; }
-      .trust-bar { gap: 0; }
-      .trust-item {
-        padding: 0.5rem 1.25rem;
-        border-right: 1px solid var(--border);
-      }
-      .section-inner {
-        padding-top: clamp(3rem, 6vw, 5rem);
-        padding-bottom: clamp(3rem, 6vw, 5rem);
-      }
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .hero-content { margin: 0 auto; }
+      .hero-actions { justify-content: center; }
+      .phones-container { margin-top: 40px; height: 500px; transform: scale(0.9); transform-origin: top center; }
+      h1 { font-size: 40px; }
     }
-
-    /* Mobile (≤ 640px) */
-    @media (max-width: 640px) {
-      nav {
-        padding: 0 1.25rem;
-        height: 56px;
-      }
-      /* Hide GitHub button in nav on small screens to prevent overflow */
-      .nav-cta .btn-ghost { display: none; }
-
-      .hero {
-        padding-left: 1.25rem;
-        padding-right: 1.25rem;
-      }
-      .hero h1 { font-size: clamp(2.2rem, 9vw, 3rem); }
-      .hero-tagline { font-size: 1rem; }
-      .hero-downloads { flex-direction: column; align-items: stretch; }
-      .hero-downloads .btn { text-align: center; justify-content: center; }
-      .hero-pills { gap: 0.4rem; }
-
-      .trust-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0;
-      }
-      .trust-item {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        padding: 0.75rem 1.5rem;
-        justify-content: center;
-      }
-      .trust-item:last-child { border-bottom: none; }
-
-      .features-grid { grid-template-columns: 1fr; gap: 1rem; }
-
-      .section-inner {
-        padding-left: 1.25rem;
-        padding-right: 1.25rem;
-        padding-top: 2.5rem;
-        padding-bottom: 2.5rem;
-      }
-      .section-title { font-size: clamp(1.75rem, 7vw, 2.5rem); }
-      .section-sub { font-size: 0.95rem; }
-
-      .screens-phones { flex-direction: column; align-items: center; gap: 1.5rem; }
-      .screen-phone:nth-child(2) { display: none; }
-      .screen-phone { max-width: 240px; margin: 0 auto; }
-      .screens-copy { order: -1; }
-
-      .download-cards { grid-template-columns: 1fr; gap: 1rem; max-width: 400px; }
-      .dl-card { padding: 1.25rem 1rem; }
-
-      .contribute-steps { gap: 1rem; }
-      .contribute-step { padding: 1.25rem; }
-      .tech-chips { gap: 0.4rem; }
-      .chip { font-size: 0.72rem; padding: 0.2rem 0.6rem; }
-
-      .contribute-cta { flex-direction: column; align-items: stretch; }
-      .contribute-cta .btn { justify-content: center; }
-
-      footer {
-        flex-direction: column;
-        gap: 1.5rem;
-        text-align: center;
-      }
-      .footer-links { justify-content: center; }
-    }
-
-    /* Small phones (≤ 390px) */
-    @media (max-width: 390px) {
-      .hero h1 { font-size: 2rem; }
-      .pill { font-size: 0.72rem; padding: 0.25rem 0.6rem; }
-      .btn-lg { padding: 0.75rem 1.25rem; font-size: 0.9rem; }
-      .dl-card { padding: 1.25rem 1rem; }
-    }
-
-    /* ── ALPHA STYLES ── */
-    .status-bar { background: rgba(251,188,4,0.08); border-bottom: 1px solid rgba(251,188,4,0.2); padding: 10px 1.5rem; font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 0.6rem; text-align: center; flex-wrap: wrap; }
-    .status-bar-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--yellow); }
-    .status-bar-link { color: var(--yellow); text-decoration: none; font-weight: 500; }
-    .pill-alpha { border-color: rgba(251,188,4,0.3); color: var(--yellow); }
-    .alpha-notice { margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); background: rgba(251,188,4,0.06); border: 1px solid rgba(251,188,4,0.15); border-radius: 8px; padding: 0.75rem 1rem; max-width: 600px; margin-left: auto; margin-right: auto; display: flex; gap: 0.5rem; align-items: flex-start; }
-    .alpha-notice a { color: var(--primary-light); text-decoration: none; }
   </style>
 </head>
 <body>
-  <!-- BLOBS -->
-  <div class="blob blob-1" aria-hidden="true"></div>
-  <div class="blob blob-2" aria-hidden="true"></div>
-  <div class="blob blob-3" aria-hidden="true"></div>
 
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    <span class="status-bar-dot" aria-hidden="true"></span>
-    <span><strong>Alpha v1.1.0</strong> — Wavely is under active development. Expect rough edges.</span>
-    <a href="https://wavely-f659c.web.app" target="_blank" rel="noopener" class="status-bar-link">Try the web app →</a>
-  </div>
-
-  <!-- NAV -->
-  <nav>
-    <a href="#" class="nav-logo">
-      <span class="logo-icon" aria-hidden="true">🎙</span>
-      Wavely
-    </a>
-    <ul class="nav-links">
-      <li><a href="#features">Features</a></li>
-      <li><a href="#download">Download</a></li>
-      <li><a href="#contribute">Contribute</a></li>
-    </ul>
-    <div class="nav-cta">
-      <a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener" class="btn btn-ghost" aria-label="View on GitHub">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-        GitHub
-      </a>
-      <a href="https://wavely-f659c.web.app" target="_blank" rel="noopener" class="btn btn-primary">Launch App ↗</a>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <section class="hero" aria-label="Hero">
-    <div class="hero-content">
-      <div class="hero-eyebrow">
-        <span class="eyebrow-dot" aria-hidden="true"></span>
-        Alpha Release · Free & Open Source
-      </div>
-      <h1>
-        Your podcasts.<br>
-        <span class="gradient-text">Everywhere.</span>
-      </h1>
-      <p class="hero-tagline">
-        A <strong>beautiful, distraction-free</strong> podcast player for iOS, Android, and the web. No subscription. No ads. No tracking. Just your shows.
-      </p>
-      <div class="hero-downloads">
-        <a href="https://wavely-f659c.web.app" target="_blank" rel="noopener" class="btn btn-primary btn-lg">Try Wavely Alpha →</a>
-        <a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-          View Source
-        </a>
-      </div>
-      <div class="hero-pills" aria-label="App highlights">
-        <span class="pill pill-alpha"><span class="pill-dot" style="background:var(--yellow)"></span>Alpha v1.1.0</span>
-        <span class="pill"><span class="pill-dot" style="background:var(--green)"></span>No ads</span>
-        <span class="pill"><span class="pill-dot" style="background:var(--primary)"></span>iOS · Android · Web</span>
-        <span class="pill"><span class="pill-dot" style="background:var(--yellow)"></span>MIT License</span>
-        <span class="pill"><span class="pill-dot" style="background:var(--accent)"></span>Offline Ready</span>
-      </div>
-    </div>
-
-    <!-- PHONE MOCKUP -->
-    <div class="hero-phone" aria-hidden="true">
-      <div class="phone-glow"></div>
-      <div class="phone-frame">
-        <div class="phone-notch"></div>
-        <div class="phone-screen">
-          <div class="app-header">
-            <div class="app-header-title">Wavely</div>
-            <div class="app-header-icon">🔍</div>
-          </div>
-          <div class="podcast-list">
-            <div class="podcast-row">
-              <div class="podcast-art art-blue">🎙</div>
-              <div class="podcast-info">
-                <div class="podcast-name">Design Details</div>
-                <div class="podcast-ep">Ep 456 — The future of UI</div>
-              </div>
-              <div class="podcast-duration">42m</div>
-            </div>
-            <div class="podcast-row">
-              <div class="podcast-art art-green">🌿</div>
-              <div class="podcast-info">
-                <div class="podcast-name">The Changelog</div>
-                <div class="podcast-ep">Ep 589 — Open source 2025</div>
-              </div>
-              <div class="podcast-duration">58m</div>
-            </div>
-            <div class="podcast-row">
-              <div class="podcast-art art-red">🎵</div>
-              <div class="podcast-info">
-                <div class="podcast-name">Darknet Diaries</div>
-                <div class="podcast-ep">Ep 148 — The Great Hack</div>
-              </div>
-              <div class="podcast-duration">1h 12m</div>
-            </div>
-            <div class="podcast-row">
-              <div class="podcast-art art-amber">🔬</div>
-              <div class="podcast-info">
-                <div class="podcast-name">Lex Fridman</div>
-                <div class="podcast-ep">Ep 420 — AI and consciousness</div>
-              </div>
-              <div class="podcast-duration">2h 34m</div>
-            </div>
-            <div class="podcast-row" style="opacity:0.5">
-              <div class="podcast-art" style="background:linear-gradient(135deg,#4A148C,#9C27B0);width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px">🎤</div>
-              <div class="podcast-info">
-                <div class="podcast-name">Serial</div>
-                <div class="podcast-ep">Season 4 — Episode 2</div>
-              </div>
-              <div class="podcast-duration">34m</div>
-            </div>
-          </div>
-          <div class="mini-player">
-            <div class="mp-progress"><div class="mp-progress-fill"></div></div>
-            <div class="mp-track">
-              <div class="mp-art">🎙</div>
-              <div class="mp-info">
-                <div class="mp-title">The future of UI design</div>
-                <div class="mp-sub">Design Details · 1.25×</div>
-              </div>
-              <div class="mp-controls">
-                <span class="mp-btn">⏮</span>
-                <span class="mp-btn-play">▐▐</span>
-                <span class="mp-btn">⏭</span>
-              </div>
-            </div>
-          </div>
-          <div class="phone-tabs">
-            <div class="tab-item active">
-              <span class="tab-icon">🏠</span>
-              <span>Home</span>
-            </div>
-            <div class="tab-item">
-              <span class="tab-icon">🔍</span>
-              <span>Browse</span>
-            </div>
-            <div class="tab-item">
-              <span class="tab-icon">🔎</span>
-              <span>Search</span>
-            </div>
-            <div class="tab-item">
-              <span class="tab-icon">📚</span>
-              <span>Library</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- TRUST BAR -->
-  <div class="trust-bar" aria-label="Key attributes">
-    <div class="trust-item"><span class="trust-icon">🆓</span> Free forever</div>
-    <div class="trust-item"><span class="trust-icon">🚫</span> Zero ads</div>
-    <div class="trust-item"><span class="trust-icon">🔒</span> No tracking</div>
-    <div class="trust-item"><span class="trust-icon">📶</span> Works offline</div>
-    <div class="trust-item"><span class="trust-icon">📖</span> MIT license</div>
-    <div class="trust-item"><span class="trust-icon">📱</span> iOS · Android · Web</div>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- FEATURES -->
-  <section id="features" aria-labelledby="features-heading">
-    <div class="section-inner">
-      <p class="section-label reveal">Features</p>
-      <h2 class="section-title reveal" id="features-heading">Built for how you<br>actually listen.</h2>
-      <p class="section-sub reveal">Everything a podcast player needs. Nothing you don't. Designed after Google Podcasts — clean, fast, and focused on content.</p>
-      <div class="features-grid">
-        <div class="feature-card reveal">
-          <div class="feature-icon fi-blue">🎧</div>
-          <h3>Beautiful Full-Screen Player</h3>
-          <p>Large artwork, smooth scrubber, configurable playback speed from 0.5× to 2×, and 30-second skip controls. Music-app quality for podcasts.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon fi-green">📱</div>
-          <h3>One App, Every Platform</h3>
-          <p>Use Wavely as a native iOS app, native Android app, or install it as a PWA on your desktop. Same experience, everywhere you go.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon fi-yellow">🌙</div>
-          <h3>System Dark Mode</h3>
-          <p>Automatically follows your system preference. Override manually anytime. Easy on the eyes for late-night listening sessions.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon fi-teal">📶</div>
-          <h3>Offline &amp; Error Resilient</h3>
-          <p>The app shell and subscriptions cache automatically. When the network drops, Wavely shows cached content with clear status — no blank screens, ever.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon fi-red">🔍</div>
-          <h3>Search All Podcasts</h3>
-          <p>Instant search across millions of podcasts with country-aware results. Browse by category and trending shows. Find anything, subscribe in one tap.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon fi-purple">📖</div>
-          <h3>Listening History</h3>
-          <p>Every episode you play is saved to your library and synced across devices via Firestore. Pick up exactly where you left off, on any device.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon fi-orange">⏭</div>
-          <h3>Up Next Queue</h3>
-          <p>Queue episodes to play back-to-back with auto-advance. Add from any page, reorder on the fly, and your queue persists across sessions.</p>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon fi-pink">🎵</div>
-          <h3>Lockscreen &amp; Notification Controls</h3>
-          <p>Play, pause, skip, and seek from your lock screen, notification shade, and headset buttons — powered by the Media Session API.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- APP PREVIEW -->
-  <section class="screens-section" aria-labelledby="screens-heading">
-    <div class="section-inner">
-      <div class="screens-layout">
-        <div class="screens-phones" aria-hidden="true">
-          <!-- Full player -->
-          <div class="screen-phone elevated">
-            <div class="screen-notch"></div>
-            <div class="full-player-screen">
-              <div class="fp-back">← Now Playing</div>
-              <div class="fp-artwork">🎙</div>
-              <div class="fp-track">
-                <div class="fp-title">The future of UI design systems</div>
-                <div class="fp-author">Design Details · Episode 456</div>
-              </div>
-              <div class="fp-scrubber">
-                <div class="fp-track-bar"><div class="fp-track-fill"></div></div>
-                <div class="fp-times"><span>21:32</span><span>-20:14</span></div>
-              </div>
-              <div class="fp-controls">
-                <span class="fp-ctrl">⏮</span>
-                <span class="fp-ctrl">⏪30</span>
-                <span class="fp-ctrl-main">▐▐</span>
-                <span class="fp-ctrl">30⏩</span>
-                <span class="fp-ctrl">⏭</span>
-              </div>
-              <div class="fp-speed">
-                <span class="fp-speed-badge">0.75×</span>
-                <span class="fp-speed-badge">1×</span>
-                <span class="fp-speed-badge active">1.25×</span>
-                <span class="fp-speed-badge">1.5×</span>
-                <span class="fp-speed-badge">2×</span>
-              </div>
-            </div>
-          </div>
-          <!-- Episode list -->
-          <div class="screen-phone">
-            <div class="screen-notch"></div>
-            <div class="list-screen">
-              <div class="list-header">Design Details</div>
-              <div class="list-ep">
-                <div class="list-ep-title">Ep 456 — The future of UI design systems</div>
-                <div class="list-ep-meta">
-                  <span>Dec 12</span>
-                  <span class="list-ep-dot"></span>
-                  <span>41 min</span>
-                </div>
-                <div class="list-ep-play">▶ Play episode</div>
-              </div>
-              <div class="list-ep">
-                <div class="list-ep-title">Ep 455 — Building with AI assistants</div>
-                <div class="list-ep-meta">
-                  <span>Dec 5</span>
-                  <span class="list-ep-dot"></span>
-                  <span>38 min</span>
-                </div>
-              </div>
-              <div class="list-ep">
-                <div class="list-ep-title">Ep 454 — Dark patterns in 2025</div>
-                <div class="list-ep-meta">
-                  <span>Nov 28</span>
-                  <span class="list-ep-dot"></span>
-                  <span>52 min</span>
-                </div>
-              </div>
-              <div class="list-ep">
-                <div class="list-ep-title">Ep 453 — The clipboard is an API</div>
-                <div class="list-ep-meta">
-                  <span>Nov 21</span>
-                  <span class="list-ep-dot"></span>
-                  <span>44 min</span>
-                </div>
-              </div>
-              <div class="list-ep" style="opacity:0.5">
-                <div class="list-ep-title">Ep 452 — Typography deep dive</div>
-                <div class="list-ep-meta">
-                  <span>Nov 14</span>
-                  <span class="list-ep-dot"></span>
-                  <span>1h 3min</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="screens-copy">
-          <p class="section-label reveal">App Preview</p>
-          <h2 class="section-title reveal" id="screens-heading">A player that stays<br>out of your way.</h2>
-          <p class="section-sub reveal">Inspired by the simplicity of Google Podcasts. Every screen is focused on the content, not the interface.</p>
-          <div class="screens-highlights">
-            <div class="highlight-row reveal">
-              <span class="highlight-num">01</span>
-              <div class="highlight-text">
-                <strong>Full-screen player</strong>
-                <span>Artwork-first layout with scrubber, speed controls, and skip. Music-app quality for podcasts.</span>
-              </div>
-            </div>
-            <div class="highlight-row reveal">
-              <span class="highlight-num">02</span>
-              <div class="highlight-text">
-                <strong>Persistent mini-player</strong>
-                <span>Never lose your place. The mini-player docks above the tab bar across every screen.</span>
-              </div>
-            </div>
-            <div class="highlight-row reveal">
-              <span class="highlight-num">03</span>
-              <div class="highlight-text">
-                <strong>Episode list & detail</strong>
-                <span>Full show pages with episode history, descriptions, and one-tap playback.</span>
-              </div>
-            </div>
-            <div class="highlight-row reveal">
-              <span class="highlight-num">04</span>
-              <div class="highlight-text">
-                <strong>Bottom tab navigation</strong>
-                <span>Home, Browse, Search, Library — everything reachable with your thumb.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- DOWNLOAD -->
-  <section id="download" class="download-section" aria-labelledby="download-heading">
-    <div class="section-inner">
-      <p class="section-label reveal">Get the App</p>
-      <h2 class="section-title reveal" id="download-heading">Listen on your terms.</h2>
-      <p class="section-sub reveal">The web app is live and available now. iOS and Android apps are in development — coming to the App Store and Play Store after v1.0.0 MVP.</p>
-      <div class="download-cards">
-        <div class="dl-card reveal" aria-label="iOS - Coming Soon">
-          <span class="dl-card-icon">🍎</span>
-          <span class="dl-card-platform">iOS</span>
-          <span class="dl-card-note">iPhone & iPad</span>
-          <span class="dl-card-badge badge-soon">Coming to App Store</span>
-        </div>
-        <div class="dl-card reveal" aria-label="Android - Coming Soon">
-          <span class="dl-card-icon">🤖</span>
-          <span class="dl-card-platform">Android</span>
-          <span class="dl-card-note">Phone & Tablet</span>
-          <span class="dl-card-badge badge-soon">Coming to Play Store</span>
-        </div>
-        <a href="https://wavely-f659c.web.app" target="_blank" rel="noopener" class="dl-card featured reveal" aria-label="Web App - Live Now">
-          <span class="dl-card-icon">🌐</span>
-          <span class="dl-card-platform">Web PWA</span>
-          <span class="dl-card-note">Any browser</span>
-          <span class="dl-card-badge badge-live">Available Now</span>
-        </a>
-      </div>
-      <p class="alpha-notice reveal">
-        <span aria-hidden="true">⚠️</span> This is an <strong>alpha release</strong>. Data may be reset between versions. 
-        <a href="https://github.com/bndF1/wavely/issues" target="_blank" rel="noopener">Report issues on GitHub</a>.
-      </p>
-      <p style="margin-top:2rem;font-size:0.8rem;color:var(--text-faint);text-align:center">
-        Or build from source →
-        <a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener" style="color:var(--primary-light);text-decoration:none">github.com/bndF1/wavely</a>
-      </p>
-    </div>
-  </section>
-
-  <div class="divider"></div>
-
-  <!-- CONTRIBUTE -->
-  <section id="contribute" aria-labelledby="contribute-heading">
-    <div class="section-inner">
-      <div class="contribute-layout">
-        <div>
-          <p class="section-label reveal">For Developers</p>
-          <h2 class="section-title reveal" id="contribute-heading">Built in the open.<br>Contribute freely.</h2>
-          <p class="section-sub reveal" style="margin-bottom:0">Wavely is a reference implementation of Angular + Ionic + Capacitor — built with every dependency at its latest stable version. Fork it, study it, improve it.</p>
-          <div class="contribute-cta reveal">
-            <a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener" class="btn btn-primary">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-              View on GitHub
-            </a>
-            <a href="https://github.com/bndF1/wavely/issues" target="_blank" rel="noopener" class="btn btn-ghost">Open an Issue</a>
-          </div>
-        </div>
-        <div>
-          <div class="contribute-steps">
-            <a href="https://github.com/bndF1/wavely#quick-start" target="_blank" rel="noopener" class="contribute-step reveal">
-              <span class="step-num">01</span>
-              <div class="step-content">
-                <strong>Clone & run locally</strong>
-                <span>bun install → bun start — up and running in under a minute.</span>
-              </div>
-            </a>
-            <a href="https://github.com/bndF1/wavely/issues" target="_blank" rel="noopener" class="contribute-step reveal">
-              <span class="step-num">02</span>
-              <div class="step-content">
-                <strong>Pick an open issue</strong>
-                <span>Browse the GitHub issue tracker — features, bugs, and good first issues.</span>
-              </div>
-            </a>
-            <a href="https://github.com/bndF1/wavely/pulls" target="_blank" rel="noopener" class="contribute-step reveal">
-              <span class="step-num">03</span>
-              <div class="step-content">
-                <strong>Open a pull request</strong>
-                <span>CI runs automatically: lint, type-check, tests, and build on every PR.</span>
-              </div>
-            </a>
-          </div>
-
-          <div class="tech-chips-section" style="margin-top:2rem">
-            <p class="section-label reveal" style="margin-bottom:1rem">Built with</p>
-            <div class="tech-chips reveal">
-              <span class="chip"><span class="chip-dot c-blue"></span>Angular 21</span>
-              <span class="chip"><span class="chip-dot c-blue"></span>Ionic 8</span>
-              <span class="chip"><span class="chip-dot c-green"></span>Capacitor 8</span>
-              <span class="chip"><span class="chip-dot c-red"></span>NgRx SignalStore</span>
-              <span class="chip"><span class="chip-dot c-yellow"></span>Firebase 12</span>
-              <span class="chip"><span class="chip-dot c-teal"></span>Nx 22</span>
-              <span class="chip"><span class="chip-dot c-gray"></span>Bun</span>
-              <span class="chip"><span class="chip-dot c-gray"></span>TypeScript</span>
-              <span class="chip"><span class="chip-dot c-purple"></span>Jest</span>
-              <span class="chip"><span class="chip-dot c-gray"></span>Playwright</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-left">
-      <a href="#" class="footer-logo">
-        <span class="logo-icon" aria-hidden="true">🎙</span>
+  <header>
+    <div class="container nav-inner">
+      <a href="#" class="logo">
+        <img src="favicon.png" alt="Wavely Logo">
         Wavely
       </a>
-      <p>Free, open-source podcast player for iOS, Android &amp; Web.</p>
+      <div class="nav-links">
+        <a href="https://wavely-f659c.web.app" class="nav-link">Open Web App</a>
+        <a href="https://github.com/bndF1/wavely" class="github-link" target="_blank" aria-label="GitHub">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        </a>
+      </div>
     </div>
-    <ul class="footer-links">
-      <li><a href="https://github.com/bndF1/wavely" target="_blank" rel="noopener">GitHub</a></li>
-      <li><a href="https://github.com/bndF1/wavely/issues" target="_blank" rel="noopener">Issues</a></li>
-      <li><a href="https://github.com/bndF1/wavely/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a></li>
-    </ul>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="badge">Early Access <span>v1.2.0</span></div>
+          <h1>Your podcasts.<br>Beautifully organized.</h1>
+          <p class="hero-subtitle">
+            A free, open-source podcast player built with modern web technologies. Clean design, no ads, and seamless synchronization.
+          </p>
+          <div class="hero-actions">
+            <a href="https://wavely-f659c.web.app" class="btn btn-primary">Launch Web App</a>
+            <a href="https://github.com/bndF1/wavely" class="btn btn-outline">View on GitHub</a>
+          </div>
+          <p style="margin-top: 16px; font-size: 13px; color: var(--text-muted);">
+            iOS and Android apps in active development.
+          </p>
+        </div>
+        
+        <div class="phones-container">
+          <!-- PHONE 1: Home/List -->
+          <div class="phone phone-1">
+            <div class="status-bar">
+              <span>9:41</span>
+              <span>100%</span>
+            </div>
+            <div class="app-header">
+              <div class="search-fake">Search podcasts...</div>
+            </div>
+            <div class="app-content">
+              <!-- Fake Podcast List -->
+              <div class="podcast-card">
+                <div class="p-thumb"></div>
+                <div class="p-info">
+                  <div class="p-title" style="width: 60%"></div>
+                  <div class="p-sub"></div>
+                </div>
+                <div class="p-play">▶</div>
+              </div>
+              <div class="podcast-card">
+                <div class="p-thumb"></div>
+                <div class="p-info">
+                  <div class="p-title" style="width: 75%"></div>
+                  <div class="p-sub"></div>
+                </div>
+                <div class="p-play">▶</div>
+              </div>
+              <div class="podcast-card">
+                <div class="p-thumb"></div>
+                <div class="p-info">
+                  <div class="p-title" style="width: 50%"></div>
+                  <div class="p-sub"></div>
+                </div>
+                <div class="p-play">▶</div>
+              </div>
+              <div class="podcast-card">
+                <div class="p-thumb"></div>
+                <div class="p-info">
+                  <div class="p-title" style="width: 65%"></div>
+                  <div class="p-sub"></div>
+                </div>
+                <div class="p-play">▶</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHONE 2: Player -->
+          <div class="phone phone-2">
+            <div class="status-bar">
+              <span>9:41</span>
+              <span>100%</span>
+            </div>
+            <div class="player-screen">
+              <div style="width: 40px; height: 4px; background: #e0e0e0; border-radius: 2px; margin-bottom: 24px;"></div>
+              <div class="player-art"></div>
+              <div class="player-meta">
+                <div class="pm-title"></div>
+                <div class="pm-sub"></div>
+              </div>
+              <div class="player-progress"></div>
+              <div class="player-controls">
+                <div class="pc-btn"></div>
+                <div class="pc-play"></div>
+                <div class="pc-btn"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Everything you need to listen</h2>
+          <p class="section-desc">Powerful features wrapped in a simple, intuitive interface.</p>
+        </div>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3 class="feature-title">Smart Discovery</h3>
+            <p class="feature-text">Browse top charts by country, search for any podcast on iTunes, and explore curated categories. Recent search history keeps your favorites close.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">☁️</div>
+            <h3 class="feature-title">Cloud Sync</h3>
+            <p class="feature-text">Sign in with Google to sync your subscriptions and listening progress across devices. Start on your phone, finish on your laptop.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">🎧</div>
+            <h3 class="feature-title">Advanced Player</h3>
+            <p class="feature-text">Variable playback speed (0.5x–2x), silence trimming, and a persistent mini-player that follows you as you browse.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3 class="feature-title">Your Library</h3>
+            <p class="feature-text">Filter episodes by Unplayed, In Progress, or All. Organize your queue with "Up Next" and auto-advance playback.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">📡</div>
+            <h3 class="feature-title">Offline Ready</h3>
+            <p class="feature-text">Built with PWA technologies to work reliably even on spotty connections. Your history and queue are cached locally.</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">✨</div>
+            <h3 class="feature-title">Material Design</h3>
+            <p class="feature-text">A clean, distraction-free interface that adheres to modern Material Design principles. Light mode by default.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="https://github.com/bndF1/wavely" class="footer-link">GitHub</a>
+        <a href="https://github.com/bndF1/wavely/issues" class="footer-link">Report Issue</a>
+        <a href="mailto:hello@wavely.app" class="footer-link">Contact</a>
+      </div>
+      <p class="copyright">
+        © 2024 Wavely. Open source project.
+      </p>
+    </div>
   </footer>
 
   <script>
-    // ── SCROLL REVEAL ──
-    const revealObserver = new IntersectionObserver(
-      (entries) => entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          revealObserver.unobserve(e.target);
-        }
-      }),
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    );
-    document.querySelectorAll('.reveal').forEach((el, i) => {
-      el.style.transitionDelay = `${(i % 4) * 0.07}s`;
-      revealObserver.observe(el);
+    // Simple reveal animation on scroll
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = 1;
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      });
+
+      const cards = document.querySelectorAll('.feature-card');
+      cards.forEach((card, index) => {
+        card.style.opacity = 0;
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = `all 0.6s ease-out ${index * 0.1}s`;
+        observer.observe(card);
+      });
     });
   </script>
 </body>
