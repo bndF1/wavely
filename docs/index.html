@@ -12,7 +12,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Wavely — Podcast Player">
   <meta name="theme-color" content="#1A73E8">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙</text></svg>">
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -583,6 +583,8 @@
     .fi-teal   { background: rgba(0,188,212,0.15); }
     .fi-red    { background: rgba(234,67,53,0.15); }
     .fi-purple { background: rgba(156,39,176,0.15); }
+    .fi-orange { background: rgba(255,152,0,0.15); }
+    .fi-pink   { background: rgba(233,30,99,0.15); }
     .feature-card h3 {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
@@ -1075,7 +1077,7 @@
   <!-- STATUS BAR -->
   <div class="status-bar">
     <span class="status-bar-dot" aria-hidden="true"></span>
-    <span><strong>Alpha v0.5.0</strong> — Wavely is under active development. Expect rough edges.</span>
+    <span><strong>Alpha v1.1.0</strong> — Wavely is under active development. Expect rough edges.</span>
     <a href="https://wavely-f659c.web.app" target="_blank" rel="noopener" class="status-bar-link">Try the web app →</a>
   </div>
 
@@ -1121,7 +1123,7 @@
         </a>
       </div>
       <div class="hero-pills" aria-label="App highlights">
-        <span class="pill pill-alpha"><span class="pill-dot" style="background:var(--yellow)"></span>Alpha v0.5.0</span>
+        <span class="pill pill-alpha"><span class="pill-dot" style="background:var(--yellow)"></span>Alpha v1.1.0</span>
         <span class="pill"><span class="pill-dot" style="background:var(--green)"></span>No ads</span>
         <span class="pill"><span class="pill-dot" style="background:var(--primary)"></span>iOS · Android · Web</span>
         <span class="pill"><span class="pill-dot" style="background:var(--yellow)"></span>MIT License</span>
@@ -1257,18 +1259,28 @@
         </div>
         <div class="feature-card reveal">
           <div class="feature-icon fi-teal">📶</div>
-          <h3>Listen Offline</h3>
-          <p>The app shell and your recent content cache automatically. Keep listening when the network disappears — on the subway, in the sky, anywhere.</p>
+          <h3>Offline &amp; Error Resilient</h3>
+          <p>The app shell and subscriptions cache automatically. When the network drops, Wavely shows cached content with clear status — no blank screens, ever.</p>
         </div>
         <div class="feature-card reveal">
           <div class="feature-icon fi-red">🔍</div>
           <h3>Search All Podcasts</h3>
-          <p>Instant search across millions of podcasts. Browse by category and trending shows. Find anything, subscribe in one tap.</p>
+          <p>Instant search across millions of podcasts with country-aware results. Browse by category and trending shows. Find anything, subscribe in one tap.</p>
         </div>
         <div class="feature-card reveal">
-          <div class="feature-icon fi-purple">📋</div>
-          <h3>Your Library, Your Way</h3>
-          <p>Subscribe to shows, bookmark episodes, manage a playback queue. Full podcast and episode detail pages with everything you need.</p>
+          <div class="feature-icon fi-purple">📖</div>
+          <h3>Listening History</h3>
+          <p>Every episode you play is saved to your library and synced across devices via Firestore. Pick up exactly where you left off, on any device.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-orange">⏭</div>
+          <h3>Up Next Queue</h3>
+          <p>Queue episodes to play back-to-back with auto-advance. Add from any page, reorder on the fly, and your queue persists across sessions.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon fi-pink">🎵</div>
+          <h3>Lockscreen &amp; Notification Controls</h3>
+          <p>Play, pause, skip, and seek from your lock screen, notification shade, and headset buttons — powered by the Media Session API.</p>
         </div>
       </div>
     </div>
