@@ -83,19 +83,23 @@ test.describe.serial('Subscriptions', () => {
 
     await page.goto(`/podcast/${podcast.id}`);
     await page.getByRole('button', { name: /^subscribe$/i }).click();
+    // Wait for the optimistic update to reflect in the UI before navigating
+    // (button changes to 'Subscribed' as soon as the store adds the podcast)
+    await expect(page.getByRole('button', { name: /^subscribed$/i })).toBeVisible({ timeout: 5000 });
 
     await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library');
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
     // Library renders subscriptions as ion-item with ion-label h2 (not wavely-podcast-card)
-    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible({ timeout: 15000 });
 
-    // Use ion-button[aria-label] selector to avoid strict mode violation:
-    // getByRole matches both the ion-item's native button AND the ion-button ✕ button
-    // because the ion-item's accessible name includes the aria-label of child buttons.
-    await page
-      .locator(`ion-button[aria-label="Unsubscribe from ${podcast.title}"]`)
-      .click();
+    // ion-button[aria-label] is unreliable after Ionic hydration: Ionic forwards
+    // the host aria-label to the shadow <button> and clears the host attribute.
+    // Use ion-button[slot="end"] scoped to the podcast's ion-item-sliding instead.
+    const podcastItem = page.locator('ion-item-sliding').filter({
+      has: page.locator('ion-label h2').filter({ hasText: podcast.title }),
+    });
+    await podcastItem.locator('ion-button[slot="end"]').click();
     await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toHaveCount(0);
   });
 });
