@@ -62,9 +62,26 @@ test.skip(() => !process.env['USE_EMULATORS'], 'Requires Firebase emulators');
 test.describe.serial('Subscriptions', () => {
   test('subscribe to podcast then appears in library', async ({ page }) => {
     const podcast = { id: '62001', title: 'Subscribe Flow Podcast' };
+
+    // Diagnostic logging for CI debugging
+    page.on('console', (msg) => console.log(`[sub-test:${msg.type()}] ${msg.text()}`));
+    page.on('pageerror', (err) => console.error('[sub-test:pageerror]', err.message));
+    page.on('response', (res) => {
+      if (res.url().includes('itunes') || res.status() >= 400) {
+        console.log(`[sub-test:response] ${res.status()} ${res.url()}`);
+      }
+    });
+
     await mockPodcastEndpoints(page, podcast);
 
-    await page.goto(`/podcast/${podcast.id}`);
+    console.log('[sub-test] navigating to podcast detail...');
+    await page.goto(`/podcast/${podcast.id}`, { waitUntil: 'domcontentloaded' });
+    console.log('[sub-test] page loaded, URL:', page.url());
+
+    // Wait for Angular to finish rendering the podcast content
+    await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
+    console.log('[sub-test] podcast header visible, looking for subscribe button...');
+
     await page.locator('ion-button').filter({ hasText: /^Subscribe$/i }).click();
     // Wait for the optimistic update to reflect in the UI before navigating
     await expect(page.locator('ion-button').filter({ hasText: /^Subscribed$/i })).toBeVisible({ timeout: 10000 });
