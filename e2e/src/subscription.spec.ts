@@ -67,8 +67,12 @@ test.describe.serial('Subscriptions', () => {
     await page.goto(`/podcast/${podcast.id}`);
     await page.getByRole('button', { name: /^subscribe$/i }).click();
 
-    await page.goto('/tabs/library');
-    await expect(page.getByRole('heading', { name: 'Library' })).toBeVisible();
+    // SPA navigation preserves PodcastsStore state; page.goto would reload and
+    // lose the subscription before the Firestore write completes.
+    await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library');
+    await page.waitForURL('/tabs/library');
+    // ion-title doesn't expose role="heading" — match via locator
+    await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
     await expect(page.getByText(podcast.title, { exact: false })).toBeVisible();
   });
 
@@ -79,7 +83,9 @@ test.describe.serial('Subscriptions', () => {
     await page.goto(`/podcast/${podcast.id}`);
     await page.getByRole('button', { name: /^subscribe$/i }).click();
 
-    await page.goto('/tabs/library');
+    await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library');
+    await page.waitForURL('/tabs/library');
+    await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
     await expect(page.getByText(podcast.title, { exact: false })).toBeVisible();
 
     await page

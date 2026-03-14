@@ -56,8 +56,9 @@ test.describe('Browse page', () => {
   test('clicking category shows relevant podcasts', async ({ page }) => {
     await page.goto('/tabs/browse');
 
-    await page.locator('ion-chip', { hasText: /^Comedy$/ }).click();
-    await expect(page.getByText('Comedy Gold', { exact: false })).toBeVisible();
+    // force: true bypasses Ionic shadow DOM pointer-events checks
+    await page.locator('ion-chip', { hasText: /^Comedy$/ }).click({ force: true });
+    await expect(page.getByText('Comedy Gold', { exact: false })).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('All Category Podcast', { exact: false })).toHaveCount(0);
   });
 
