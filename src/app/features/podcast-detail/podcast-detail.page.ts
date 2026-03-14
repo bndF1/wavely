@@ -125,15 +125,16 @@ export class PodcastDetailPage {
 
   protected playEpisode(episode: Episode): void {
     if (!this.podcast) return;
+    const podcastTitle = this.podcast.title;
     // Set the clicked episode as current, queue the rest that follow it
     const idx = this.episodes.findIndex((e) => e.id === episode.id);
     const upcoming = this.episodes.slice(idx + 1);
     this.playerStore.clearQueue();
-    upcoming.forEach((e) => this.playerStore.addToQueue(e));
-    this.playerStore.play(episode);
+    upcoming.forEach((e) => this.playerStore.addToQueue({ ...e, podcastTitle }));
+    this.playerStore.play({ ...episode, podcastTitle });
     // Navigate to episode detail, passing full objects via router state to avoid extra API calls
     this.router.navigate(['/episode', episode.id], {
-      state: { episode, podcast: this.podcast },
+      state: { episode: { ...episode, podcastTitle }, podcast: this.podcast },
     });
   }
 

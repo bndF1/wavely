@@ -83,7 +83,7 @@
           <ion-icon slot="icon-only" name="play-skip-forward"></ion-icon>
         </ion-button>
       </div>
-      <!-- Speed selector -->
+      <!-- Speed selector + add to queue -->
       <div class="speed-row">
         <ion-select
           [value]="playerStore.playbackRate()"
@@ -96,6 +96,16 @@
             </ion-select-option>
           }
         </ion-select>
+        <ion-button
+          fill="clear"
+          size="small"
+          [disabled]="isInQueue"
+          (click)="addToQueue()"
+          [attr.aria-label]="isInQueue ? 'Already in queue' : 'Add to Up Next queue'"
+          class="add-to-queue-btn">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          {{ isInQueue ? 'In Queue' : 'Up Next' }}
+        </ion-button>
       </div>
     </div>
     <!-- Description -->

@@ -152,6 +152,72 @@
     position: absolute;
     bottom: 2px;
   }
+
+  &__queue {
+    width: 100%;
+    margin-top: 24px;
+    border-top: 1px solid var(--wavely-surface-variant);
+    padding-top: 16px;
+  }
+
+  &__queue-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px 8px;
+  }
+
+  &__queue-icon {
+    font-size: 18px;
+    color: var(--wavely-on-surface-muted);
+  }
+
+  &__queue-title {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--wavely-on-surface-muted);
+  }
+
+  &__queue-clear {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    padding: 4px 8px;
+  }
+
+  &__queue-list {
+    background: transparent;
+    padding: 0;
+  }
+
+  &__queue-item {
+    --background: transparent;
+    --padding-start: 0;
+    --padding-end: 0;
+    --inner-padding-end: 0;
+    --min-height: 48px;
+  }
+
+  &__queue-ep-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--wavely-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 0 2px;
+  }
+
+  &__queue-ep-podcast {
+    font-size: 12px;
+    color: var(--wavely-on-surface-muted);
+  }
 }
 
 // Dark mode

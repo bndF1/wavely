@@ -32,6 +32,7 @@ export function mockPlayerStore(overrides: Partial<PlayerState> = {}) {
     toggleMinimise: jest.fn(),
     addToQueue: jest.fn(),
     clearQueue: jest.fn(),
+    removeFromQueue: jest.fn(),
     updateProgress: jest.fn(),
     skipBack: jest.fn(),
     skipForward: jest.fn(),

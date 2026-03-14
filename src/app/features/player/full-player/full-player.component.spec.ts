@@ -172,4 +172,53 @@ describe('FullPlayerComponent', () => {
       expect(store.seek).toHaveBeenCalledWith(50);
     });
   });
+
+  describe('queue UI', () => {
+    it('does not render queue section when queue is empty', () => {
+      createComponent({
+        currentEpisode: mockEpisode({ id: 'now-playing' }),
+        queue: [],
+      });
+
+      const queueSection = fixture.nativeElement.querySelector('.full-player__queue');
+      expect(queueSection).toBeNull();
+    });
+
+    it('renders queue section when queue has items', () => {
+      createComponent({
+        currentEpisode: mockEpisode({ id: 'now-playing' }),
+        queue: [mockEpisode({ id: 'q-1', title: 'Queued Episode' })],
+      });
+
+      const queueSection = fixture.nativeElement.querySelector('.full-player__queue');
+      expect(queueSection).not.toBeNull();
+      expect(queueSection.textContent).toContain('Up Next');
+    });
+
+    it('calls store.clearQueue() when Clear is clicked', () => {
+      createComponent({
+        currentEpisode: mockEpisode({ id: 'now-playing' }),
+        queue: [mockEpisode({ id: 'q-1', title: 'Queued Episode' })],
+      });
+
+      const clearButton = fixture.nativeElement.querySelector('.full-player__queue-clear') as HTMLButtonElement;
+      clearButton.click();
+
+      expect(store.clearQueue).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls store.removeFromQueue(episodeId) when Remove is clicked', () => {
+      const queued = mockEpisode({ id: 'q-1', title: 'Queued Episode' });
+      createComponent({
+        currentEpisode: mockEpisode({ id: 'now-playing' }),
+        queue: [queued],
+      });
+
+      const removeButton = fixture.nativeElement.querySelector('[aria-label="Remove Queued Episode from queue"]') as HTMLButtonElement;
+      removeButton.click();
+
+      expect(store.removeFromQueue).toHaveBeenCalledWith('q-1');
+    });
+  });
+
 });
