@@ -1,0 +1,58 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/browse"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ genreName() }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (isLoading()) {
+    <div class="podcast-grid" aria-label="Loading category podcasts">
+      @for (s of skeletons; track s) {
+        <ion-card class="skeleton-card" aria-hidden="true">
+          <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
+          <ion-card-content>
+            <ion-skeleton-text [animated]="true" style="width: 85%; height: 16px"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" style="width: 60%; height: 14px"></ion-skeleton-text>
+          </ion-card-content>
+        </ion-card>
+      }
+    </div>
+  }
+
+  @if (error() && !isLoading()) {
+    <wavely-empty-state
+      icon="alert-circle-outline"
+      title="Could not load this category"
+      [subtitle]="error()!"
+      actionLabel="Retry"
+      (action)="retry()">
+    </wavely-empty-state>
+  }
+
+  @if (!isLoading() && !error() && visiblePodcasts().length > 0) {
+    <div class="podcast-grid">
+      @for (podcast of visiblePodcasts(); track podcast.id) {
+        <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
+      }
+    </div>
+
+    @if (canLoadMore()) {
+      <div class="load-more-wrap">
+        <ion-button fill="outline" (click)="loadMore()">Load more</ion-button>
+      </div>
+    }
+  }
+
+  @if (!isLoading() && !error() && visiblePodcasts().length === 0) {
+    <wavely-empty-state
+      icon="search-outline"
+      title="No podcasts in this category"
+      subtitle="Try another category or check back later."
+      actionLabel="Refresh"
+      (action)="retry()">
+    </wavely-empty-state>
+  }
+</ion-content>

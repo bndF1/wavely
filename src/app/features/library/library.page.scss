@@ -9,6 +9,28 @@
   color: var(--wavely-on-surface);
 }
 
+.history-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 16px 8px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  ion-chip {
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  ion-chip.active {
+    --background: var(--ion-color-primary);
+    --color: var(--ion-color-primary-contrast);
+  }
+}
+
 .list-hint {
   margin: 4px 16px;
   font-size: 12px;

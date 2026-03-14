@@ -1,4 +1,7 @@
-import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { computed } from '@angular/core';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+
+export type HistoryFilter = 'all' | 'unplayed' | 'inProgress' | 'completed';
 
 export interface HistoryEntry {
   episodeId: string;
@@ -14,11 +17,13 @@ export interface HistoryEntry {
 export interface HistoryState {
   entries: HistoryEntry[];
   isLoading: boolean;
+  filter: HistoryFilter;
 }
 
 const initialState: HistoryState = {
   entries: [],
   isLoading: false,
+  filter: 'all',
 };
 
 const sortByLastPlayed = (entries: HistoryEntry[]): HistoryEntry[] =>
@@ -27,6 +32,23 @@ const sortByLastPlayed = (entries: HistoryEntry[]): HistoryEntry[] =>
 export const HistoryStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
+  withComputed((store) => ({
+    filteredEntries: computed(() => {
+      const f = store.filter();
+      const entries = store.entries();
+      switch (f) {
+        case 'unplayed':
+          return entries.filter((e) => e.position === 0 && !e.completed);
+        case 'inProgress':
+          return entries.filter((e) => e.position > 0 && !e.completed);
+        case 'completed':
+          return entries.filter((e) => e.completed);
+        default:
+          return entries;
+      }
+    }),
+    activeFilter: computed(() => store.filter()),
+  })),
   withMethods((store) => ({
     setLoading(loading: boolean): void {
       patchState(store, { isLoading: loading });
@@ -39,6 +61,21 @@ export const HistoryStore = signalStore(
       patchState(store, {
         entries: sortByLastPlayed([...withoutCurrent, entry]),
       });
+    },
+    setFilter(filter: HistoryFilter): void {
+      patchState(store, { filter });
+    },
+    markPlayed(episodeId: string): void {
+      const updated = store.entries().map((e) =>
+        e.episodeId === episodeId ? { ...e, completed: true, position: e.duration || e.position } : e
+      );
+      patchState(store, { entries: sortByLastPlayed(updated) });
+    },
+    markUnplayed(episodeId: string): void {
+      const updated = store.entries().map((e) =>
+        e.episodeId === episodeId ? { ...e, completed: false, position: 0 } : e
+      );
+      patchState(store, { entries: sortByLastPlayed(updated) });
     },
     clear(): void {
       patchState(store, { entries: [], isLoading: false });
