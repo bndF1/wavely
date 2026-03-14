@@ -47,6 +47,29 @@ test.skip(() => !process.env['USE_EMULATORS'], 'Requires Firebase emulators');
 
 test.describe('Player', () => {
   test.beforeEach(async ({ page }) => {
+    // Prevent the <audio> element from making real network requests or firing error
+    // events (which would cause AudioService to call store.pause() in CI).
+    // We mock play()/pause() at the prototype level so the PlayerStore's isPlaying
+    // signal stays in sync with what the test clicks — no actual audio needed.
+    await page.addInitScript(() => {
+      HTMLMediaElement.prototype.play = function () {
+        return Promise.resolve();
+      };
+      const srcDesc = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src');
+      Object.defineProperty(HTMLMediaElement.prototype, 'src', {
+        get() {
+          return srcDesc?.get?.call(this) ?? '';
+        },
+        set(_v) {
+          /* suppress src to prevent network fetch and error events */
+        },
+        configurable: true,
+      });
+      HTMLMediaElement.prototype.load = function () {
+        /* suppress */
+      };
+    });
+
     await page.route(ITUNES_LOOKUP_URL, async (route) => {
       const url = new URL(route.request().url());
       const entity = url.searchParams.get('entity');
@@ -57,28 +80,6 @@ test.describe('Player', () => {
         body: JSON.stringify({
           results: entity === 'podcastEpisode' ? [lookupEpisodeResult()] : [lookupPodcastResult()],
         }),
-      });
-    });
-
-    // Serve a minimal valid WAV so the <audio> element loads without error
-    // (prevents AudioService from calling store.pause() on load failure)
-    await page.route('https://example.com/player-episode.mp3', async (route) => {
-      const wav = Buffer.from([
-        0x52, 0x49, 0x46, 0x46, 0x26, 0x00, 0x00, 0x00, // RIFF, size=38
-        0x57, 0x41, 0x56, 0x45,                         // WAVE
-        0x66, 0x6d, 0x74, 0x20, 0x10, 0x00, 0x00, 0x00, // fmt , size=16
-        0x01, 0x00, 0x01, 0x00,                         // PCM, mono
-        0x44, 0xac, 0x00, 0x00,                         // 44100 Hz
-        0x88, 0x58, 0x01, 0x00,                         // byte rate
-        0x02, 0x00, 0x10, 0x00,                         // block align, 16-bit
-        0x64, 0x61, 0x74, 0x61, 0x02, 0x00, 0x00, 0x00, // data, size=2
-        0x00, 0x00,                                     // 1 sample of silence
-      ]);
-      await route.fulfill({
-        status: 200,
-        contentType: 'audio/wav',
-        body: wav,
-        headers: { 'Accept-Ranges': 'bytes' },
       });
     });
 

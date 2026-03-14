@@ -87,10 +87,14 @@ test.describe.serial('Subscriptions', () => {
     await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library');
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible();
+    // Library renders subscriptions as ion-item with ion-label h2 (not wavely-podcast-card)
+    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible({ timeout: 10000 });
 
+    // Use ion-button[aria-label] selector to avoid strict mode violation:
+    // getByRole matches both the ion-item's native button AND the ion-button ✕ button
+    // because the ion-item's accessible name includes the aria-label of child buttons.
     await page
-      .getByRole('button', { name: new RegExp(`Unsubscribe from ${podcast.title}`, 'i') })
+      .locator(`ion-button[aria-label="Unsubscribe from ${podcast.title}"]`)
       .click();
     await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toHaveCount(0);
   });
