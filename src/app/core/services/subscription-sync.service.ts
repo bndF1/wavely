@@ -37,7 +37,11 @@ export class SubscriptionSyncService {
       // Drop result if user signed out or switched while the request was in-flight
       if (!isStillCurrentUser()) return;
       const podcasts = snapshot.docs.map((d) => d.data() as Podcast);
-      this.store.setSubscriptions(podcasts);
+      // Merge remote subscriptions with any locally-added ones that may have been
+      // added after this read started (prevents race condition overwriting optimistic updates).
+      const remoteIds = new Set(podcasts.map((p) => p.id));
+      const localOnly = this.store.subscriptions().filter((p) => !remoteIds.has(p.id));
+      this.store.setSubscriptions([...podcasts, ...localOnly]);
     } catch (err) {
       console.error('[SubscriptionSyncService] Failed to load subscriptions', err);
     }
