@@ -66,10 +66,12 @@ export class PodcastApiService {
    * Fetch top podcasts chart via the iTunes RSS feed.
    * @param limit Number of results (max 100). Default 25.
    * @param genreId Optional iTunes genre ID. Omit for overall top chart.
+   * @param country ISO 3166-1 alpha-2 country code. Defaults to detected locale country.
    */
-  getTrendingPodcasts(limit = 25, genreId?: number): Observable<Podcast[]> {
+  getTrendingPodcasts(limit = 25, genreId?: number, country?: string): Observable<Podcast[]> {
+    const countryCode = country ?? this.detectCountry();
     const genrePath = genreId ? `/genre/${genreId}` : '';
-    const url = `${this.itunesBase}/us/rss/toppodcasts/limit=${limit}${genrePath}/json`;
+    const url = `${this.itunesBase}/${countryCode}/rss/toppodcasts/limit=${limit}${genrePath}/json`;
     return this.http
       .get<ItunesRssFeed>(url)
       .pipe(map((feed) => feed.feed.entry.map(this.mapRssEntry)));

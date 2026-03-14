@@ -186,18 +186,33 @@ describe('PodcastApiService', () => {
   });
 
   describe('getTrendingPodcasts()', () => {
-    it('requests the iTunes RSS feed with correct limit', () => {
+    function setLocale(lang: string): void {
+      Object.defineProperty(navigator, 'language', { value: lang, configurable: true });
+    }
+
+    it('uses detected country from locale in URL', () => {
+      setLocale('es-ES');
       service.getTrendingPodcasts(10).subscribe();
 
       const req = httpMock.expectOne(
-        `${ITUNES_BASE}/us/rss/toppodcasts/limit=10/json`
+        `${ITUNES_BASE}/es/rss/toppodcasts/limit=10/json`
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush({ feed: { entry: [] } });
+    });
+
+    it('accepts an explicit country override', () => {
+      service.getTrendingPodcasts(10, undefined, 'gb').subscribe();
+
+      const req = httpMock.expectOne(
+        (r) => r.url.includes('/gb/rss/toppodcasts/limit=10/json')
       );
       expect(req.request.method).toBe('GET');
       req.flush({ feed: { entry: [] } });
     });
 
     it('includes genre path when genreId is provided', () => {
-      service.getTrendingPodcasts(5, 1310).subscribe();
+      service.getTrendingPodcasts(5, 1310, 'us').subscribe();
 
       const req = httpMock.expectOne(
         `${ITUNES_BASE}/us/rss/toppodcasts/limit=5/genre/1310/json`
