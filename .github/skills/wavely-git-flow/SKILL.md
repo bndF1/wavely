@@ -19,10 +19,15 @@ feature/*  ──PR──►  dev  ──PR──►  staging  ──PR──►
 | Branch | Purpose | Auto-deploy target |
 |--------|---------|-------------------|
 | `main` | Production-stable | https://wavely-f659c.web.app (prod) + semantic-release tag |
-| `staging` | Pre-production validation | https://wavely-f659c--staging.web.app |
-| `dev` | Active integration | https://wavely-f659c--dev.web.app |
-| `feature/*` | Feature work | Preview channel (ephemeral) |
+| `staging` | Pre-production validation | Firebase channel — URL in GitHub Deployments → "staging" environment |
+| `dev` | Active integration | Firebase channel — URL in GitHub Deployments → "dev" environment |
+| `feature/*` | Feature work | Preview channel — URL posted as PR comment |
 | `hotfix/*` | Emergency production fixes | PR directly to `main` + backport to `dev` |
+
+> **Finding dev/staging URLs**: Firebase preview channel URLs include a random hash (e.g.
+> `wavely-f659c--dev-fbowlyi7.web.app`). The hash is stable as long as the channel doesn't
+> expire. Find the current URL under **GitHub → Deployments** or in the latest workflow run's
+> job summary. A weekly cron (`firebase-channel-refresh.yml`) prevents expiry.
 
 ## Rules — Follow EVERY Time
 

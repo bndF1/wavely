@@ -18,10 +18,12 @@
 |-------------|-----|-------|
 | 🏠 **Landing Page** | [bndf1.github.io/wavely](https://bndf1.github.io/wavely/) | GitHub Pages |
 | 🚀 **Production** | [wavely-f659c.web.app](https://wavely-f659c.web.app) | Stable releases (tagged) |
-| 🧪 **Staging** | [wavely-f659c--staging.web.app](https://wavely-f659c--staging.web.app) | Pre-release validation |
-| 🔧 **Dev** | [wavely-f659c--dev.web.app](https://wavely-f659c--dev.web.app) | Latest integration |
+| 🧪 **Staging** | See [GitHub Deployments](https://github.com/bndF1/wavely/deployments/staging) | Pre-release validation |
+| 🔧 **Dev** | See [GitHub Deployments](https://github.com/bndF1/wavely/deployments/dev) | Latest integration |
 
 Every PR also gets an ephemeral preview channel: `https://wavely-f659c--pr-<number>-<hash>.web.app` (expires in 7 days).
+
+> **Note on dev/staging URLs**: Firebase preview channel URLs include a stable random hash (e.g. `wavely-f659c--dev-xxxxxxxx.web.app`). The hash is assigned when the channel is first created and stays the same as long as the channel doesn't expire. Find the current URL in [GitHub Deployments](https://github.com/bndF1/wavely/deployments) or the latest workflow run's job summary. A weekly cron prevents channels from expiring.
 
 ---
 
@@ -188,7 +190,7 @@ E2E tests use Firebase Auth + Firestore emulators and a dedicated `e2e` build co
 | Trigger | Checks | Deploy |
 |---------|--------|--------|
 | PR opened | Unit tests + preview channel | `wavely-f659c--pr-<n>-<hash>.web.app` |
-| Push to `staging` | Unit tests | `wavely-f659c--staging.web.app` |
+| Push to `staging` | Unit tests | Firebase staging channel (URL in [GitHub Deployments](https://github.com/bndF1/wavely/deployments/staging)) |
 | PR to `staging` | Unit tests + **E2E** | — |
 | PR to `main` | Unit tests + **E2E** + **Lighthouse CI** | — |
 | Push to `main` | Unit tests + build + semantic-release | `wavely-f659c.web.app` (production) |
