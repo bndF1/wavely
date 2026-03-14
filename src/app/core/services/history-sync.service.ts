@@ -58,6 +58,7 @@ export class HistorySyncService {
       this.historyStore.clear();
     } catch (err) {
       console.error('[HistorySyncService] Failed to clear history', err);
+      this.historyStore.clear();
     }
   }
 }
