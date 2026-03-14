@@ -64,6 +64,9 @@ export const PlayerStore = signalStore(
       const newTime = Math.min(store.duration(), store.currentTime() + seconds);
       patchState(store, { currentTime: newTime });
     },
+    removeFromQueue(episodeId: string): void {
+      patchState(store, { queue: store.queue().filter((e) => e.id !== episodeId) });
+    },
     /** Advance to next episode in queue, or stop if queue is empty */
     playNext(): void {
       const [next, ...rest] = store.queue();
