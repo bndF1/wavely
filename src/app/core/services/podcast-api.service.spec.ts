@@ -264,4 +264,57 @@ describe('PodcastApiService', () => {
       expect(service.detectCountry()).toBe('us');
     });
   });
+
+  describe('getPublisherPodcasts()', () => {
+    it('calls iTunes lookup with correct params and maps only collection results', () => {
+      const artistId = '131600381';
+      let result: unknown[] = [];
+
+      service.getPublisherPodcasts(artistId).subscribe((p) => (result = p));
+
+      const req = httpMock.expectOne(
+        (r) => r.url === `${ITUNES_BASE}/lookup` && r.params.get('id') === artistId
+      );
+      expect(req.request.params.get('entity')).toBe('podcast');
+      expect(req.request.params.get('limit')).toBe('100');
+
+      req.flush({
+        results: [
+          // Artist record — should be filtered out
+          { wrapperType: 'artist', artistId: 131600381, artistName: 'Cadena SER' },
+          // Podcast collection record — should be mapped
+          {
+            wrapperType: 'collection',
+            collectionId: 100001,
+            collectionName: 'Hoy por Hoy',
+            artistName: 'Cadena SER',
+            artistId: 131600381,
+            artworkUrl600: 'https://example.com/art600.jpg',
+            artworkUrl100: 'https://example.com/art100.jpg',
+            feedUrl: 'https://feeds.ser.es/hpd',
+            genres: ['News'],
+            trackCount: 200,
+            releaseDate: '2024-01-01',
+          },
+        ],
+      });
+
+      expect(result.length).toBe(1);
+      expect((result[0] as { id: string }).id).toBe('100001');
+      expect((result[0] as { artistId: string }).artistId).toBe('131600381');
+    });
+
+    it('returns empty array when only artist result is returned', () => {
+      let result: unknown[] = [{ placeholder: true }];
+
+      service.getPublisherPodcasts('999').subscribe((p) => (result = p));
+
+      const req = httpMock.expectOne((r) => r.url === `${ITUNES_BASE}/lookup`);
+      req.flush({
+        results: [{ wrapperType: 'artist', artistId: 999, artistName: 'Unknown' }],
+      });
+
+      expect(result.length).toBe(0);
+    });
+  });
 });

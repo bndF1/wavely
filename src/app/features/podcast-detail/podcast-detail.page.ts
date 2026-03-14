@@ -151,4 +151,10 @@ export class PodcastDetailPage {
   protected onImageError(event: Event): void {
     (event.target as HTMLImageElement).src = '/default-artwork.svg';
   }
+
+  protected navigateToPublisher(): void {
+    if (this.podcast?.artistId) {
+      this.router.navigate(['/publisher', this.podcast.artistId]);
+    }
+  }
 }
