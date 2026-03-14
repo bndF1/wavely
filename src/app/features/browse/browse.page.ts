@@ -1,4 +1,10 @@
-import { Component, OnDestroy, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  inject,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 
 import {
@@ -11,10 +17,11 @@ import {
   IonSkeletonText,
   IonCard,
   IonCardContent,
+  IonText,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { alertCircleOutline, refreshOutline, searchOutline } from 'ionicons/icons';
-import { Subject, switchMap, catchError, of, takeUntil, tap } from 'rxjs';
+import { Subject, switchMap, catchError, of, takeUntil, tap, forkJoin } from 'rxjs';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { Podcast } from '../../core/models/podcast.model';
@@ -48,6 +55,8 @@ const CHIP_SKELETON_COUNT = 6;
   selector: 'wavely-browse',
   templateUrl: './browse.page.html',
   styleUrls: ['./browse.page.scss'],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     IonHeader,
     IonToolbar,
@@ -58,6 +67,7 @@ const CHIP_SKELETON_COUNT = 6;
     IonSkeletonText,
     IonCard,
     IonCardContent,
+    IonText,
     PodcastCardComponent,
     EmptyStateComponent,
   ],
@@ -69,18 +79,11 @@ export class BrowsePage implements OnDestroy {
   protected readonly categories = PODCAST_CATEGORIES;
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
   protected readonly chipSkeletons = Array.from({ length: CHIP_SKELETON_COUNT });
-  protected readonly skeletonPodcast: Podcast = {
-    id: '',
-    title: '',
-    author: '',
-    description: '',
-    artworkUrl: '',
-    feedUrl: '',
-    genres: [],
-  };
 
   protected selectedCategory = signal(PODCAST_CATEGORIES[0]);
   protected topPodcasts = signal<Podcast[]>([]);
+  protected featuredPodcasts = signal<Podcast[]>([]);
+  protected newNoteworthyPodcasts = signal<Podcast[]>([]);
   protected isLoading = signal(false);
   protected error = signal<string | null>(null);
 
@@ -96,20 +99,39 @@ export class BrowsePage implements OnDestroy {
           this.isLoading.set(true);
           this.error.set(null);
           this.topPodcasts.set([]);
+          this.featuredPodcasts.set([]);
+          this.newNoteworthyPodcasts.set([]);
         }),
         switchMap((cat) => {
-          const obs$ = cat.id === 0 ? this.api.getTrendingPodcasts(25) : this.api.getTrendingPodcasts(25, cat.id);
-          return obs$.pipe(
+          if (cat.id !== 0) {
+            return of({
+              topPodcasts: [] as Podcast[],
+              featuredPodcasts: [] as Podcast[],
+              newNoteworthyPodcasts: [] as Podcast[],
+            });
+          }
+
+          return forkJoin({
+            topPodcasts: this.api.getTrendingPodcasts(25),
+            featuredPodcasts: this.api.getTrendingPodcasts(5),
+            newNoteworthyPodcasts: this.api.getTrendingPodcasts(10),
+          }).pipe(
             catchError(() => {
               this.error.set('Could not load podcasts. Please try again.');
-              return of([] as Podcast[]);
+              return of({
+                topPodcasts: [] as Podcast[],
+                featuredPodcasts: [] as Podcast[],
+                newNoteworthyPodcasts: [] as Podcast[],
+              });
             })
           );
         }),
         takeUntil(this.destroy$)
       )
-      .subscribe((podcasts) => {
-        this.topPodcasts.set(podcasts);
+      .subscribe((response) => {
+        this.topPodcasts.set(response.topPodcasts);
+        this.featuredPodcasts.set(response.featuredPodcasts);
+        this.newNoteworthyPodcasts.set(response.newNoteworthyPodcasts);
         this.isLoading.set(false);
       });
 
@@ -123,11 +145,23 @@ export class BrowsePage implements OnDestroy {
 
   protected selectCategory(category: PodcastCategory): void {
     if (this.selectedCategory().id === category.id) return;
+
     this.selectedCategory.set(category);
-    this.category$.next(category);
+
+    if (category.id === 0) {
+      this.category$.next(category);
+      return;
+    }
+
+    this.router.navigate(['/browse/category', category.id]);
   }
 
   protected retryCurrentCategory(): void {
+    if (this.selectedCategory().id !== 0) {
+      this.router.navigate(['/browse/category', this.selectedCategory().id]);
+      return;
+    }
+
     this.category$.next(this.selectedCategory());
   }
 
