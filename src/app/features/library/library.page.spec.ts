@@ -9,7 +9,6 @@ jest.mock('@angular/fire/auth', () => ({
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-
 import { LibraryPage } from './library.page';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
@@ -24,25 +23,25 @@ describe('LibraryPage', () => {
   let component: LibraryPage;
 
   const mockStore = { subscriptions: signal([]) };
-  const mockAuthStore = {
-    user: signal({ uid: 'uid-1' }),
-    signOut: jest.fn().mockResolvedValue(undefined),
-  };
+  const mockAuthStore = { user: signal({ uid: 'uid-1' }), signOut: jest.fn().mockResolvedValue(undefined) };
   const mockHistoryStore = {
     entries: signal([]),
+    filteredEntries: signal([]),
     isLoading: signal(false),
+    activeFilter: signal<'all' | 'unplayed' | 'inProgress' | 'completed'>('all'),
     setLoading: jest.fn(),
     setEntries: jest.fn(),
     clear: jest.fn(),
+    setFilter: jest.fn(),
+    markPlayed: jest.fn(),
+    markUnplayed: jest.fn(),
   };
-  const mockThemeService = {
-    mode: signal<'system' | 'light' | 'dark'>('system'),
-    setMode: jest.fn(),
-  };
+  const mockThemeService = { mode: signal<'system' | 'light' | 'dark'>('system'), setMode: jest.fn() };
   const mockSyncService = { removeSubscription: jest.fn() };
   const mockHistorySyncService = {
     loadHistory: jest.fn().mockResolvedValue([]),
     clearHistory: jest.fn().mockResolvedValue(undefined),
+    updateEntry: jest.fn().mockResolvedValue(undefined),
   };
   const mockRouter = { navigate: jest.fn() };
 
@@ -59,9 +58,7 @@ describe('LibraryPage', () => {
         { provide: Router, useValue: mockRouter },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    })
-      .overrideComponent(LibraryPage, { set: { template: '<div></div>', imports: [] } })
-      .compileComponents();
+    }).overrideComponent(LibraryPage, { set: { template: '<div></div>', imports: [] } }).compileComponents();
 
     fixture = TestBed.createComponent(LibraryPage);
     component = fixture.componentInstance;
@@ -80,6 +77,29 @@ describe('LibraryPage', () => {
   it('loads history on init', () => {
     expect(mockHistoryStore.setLoading).toHaveBeenCalledWith(true);
     expect(mockHistorySyncService.loadHistory).toHaveBeenCalledWith('uid-1');
+  });
+
+  it('selectFilter delegates to historyStore.setFilter', () => {
+    (component as any).selectFilter('completed');
+    expect(mockHistoryStore.setFilter).toHaveBeenCalledWith('completed');
+  });
+
+  it('markPlayed updates store and sync service', async () => {
+    await (component as any).markPlayed('ep-1');
+
+    expect(mockHistoryStore.markPlayed).toHaveBeenCalledWith('ep-1');
+    expect(mockHistorySyncService.updateEntry).toHaveBeenCalledWith('ep-1', { completed: true }, 'uid-1');
+  });
+
+  it('markUnplayed updates store and sync service', async () => {
+    await (component as any).markUnplayed('ep-1');
+
+    expect(mockHistoryStore.markUnplayed).toHaveBeenCalledWith('ep-1');
+    expect(mockHistorySyncService.updateEntry).toHaveBeenCalledWith(
+      'ep-1',
+      { completed: false, position: 0 },
+      'uid-1'
+    );
   });
 
   it('delegates unsubscribe and signOut behaviors', async () => {

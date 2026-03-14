@@ -1,5 +1,13 @@
 import { inject, Injectable } from '@angular/core';
-import { Firestore, collection, deleteDoc, doc, getDocs, setDoc } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from '@angular/fire/firestore';
 import { HistoryEntry, HistoryStore } from '../../store/history/history.store';
 
 @Injectable({ providedIn: 'root' })
@@ -9,12 +17,7 @@ export class HistorySyncService {
 
   async recordPlay(entry: HistoryEntry, uid: string): Promise<void> {
     if (!uid || !entry.episodeId) return;
-
-    const normalized: HistoryEntry = {
-      ...entry,
-      lastPlayedAt: entry.lastPlayedAt || Date.now(),
-    };
-
+    const normalized: HistoryEntry = { ...entry, lastPlayedAt: entry.lastPlayedAt || Date.now() };
     try {
       const docRef = doc(this.firestore, 'users', uid, 'history', normalized.episodeId);
       await setDoc(docRef, normalized, { merge: true });
@@ -24,9 +27,28 @@ export class HistorySyncService {
     }
   }
 
+  async updateEntry(episodeId: string, partial: Partial<HistoryEntry>, uid: string): Promise<void> {
+    if (!uid || !episodeId) return;
+
+    const docRef = doc(this.firestore, 'users', uid, 'history', episodeId);
+    try {
+      await updateDoc(docRef, partial);
+    } catch (updateError) {
+      try {
+        await setDoc(docRef, partial, { merge: true });
+      } catch (setError) {
+        console.error('[HistorySyncService] Failed to update entry', { episodeId, partial, updateError, setError });
+        return;
+      }
+    }
+
+    const existingEntry = this.historyStore.entries().find((entry) => entry.episodeId === episodeId);
+    if (!existingEntry) return;
+    this.historyStore.addOrUpdate({ ...existingEntry, ...partial, episodeId });
+  }
+
   async loadHistory(uid: string): Promise<HistoryEntry[]> {
     if (!uid) return [];
-
     try {
       const colRef = collection(this.firestore, 'users', uid, 'history');
       const snapshot = await getDocs(colRef);
@@ -54,11 +76,7 @@ export class HistorySyncService {
   }
 
   async clearHistory(uid: string): Promise<void> {
-    if (!uid) {
-      this.historyStore.clear();
-      return;
-    }
-
+    if (!uid) { this.historyStore.clear(); return; }
     try {
       const colRef = collection(this.firestore, 'users', uid, 'history');
       const snapshot = await getDocs(colRef);
