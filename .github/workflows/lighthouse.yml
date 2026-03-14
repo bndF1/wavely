@@ -1,0 +1,80 @@
+name: Lighthouse CI
+
+# Runs Lighthouse performance, accessibility, best-practices, and SEO audits.
+#
+# Triggers automatically after a successful staging deploy (via workflow_run),
+# reading the staging channel URL from the deploy job's summary.
+# Can also be triggered manually with a specific URL.
+#
+# Targets (warn = informational, error = blocks future PRs to main):
+#   Performance   ≥ 85  (warn)
+#   Accessibility ≥ 90  (error)  — non-negotiable
+#   Best Practices ≥ 90 (warn)
+#   SEO           ≥ 80  (warn)
+
+on:
+  workflow_run:
+    workflows: ['Deploy to Firebase Hosting (Staging)']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Full URL to audit (required)'
+        required: true
+        type: string
+
+jobs:
+  lighthouse:
+    # Only run if the staging deploy succeeded (or manual dispatch)
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.14.x
+
+      - name: Resolve audit URL
+        id: url
+        env:
+          INPUT_URL: ${{ inputs.url }}
+        run: |
+          if [ -n "$INPUT_URL" ]; then
+            echo "url=$INPUT_URL" >> $GITHUB_OUTPUT
+          else
+            # Fetch the staging deploy job summary to extract the channel URL
+            SUMMARY_URL="https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/jobs"
+            JOBS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$SUMMARY_URL")
+            # The staging URL is emitted as a deployment environment URL
+            ENV_URL=$(echo "$JOBS" | node -e "
+              const d = require('fs').readFileSync('/dev/stdin','utf8');
+              try {
+                const jobs = JSON.parse(d).jobs || [];
+                const deploy = jobs.find(j => j.name === 'build-and-deploy-staging');
+                console.log(deploy?.environment?.url || 'https://wavely-f659c--staging.web.app');
+              } catch { console.log(''); }
+            ")
+            echo "url=$ENV_URL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Lighthouse CI
+        run: |
+          URL="${{ steps.url.outputs.url }}"
+          if [ -z "$URL" ]; then
+            echo "::warning::No staging URL found — Lighthouse audit skipped."
+            echo "## ⚠️ Lighthouse skipped" >> $GITHUB_STEP_SUMMARY
+            echo "No staging URL was available. Re-run after a staging deploy completes." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          echo "Auditing: $URL"
+          echo "## 🔦 Lighthouse audit: $URL" >> $GITHUB_STEP_SUMMARY
+          lhci autorun --config=.lighthouserc.json --collect.url="$URL" 2>&1 | tee /tmp/lhci.log
+          cat /tmp/lhci.log >> $GITHUB_STEP_SUMMARY
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
