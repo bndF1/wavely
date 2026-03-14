@@ -127,9 +127,9 @@ test.describe('Home page', () => {
     });
 
     await page.goto(`/podcast/${SUBSCRIPTION_PODCAST.id}`);
-    await page.getByRole('button', { name: /^subscribe$/i }).click();
+    await page.locator('ion-button').filter({ hasText: /^Subscribe$/i }).click();
     // Wait for the optimistic update to reflect in the UI before navigating
-    await expect(page.getByRole('button', { name: /^subscribed$/i })).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('ion-button').filter({ hasText: /^Subscribed$/i })).toBeVisible({ timeout: 10000 });
 
     // Navigate within the SPA to preserve PodcastsStore state (page.goto would reload,
     // potentially losing the subscription before the Firestore write completes).

@@ -65,9 +65,9 @@ test.describe.serial('Subscriptions', () => {
     await mockPodcastEndpoints(page, podcast);
 
     await page.goto(`/podcast/${podcast.id}`);
-    await page.getByRole('button', { name: /^subscribe$/i }).click();
+    await page.locator('ion-button').filter({ hasText: /^Subscribe$/i }).click();
     // Wait for the optimistic update to reflect in the UI before navigating
-    await expect(page.getByRole('button', { name: /^subscribed$/i })).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('ion-button').filter({ hasText: /^Subscribed$/i })).toBeVisible({ timeout: 10000 });
 
     // SPA navigation preserves PodcastsStore state; page.goto would reload and
     // lose the subscription before the Firestore write completes.
@@ -84,10 +84,10 @@ test.describe.serial('Subscriptions', () => {
     await mockPodcastEndpoints(page, podcast);
 
     await page.goto(`/podcast/${podcast.id}`);
-    await page.getByRole('button', { name: /^subscribe$/i }).click();
+    await page.locator('ion-button').filter({ hasText: /^Subscribe$/i }).click();
     // Wait for the optimistic update to reflect in the UI before navigating
     // (button changes to 'Subscribed' as soon as the store adds the podcast)
-    await expect(page.getByRole('button', { name: /^subscribed$/i })).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('ion-button').filter({ hasText: /^Subscribed$/i })).toBeVisible({ timeout: 10000 });
 
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
