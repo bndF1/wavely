@@ -150,10 +150,14 @@ export class SearchPage implements OnDestroy {
 
   /** Returns the flag emoji for the detected country (e.g. 🇪🇸 for "es"). */
   protected get countryFlag(): string {
-    return this.detectedCountry
-      .toUpperCase()
+    const code = this.detectedCountry;
+    if (!/^[a-z]{2}$/.test(code)) {
+      return '🌍';
+    }
+
+    return code
       .split('')
-      .map((c) => String.fromCodePoint(0x1f1a5 + c.charCodeAt(0)))
+      .map((c) => String.fromCodePoint(c.charCodeAt(0) - 97 + 0x1f1e6))
       .join('');
   }
 }

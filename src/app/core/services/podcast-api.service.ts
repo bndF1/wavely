@@ -6,8 +6,10 @@ import { Podcast, Episode } from '../models/podcast.model';
 
 // Maps BCP-47 language-only codes (no region) to best-guess country codes.
 const LANGUAGE_COUNTRY_MAP: Record<string, string> = {
-  en: 'us', pt: 'br', zh: 'cn', ja: 'jp', ko: 'kr',
-  ar: 'sa', hi: 'in', sw: 'ke', ms: 'my',
+  en: 'us', es: 'es', fr: 'fr', de: 'de', it: 'it', pt: 'br',
+  ja: 'jp', ko: 'kr', zh: 'cn', ar: 'sa', ru: 'ru', nl: 'nl',
+  sv: 'se', nb: 'no', da: 'dk', fi: 'fi', pl: 'pl', tr: 'tr',
+  hi: 'in', sw: 'ke', ms: 'my',
 };
 
 // Uses iTunes Search API (no key required) as primary data source.
@@ -24,12 +26,19 @@ export class PodcastApiService {
    */
   detectCountry(): string {
     if (!isPlatformBrowser(this.platformId)) return 'us';
-    const lang = navigator.language ?? '';
-    const parts = lang.split('-');
-    if (parts.length >= 2) {
-      return parts[parts.length - 1].toLowerCase();
+
+    const locale = navigator.language || 'en-US';
+    const base = locale.split('-u-')[0];
+    const parts = base.split('-');
+
+    for (let i = 1; i < parts.length; i++) {
+      if (/^[A-Za-z]{2}$/.test(parts[i])) {
+        return parts[i].toLowerCase();
+      }
     }
-    return LANGUAGE_COUNTRY_MAP[parts[0].toLowerCase()] ?? 'us';
+
+    const language = parts[0]?.toLowerCase() ?? 'en';
+    return LANGUAGE_COUNTRY_MAP[language] ?? 'us';
   }
 
   searchPodcasts(term: string, country?: string): Observable<Podcast[]> {

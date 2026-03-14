@@ -219,19 +219,29 @@ describe('PodcastApiService', () => {
       Object.defineProperty(navigator, 'language', { value: lang, configurable: true });
     }
 
-    it('extracts country from a full BCP-47 locale (e.g. es-ES → es)', () => {
+    it('extracts 2-letter region from a full locale (e.g. es-ES → es)', () => {
       setLocale('es-ES');
       expect(service.detectCountry()).toBe('es');
     });
 
-    it('extracts country from a locale with language and region (e.g. en-US → us)', () => {
-      setLocale('en-US');
+    it('extracts first 2-letter region even when script is present (e.g. zh-Hans-CN)', () => {
+      setLocale('zh-Hans-CN');
+      expect(service.detectCountry()).toBe('cn');
+    });
+
+    it('ignores unicode extension sequences (e.g. en-US-u-hc-h12)', () => {
+      setLocale('en-US-u-hc-h12');
       expect(service.detectCountry()).toBe('us');
     });
 
-    it('maps language-only codes via fallback map (e.g. pt → br)', () => {
-      setLocale('pt');
-      expect(service.detectCountry()).toBe('br');
+    it('falls back to language map for locales without a 2-letter region (e.g. zh-Hans)', () => {
+      setLocale('zh-Hans');
+      expect(service.detectCountry()).toBe('cn');
+    });
+
+    it('falls back to language map for numeric region tags (e.g. es-419)', () => {
+      setLocale('es-419');
+      expect(service.detectCountry()).toBe('es');
     });
 
     it('falls back to "us" for unknown language-only codes', () => {
