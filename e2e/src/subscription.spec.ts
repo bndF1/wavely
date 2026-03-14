@@ -73,7 +73,10 @@ test.describe.serial('Subscriptions', () => {
     await page.waitForURL('/tabs/library');
     // ion-title doesn't expose role="heading" — match via locator
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('.podcast-card__title', { hasText: podcast.title })).toBeVisible(); async ({ page }) => {
+    await expect(page.locator('.podcast-card__title', { hasText: podcast.title })).toBeVisible();
+  });
+
+  test('unsubscribe removes podcast from library', async ({ page }) => {
     const podcast = { id: '62002', title: 'Unsubscribe Flow Podcast' };
     await mockPodcastEndpoints(page, podcast);
 
