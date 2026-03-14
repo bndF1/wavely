@@ -81,16 +81,19 @@ describe('AudioService Media Session wiring', () => {
   afterEach(() => {
     delete (navigator as Partial<Navigator> & { mediaSession?: unknown }).mediaSession;
     delete (globalThis as { MediaMetadata?: unknown }).MediaMetadata;
+    jest.restoreAllMocks();
   });
 
-  it('registers action handlers and updates metadata when mediaSession is available', () => {
+  function createServiceMocks() {
     const mockStore = {
       resume: jest.fn(),
       pause: jest.fn(),
       skipBack: jest.fn(),
       skipForward: jest.fn(),
       playNext: jest.fn(),
-      currentTime: jest.fn(() => 0),
+      seek: jest.fn(),
+      currentTime: jest.fn(() => 12),
+      playbackRate: jest.fn(() => 1.25),
     };
 
     const mockMediaSession = {
@@ -114,27 +117,79 @@ describe('AudioService Media Session wiring', () => {
     const service = Object.create(AudioService.prototype) as {
       platformId: object;
       store: typeof mockStore;
+      mediaSessionHandlersRegistered: boolean;
+      lastMediaSessionPositionUpdateMs: number;
       setupMediaSession: () => void;
       updateMediaSession: (episode: Episode | null) => void;
+      updateMediaSessionPlaybackState: (playing: boolean) => void;
+      updateMediaSessionPositionState: (currentTime: number, duration: number) => void;
     };
 
     service.platformId = 'browser';
     service.store = mockStore;
+    service.mediaSessionHandlersRegistered = false;
+    service.lastMediaSessionPositionUpdateMs = 0;
+
+    return { service, mockStore, mockMediaSession };
+  }
+
+  it('registers handlers once for supported actions', () => {
+    const { service, mockMediaSession } = createServiceMocks();
 
     service.setupMediaSession();
-    service.updateMediaSession(episode);
+    service.setupMediaSession();
 
+    expect(mockMediaSession.setActionHandler).toHaveBeenCalledTimes(6);
     expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('play', expect.any(Function));
     expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('pause', expect.any(Function));
     expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('seekbackward', expect.any(Function));
     expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('seekforward', expect.any(Function));
     expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('previoustrack', expect.any(Function));
     expect(mockMediaSession.setActionHandler).toHaveBeenCalledWith('nexttrack', expect.any(Function));
+  });
+
+  it('sets metadata from episode title/podcast/image only', () => {
+    const { service, mockMediaSession } = createServiceMocks();
+
+    service.updateMediaSession(episode);
 
     expect(mockMediaSession.metadata).toMatchObject({
       title: episode.title,
       artist: episode.podcastId,
       artwork: [{ src: episode.imageUrl, sizes: '512x512', type: 'image/jpeg' }],
     });
+
+    service.updateMediaSession({ ...episode, id: 'ep-2', imageUrl: undefined });
+    expect((mockMediaSession.metadata as { artwork: unknown[] }).artwork).toEqual([]);
+  });
+
+  it('updates playbackState for play/pause', () => {
+    const { service, mockMediaSession } = createServiceMocks();
+
+    service.updateMediaSessionPlaybackState(true);
+    expect(mockMediaSession.playbackState).toBe('playing');
+
+    service.updateMediaSessionPlaybackState(false);
+    expect(mockMediaSession.playbackState).toBe('paused');
+  });
+
+  it('throttles setPositionState to every 5 seconds and guards invalid duration', () => {
+    const { service, mockMediaSession } = createServiceMocks();
+    const nowSpy = jest.spyOn(Date, 'now');
+
+    nowSpy.mockReturnValue(10000);
+    service.updateMediaSessionPositionState(12, 60);
+    expect(mockMediaSession.setPositionState).toHaveBeenCalledTimes(1);
+
+    nowSpy.mockReturnValue(12000);
+    service.updateMediaSessionPositionState(20, 60);
+    expect(mockMediaSession.setPositionState).toHaveBeenCalledTimes(1);
+
+    nowSpy.mockReturnValue(15001);
+    service.updateMediaSessionPositionState(30, 60);
+    expect(mockMediaSession.setPositionState).toHaveBeenCalledTimes(2);
+
+    service.updateMediaSessionPositionState(30, 0);
+    expect(mockMediaSession.setPositionState).toHaveBeenCalledTimes(2);
   });
 });
