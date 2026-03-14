@@ -1,5 +1,4 @@
 import { Component, OnDestroy, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import {
@@ -33,7 +32,6 @@ const DEBOUNCE_MS = 300;
   templateUrl: './search.page.html',
   styleUrls: ['./search.page.scss'],
   imports: [
-    FormsModule,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -65,10 +63,22 @@ export class SearchPage implements OnDestroy {
     genres: [],
   };
 
+  /** The ISO country code detected from the browser locale (e.g. "es", "us"). */
+  protected readonly detectedCountry: string;
+  /** When true, pass no country to iTunes so it searches all stores globally. */
+  protected globalSearch = false;
+  /**
+   * Tracks what the user has typed. This is the *display* value shown in
+   * no-results / idle messages. It is NOT fed back into ion-searchbar to
+   * avoid the controlled-input cycle that drops characters.
+   */
+  protected displayQuery = '';
+
   private readonly search$ = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
+    this.detectedCountry = this.api.detectCountry();
     addIcons({ searchOutline, alertCircleOutline, refreshOutline });
 
     this.search$
@@ -81,8 +91,9 @@ export class SearchPage implements OnDestroy {
             return of(null);
           }
           this.store.setLoading(true);
+          const country = this.globalSearch ? undefined : this.detectedCountry;
           // Bind the originating term alongside results to avoid stale-query race
-          return this.api.searchPodcasts(term).pipe(
+          return this.api.searchPodcasts(term, country).pipe(
             map((results) => ({ term, results })),
             // catchError inside switchMap keeps the outer stream alive after failures
             catchError(() => {
@@ -107,13 +118,22 @@ export class SearchPage implements OnDestroy {
 
   protected onSearchInput(event: SearchbarCustomEvent): void {
     const term = event.detail.value ?? '';
+    this.displayQuery = term;
     this.store.setQuery(term);
     this.search$.next(term);
   }
 
   protected onSearchClear(): void {
+    this.displayQuery = '';
     // Emit empty string immediately so switchMap cancels any in-flight request
     this.search$.next('');
+  }
+
+  protected toggleGlobalSearch(): void {
+    this.globalSearch = !this.globalSearch;
+    if (this.displayQuery.trim()) {
+      this.search$.next(this.displayQuery);
+    }
   }
 
   protected retrySearch(): void {
@@ -126,5 +146,18 @@ export class SearchPage implements OnDestroy {
 
   protected navigateToPodcast(podcast: Podcast): void {
     this.router.navigate(['/podcast', podcast.id]);
+  }
+
+  /** Returns the flag emoji for the detected country (e.g. 🇪🇸 for "es"). */
+  protected get countryFlag(): string {
+    const code = this.detectedCountry;
+    if (!/^[a-z]{2}$/.test(code)) {
+      return '🌍';
+    }
+
+    return code
+      .split('')
+      .map((c) => String.fromCodePoint(c.charCodeAt(0) - 97 + 0x1f1e6))
+      .join('');
   }
 }
