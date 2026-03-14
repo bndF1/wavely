@@ -20,7 +20,7 @@ feature/*  ──PR──►  dev  ──PR──►  staging  ──PR──►
 |--------|---------|-------------------|
 | `main` | Production-stable | https://wavely-f659c.web.app (prod) + semantic-release tag |
 | `staging` | Pre-production validation | https://wavely-f659c--staging.web.app |
-| `dev` | Active integration | CI tests only (no deploy) |
+| `dev` | Active integration | https://wavely-f659c--dev.web.app |
 | `feature/*` | Feature work | Preview channel (ephemeral) |
 | `hotfix/*` | Emergency production fixes | PR directly to `main` + backport to `dev` |
 
