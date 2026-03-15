@@ -28,9 +28,9 @@ import { PlayerStore } from '../../store/player/player.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { Podcast, Episode } from '../../core/models/podcast.model';
-import { catchError, forkJoin, of, retry } from 'rxjs';
+import { Observable, catchError, of, retry } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'wavely-podcast-detail',
@@ -88,40 +88,68 @@ export class PodcastDetailPage {
       .pipe(
         switchMap((params) => {
           const id = params.get('id') ?? '';
-          this.isLoading = true;
-          this.podcast = null;
-          this.allEpisodes = [];
-          this.episodes = [];
-          this.episodesError = null;
-          this.podcastError = null;
-          this.hasMoreEpisodes = false;
-          return forkJoin({
-            podcast: this.api.lookupPodcast(id).pipe(
-              retry(2),
-              catchError(() => {
-                this.podcastError = 'Could not load podcast info.';
-                return of(null);
-              }),
-            ),
-            episodes: this.api.getPodcastEpisodes(id, 200).pipe(
-              retry(2),
-              catchError(() => {
-                this.episodesError = 'Could not load episodes.';
-                return of([] as Episode[]);
-              }),
-            ),
-          });
+          this.resetState();
+          return this.loadPodcastData(id);
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ podcast, episodes }) => {
-        this.podcast = podcast;
-        this.allEpisodes = episodes;
-        this.episodes = episodes.slice(0, PodcastDetailPage.PAGE_SIZE);
-        this.hasMoreEpisodes = episodes.length > PodcastDetailPage.PAGE_SIZE;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      });
+      .subscribe(({ podcast, episodes }) => this.applyData(podcast, episodes));
+  }
+
+  private resetState(): void {
+    this.isLoading = true;
+    this.podcast = null;
+    this.allEpisodes = [];
+    this.episodes = [];
+    this.episodesError = null;
+    this.podcastError = null;
+    this.hasMoreEpisodes = false;
+  }
+
+  private applyData(podcast: Podcast | null, episodes: Episode[]): void {
+    this.podcast = podcast;
+    this.allEpisodes = episodes;
+    this.episodes = episodes.slice(0, PodcastDetailPage.PAGE_SIZE);
+    this.hasMoreEpisodes = episodes.length > PodcastDetailPage.PAGE_SIZE;
+    this.isLoading = false;
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Loads podcast metadata first, then fetches episodes.
+   * Episode strategy: RSS feed (full history) → iTunes fallback (≤200 recent).
+   * A 1 s delay between retries avoids triggering iTunes rate limiting.
+   */
+  private loadPodcastData(id: string): Observable<{ podcast: Podcast | null; episodes: Episode[] }> {
+    return this.api.lookupPodcast(id).pipe(
+      retry({ count: 2, delay: 1000 }),
+      catchError(() => {
+        this.podcastError = 'Could not load podcast info.';
+        return of(null as Podcast | null);
+      }),
+      switchMap((podcast) => {
+        const feedUrl = podcast?.feedUrl;
+        const episodes$ = feedUrl
+          ? this.api.getEpisodesFromRss(feedUrl, id).pipe(
+              switchMap((rssEpisodes) =>
+                rssEpisodes.length > 0 ? of(rssEpisodes) : this.itunesEpisodes(id),
+              ),
+            )
+          : this.itunesEpisodes(id);
+
+        return episodes$.pipe(map((episodes) => ({ podcast, episodes })));
+      }),
+    );
+  }
+
+  private itunesEpisodes(id: string): Observable<Episode[]> {
+    return this.api.getPodcastEpisodes(id, 200).pipe(
+      retry({ count: 2, delay: 1000 }),
+      catchError(() => {
+        this.episodesError = 'Could not load episodes.';
+        return of([] as Episode[]);
+      }),
+    );
   }
 
   protected loadMoreEpisodes(event: InfiniteScrollCustomEvent): void {
@@ -135,40 +163,11 @@ export class PodcastDetailPage {
 
   protected retryLoad(): void {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
-    this.isLoading = true;
-    this.podcast = null;
-    this.allEpisodes = [];
-    this.episodes = [];
-    this.episodesError = null;
-    this.podcastError = null;
-    this.hasMoreEpisodes = false;
+    this.resetState();
     this.cdr.markForCheck();
-
-    forkJoin({
-      podcast: this.api.lookupPodcast(id).pipe(
-        retry(2),
-        catchError(() => {
-          this.podcastError = 'Could not load podcast info.';
-          return of(null);
-        }),
-      ),
-      episodes: this.api.getPodcastEpisodes(id, 200).pipe(
-        retry(2),
-        catchError(() => {
-          this.episodesError = 'Could not load episodes.';
-          return of([] as Episode[]);
-        }),
-      ),
-    })
+    this.loadPodcastData(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ podcast, episodes }) => {
-        this.podcast = podcast;
-        this.allEpisodes = episodes;
-        this.episodes = episodes.slice(0, PodcastDetailPage.PAGE_SIZE);
-        this.hasMoreEpisodes = episodes.length > PodcastDetailPage.PAGE_SIZE;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      });
+      .subscribe(({ podcast, episodes }) => this.applyData(podcast, episodes));
   }
 
   protected get isSubscribed(): boolean {

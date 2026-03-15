@@ -1,7 +1,7 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 import { Podcast, Episode } from '../models/podcast.model';
 
 // Maps BCP-47 language-only codes (no region) to best-guess country codes.
@@ -18,6 +18,9 @@ export class PodcastApiService {
   private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly itunesBase = 'https://itunes.apple.com';
+  // CORS proxy used when a feed blocks cross-origin browser requests.
+  // To use a different proxy, subclass PodcastApiService and override this property.
+  private readonly corsProxyUrl = 'https://corsproxy.io/?';
 
   /**
    * Detect the user's country from the browser locale.
@@ -56,7 +59,7 @@ export class PodcastApiService {
   }
 
   lookupPodcast(itunesId: string): Observable<Podcast> {
-    const params = new HttpParams().set('id', itunesId).set('entity', 'podcast');
+    const params = new HttpParams().set('id', itunesId);
     return this.http
       .get<{ results: ItunesPodcast[] }>(`${this.itunesBase}/lookup`, { params })
       .pipe(
@@ -120,6 +123,96 @@ export class PodcastApiService {
             .map(this.mapItunesEpisode)
         ),
       );
+  }
+
+  /**
+   * Fetch episodes from a podcast's RSS feed.
+   * Tries a direct request first (works for CORS-enabled hosts such as Libsyn,
+   * Buzzsprout, and Megaphone). Falls back to corsproxy.io for feeds that block
+   * cross-origin requests. Returns an empty array when both attempts fail so
+   * callers can transparently fall back to the iTunes API.
+   */
+  getEpisodesFromRss(feedUrl: string, podcastId: string): Observable<Episode[]> {
+    if (!isPlatformBrowser(this.platformId)) return of([]);
+
+    const parse = (xml: string) => this.parseRssEpisodes(xml, podcastId);
+
+    return this.http.get(feedUrl, { responseType: 'text' }).pipe(
+      catchError(() =>
+        this.http.get(`${this.corsProxyUrl}${encodeURIComponent(feedUrl)}`, { responseType: 'text' }),
+      ),
+      map(parse),
+      catchError(() => of([] as Episode[])),
+    );
+  }
+
+  private parseRssEpisodes(xml: string, podcastId: string): Episode[] {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xml, 'application/xml');
+    if (doc.querySelector('parsererror')) return [];
+
+    return Array.from(doc.querySelectorAll('item'))
+      .filter((item) => {
+        const enc = item.querySelector('enclosure');
+        return enc && /^audio/i.test(enc.getAttribute('type') ?? '');
+      })
+      .map((item, index) => {
+        const enclosure = item.querySelector('enclosure')!;
+        const title = item.querySelector('title')?.textContent?.trim() ?? `Episode ${index + 1}`;
+        const description =
+          item.querySelector('description')?.textContent?.trim() ??
+          this.rssNsText(item, 'itunes', 'summary') ??
+          '';
+        const pubDate = item.querySelector('pubDate')?.textContent?.trim() ?? '';
+        const duration = this.rssNsText(item, 'itunes', 'duration') ?? '0';
+        const imageHref = this.rssNsAttr(item, 'itunes', 'image', 'href') ?? '';
+        const guid =
+          item.querySelector('guid')?.textContent?.trim() ?? `${podcastId}-ep-${index}`;
+
+        return {
+          id: this.rssGuidToId(guid),
+          podcastId,
+          title,
+          description,
+          audioUrl: enclosure.getAttribute('url') ?? '',
+          imageUrl: imageHref,
+          duration: this.parseDuration(duration),
+          releaseDate: this.parsePubDate(pubDate),
+        };
+      });
+  }
+
+  private rssNsText(el: Element, ns: string, local: string): string | undefined {
+    return (
+      el.querySelector(`${ns}\\:${local}`)?.textContent?.trim() ??
+      el.getElementsByTagName(`${ns}:${local}`)[0]?.textContent?.trim()
+    );
+  }
+
+  private rssNsAttr(el: Element, ns: string, local: string, attr: string): string | undefined {
+    return (
+      el.querySelector(`${ns}\\:${local}`)?.getAttribute(attr) ??
+      el.getElementsByTagName(`${ns}:${local}`)[0]?.getAttribute(attr)
+    );
+  }
+
+  private rssGuidToId(guid: string): string {
+    return guid.replace(/\W/g, '').slice(-20) || `rss${Date.now()}`;
+  }
+
+  private parseDuration(raw: string): number {
+    if (!raw || raw === '0') return 0;
+    const parts = raw.split(':').map(Number);
+    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    if (parts.length === 2) return parts[0] * 60 + parts[1];
+    return Math.round(Number(raw)) || 0;
+  }
+
+  /** Parses a RFC-2822 pubDate string; returns a safe ISO fallback on invalid input. */
+  private parsePubDate(raw: string): string {
+    if (!raw) return new Date().toISOString();
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
   }
 
   private mapItunesPodcast(raw: ItunesPodcast): Podcast {

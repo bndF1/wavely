@@ -317,4 +317,149 @@ describe('PodcastApiService', () => {
       expect(result.length).toBe(0);
     });
   });
+
+  describe('getEpisodesFromRss()', () => {
+    const FEED_URL = 'https://example.com/feed.xml';
+    const PODCAST_ID = 'pod-1';
+    const PROXY_URL = `https://corsproxy.io/?${encodeURIComponent(FEED_URL)}`;
+
+    const rssXml = (items: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
+  <channel><title>Test Podcast</title>${items}</channel>
+</rss>`;
+
+    const audioItem = (idx: number) => `
+<item>
+  <title>Episode ${idx}</title>
+  <description>Desc ${idx}</description>
+  <pubDate>Mon, 0${idx} Jan 2024 00:00:00 +0000</pubDate>
+  <enclosure url="https://example.com/ep${idx}.mp3" type="audio/mpeg" length="1234"/>
+  <itunes:duration>1800</itunes:duration>
+  <guid>https://example.com/ep${idx}</guid>
+</item>`;
+
+    it('returns episodes from direct fetch when RSS allows CORS', () => {
+      let result: { title: string }[] = [];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+
+      httpMock
+        .expectOne((r) => r.url === FEED_URL)
+        .flush(rssXml(audioItem(1) + audioItem(2)));
+      httpMock.expectNone((r) => r.url === PROXY_URL);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].title).toBe('Episode 1');
+      expect(result[1].title).toBe('Episode 2');
+    });
+
+    it('falls back to corsproxy.io when direct fetch fails (CORS)', () => {
+      let result: { title: string; audioUrl: string }[] = [];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+
+      // Simulate CORS error on direct request
+      httpMock.expectOne((r) => r.url === FEED_URL).error(new ProgressEvent('error'));
+
+      // Proxy request succeeds
+      httpMock
+        .expectOne((r) => r.url === PROXY_URL)
+        .flush(rssXml(audioItem(1)));
+
+      expect(result).toHaveLength(1);
+      expect(result[0].audioUrl).toBe('https://example.com/ep1.mp3');
+    });
+
+    it('returns empty array when both direct fetch and proxy fail', () => {
+      let result: unknown[] = [{ placeholder: true }];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+
+      httpMock.expectOne((r) => r.url === FEED_URL).error(new ProgressEvent('error'));
+      httpMock.expectOne((r) => r.url === PROXY_URL).error(new ProgressEvent('error'));
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('skips items without audio enclosures (e.g. video items)', () => {
+      const videoItem = `
+<item>
+  <title>Video Episode</title>
+  <enclosure url="https://example.com/video.mp4" type="video/mp4" length="9999"/>
+  <guid>video-1</guid>
+</item>`;
+
+      let result: unknown[] = [];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+
+      httpMock.expectOne((r) => r.url === FEED_URL).flush(rssXml(videoItem + audioItem(1)));
+
+      expect(result).toHaveLength(1);
+    });
+
+    it('returns empty array for invalid / non-RSS XML', () => {
+      let result: unknown[] = [{ placeholder: true }];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+
+      httpMock.expectOne((r) => r.url === FEED_URL).flush('<not>valid rss</not>');
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('parses itunes:duration in HH:MM:SS and MM:SS formats', () => {
+      const itemHhMmSs = `
+<item>
+  <title>Long Episode</title>
+  <enclosure url="https://example.com/long.mp3" type="audio/mpeg" length="1"/>
+  <itunes:duration>1:30:00</itunes:duration>
+  <guid>long-1</guid>
+</item>`;
+      const itemMmSs = `
+<item>
+  <title>Short Episode</title>
+  <enclosure url="https://example.com/short.mp3" type="audio/mpeg" length="1"/>
+  <itunes:duration>45:30</itunes:duration>
+  <guid>short-1</guid>
+</item>`;
+
+      let result: { duration: number }[] = [];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+
+      httpMock.expectOne((r) => r.url === FEED_URL).flush(rssXml(itemHhMmSs + itemMmSs));
+
+      expect(result[0].duration).toBe(5400);  // 1h 30m
+      expect(result[1].duration).toBe(2730);  // 45m 30s
+    });
+
+    it('maps podcastId to all episodes', () => {
+      let result: { podcastId: string }[] = [];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+
+      httpMock.expectOne((r) => r.url === FEED_URL).flush(rssXml(audioItem(1)));
+
+      expect(result[0].podcastId).toBe(PODCAST_ID);
+    });
+
+    it('uses safe ISO fallback when pubDate is missing or unparseable', () => {
+      const badDateItems = `
+<item>
+  <title>No Date</title>
+  <enclosure url="https://example.com/ep-nodate.mp3" type="audio/mpeg" length="1234"/>
+  <guid>guid-nodate</guid>
+</item>
+<item>
+  <title>Bad Date</title>
+  <pubDate>not-a-real-date</pubDate>
+  <enclosure url="https://example.com/ep-baddate.mp3" type="audio/mpeg" length="1234"/>
+  <guid>guid-baddate</guid>
+</item>`;
+
+      let result: { releaseDate: string }[] = [];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+      httpMock.expectOne((r) => r.url === FEED_URL).flush(rssXml(badDateItems));
+
+      // Both should produce a valid ISO timestamp, never "Invalid Date"
+      expect(result).toHaveLength(2);
+      result.forEach((ep) => {
+        expect(new Date(ep.releaseDate).toISOString()).toBe(ep.releaseDate);
+      });
+    });
+  });
 });
