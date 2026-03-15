@@ -75,6 +75,9 @@ jobs:
           USE_EMULATORS: 'true'
           FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
           BASE_URL: 'http://localhost:4200'
+          # QA Google account — used by staging smoke tests (real Firebase Auth, no emulator)
+          WAVELY_QA_EMAIL: 'wavely070@gmail.com'
+          WAVELY_QA_PASSWORD: ${{ secrets.WAVELY_QA_PASSWORD }}
 
       - name: Upload Playwright report
         if: always()
