@@ -62,3 +62,40 @@ jobs:
           name: coverage
           path: coverage/
           retention-days: 7
+
+  version-bump-check:
+    name: Version Bump Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check version is bumped
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          LATEST_TAG=$(git tag --sort=-v:refname | grep '^v[0-9]' | head -1)
+          LATEST_VERSION=${LATEST_TAG#v}
+
+          echo "package.json version : $PKG_VERSION"
+          echo "Latest git tag        : ${LATEST_TAG:-none}"
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No existing tags — first release, skipping check."
+            exit 0
+          fi
+
+          # Use node's semver comparison: fail if PKG_VERSION <= LATEST_VERSION
+          node -e "
+            const [a, b] = ['$PKG_VERSION', '$LATEST_VERSION'].map(v => v.split('.').map(Number));
+            const isGreater = a[0] > b[0] || (a[0] === b[0] && a[1] > b[1]) || (a[0] === b[0] && a[1] === b[1] && a[2] > b[2]);
+            if (!isGreater) {
+              console.error('ERROR: package.json version (' + '$PKG_VERSION' + ') must be greater than latest tag (' + '$LATEST_VERSION' + ').');
+              console.error('Bump the version in package.json before merging to main.');
+              process.exit(1);
+            }
+            console.log('OK: ' + '$PKG_VERSION' + ' > ' + '$LATEST_VERSION');
+          "
