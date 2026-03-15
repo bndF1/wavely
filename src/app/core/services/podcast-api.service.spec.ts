@@ -132,6 +132,59 @@ describe('PodcastApiService', () => {
     });
   });
 
+  describe('lookupPodcast()', () => {
+    const podcastPayload = {
+      wrapperType: 'collection',
+      collectionId: 12345,
+      collectionName: 'Test Podcast',
+      collectionCensoredName: 'Test Podcast',
+      artistName: 'Test Author',
+      artistId: 99,
+      artworkUrl600: 'https://example.com/art600.jpg',
+      artworkUrl100: 'https://example.com/art100.jpg',
+      feedUrl: 'https://example.com/feed.xml',
+      genres: ['Tech'],
+      trackCount: 50,
+      releaseDate: '2024-06-01T00:00:00Z',
+    };
+
+    it('calls iTunes lookup with id and maps the result', () => {
+      let result: unknown;
+      service.lookupPodcast('12345').subscribe((p) => (result = p));
+
+      const req = httpMock.expectOne(
+        (r) => r.url === `${ITUNES_BASE}/lookup` && r.params.get('id') === '12345'
+      );
+      expect(req.request.params.get('country')).toBeNull();
+      req.flush({ results: [podcastPayload] });
+
+      expect((result as { id: string }).id).toBe('12345');
+      expect((result as { title: string }).title).toBe('Test Podcast');
+    });
+
+    it('passes country param when provided', () => {
+      let result: unknown;
+      service.lookupPodcast('12345', 'es').subscribe((p) => (result = p));
+
+      const req = httpMock.expectOne((r) => r.url === `${ITUNES_BASE}/lookup`);
+      expect(req.request.params.get('country')).toBe('es');
+      req.flush({ results: [podcastPayload] });
+
+      expect((result as { id: string }).id).toBe('12345');
+    });
+
+    it('throws when results array is empty', () => {
+      let error: unknown;
+      service.lookupPodcast('99999').subscribe({ error: (e) => (error = e) });
+
+      httpMock
+        .expectOne((r) => r.url === `${ITUNES_BASE}/lookup`)
+        .flush({ results: [] });
+
+      expect((error as Error).message).toBe('Podcast not found');
+    });
+  });
+
   describe('getPodcastEpisodes()', () => {
     it('filters out non-episode items', () => {
       let episodes: unknown[] = [];

@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { EpisodeDetailPage } from './episode-detail.page';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { CountryService } from '../../core/services/country.service';
 import { PlayerStore } from '../../store/player/player.store';
 import { mockEpisode, mockPodcast } from '../../../testing/podcast-fixtures';
 import { mockPlayerStore } from '../../../testing/mock-stores';
@@ -34,6 +36,7 @@ describe('EpisodeDetailPage', () => {
           },
         },
         { provide: PlayerStore, useValue: playerStore },
+        { provide: CountryService, useValue: { country: signal('us') } },
         { provide: Router, useValue: router },
       ],
     });
