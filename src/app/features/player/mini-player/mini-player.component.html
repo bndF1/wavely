@@ -8,7 +8,8 @@
     <ion-progress-bar
       class="mini-player__progress"
       [value]="progressValue"
-      color="primary">
+      color="primary"
+      [style.visibility]="store.currentEpisode()?.isLive ? 'hidden' : 'visible'">
     </ion-progress-bar>
     <div class="mini-player__body">
       <ion-thumbnail class="mini-player__artwork">

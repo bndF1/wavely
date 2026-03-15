@@ -55,6 +55,10 @@ export class FullPlayerComponent {
 
   readonly rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
+  get isLive(): boolean {
+    return this.store.currentEpisode()?.isLive === true;
+  }
+
   constructor() {
     addIcons({ chevronDown, playCircle, pauseCircle, playSkipBack, playSkipForward, speedometer, ellipsisHorizontal, closeCircleOutline, listOutline });
   }
