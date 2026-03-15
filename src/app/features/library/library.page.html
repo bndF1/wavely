@@ -98,7 +98,7 @@
                   @if (entry.completed) {
                     <ion-note color="success">· Completed</ion-note>
                   } @else if (entry.duration > 0) {
-                    <ion-note>· {{ formatTime(entry.position) }} left</ion-note>
+                    <ion-note>· {{ formatTime(entry.duration - entry.position) }} left</ion-note>
                   }
                 </div>
                 <ion-progress-bar [value]="progressValue(entry)"></ion-progress-bar>
@@ -126,11 +126,11 @@
       </ion-list>
 
       @if (hiddenCount() > 0) {
-        <button class="show-all-btn" (click)="toggleShowAll()">
+        <button type="button" class="show-all-btn" (click)="toggleShowAll()">
           Show {{ hiddenCount() }} more episodes
         </button>
       } @else if (showAllHistory()) {
-        <button class="show-all-btn" (click)="toggleShowAll()">
+        <button type="button" class="show-all-btn" (click)="toggleShowAll()">
           Show less
         </button>
       }
