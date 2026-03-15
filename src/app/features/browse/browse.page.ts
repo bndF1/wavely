@@ -20,6 +20,7 @@ import {
   IonText,
   IonButtons,
   IonButton,
+  ActionSheetController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { alertCircleOutline, refreshOutline, searchOutline } from 'ionicons/icons';
@@ -28,6 +29,7 @@ import { PodcastCardComponent } from '../../shared/components/podcast-card/podca
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { Podcast } from '../../core/models/podcast.model';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { CountryService, PODCAST_MARKETS } from '../../core/services/country.service';
 
 // Genre IDs used to populate the three Browse sections with distinct content.
 // Featured → News, New & Noteworthy → Technology, Top → overall chart.
@@ -84,11 +86,12 @@ const CHIP_SKELETON_COUNT = 6;
 export class BrowsePage implements OnDestroy {
   private readonly api = inject(PodcastApiService);
   private readonly router = inject(Router);
+  protected readonly countryService = inject(CountryService);
+  private readonly actionSheetCtrl = inject(ActionSheetController);
 
   protected readonly categories = PODCAST_CATEGORIES;
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
   protected readonly chipSkeletons = Array.from({ length: CHIP_SKELETON_COUNT });
-  protected readonly detectedCountry: string;
 
   protected selectedCategory = signal(PODCAST_CATEGORIES[0]);
   protected topPodcasts = signal<Podcast[]>([]);
@@ -96,13 +99,11 @@ export class BrowsePage implements OnDestroy {
   protected newNoteworthyPodcasts = signal<Podcast[]>([]);
   protected isLoading = signal(false);
   protected error = signal<string | null>(null);
-  protected globalBrowse = false;
 
   private readonly category$ = new Subject<PodcastCategory>();
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
-    this.detectedCountry = this.api.detectCountry();
     addIcons({ searchOutline, alertCircleOutline, refreshOutline });
 
     this.category$
@@ -115,7 +116,7 @@ export class BrowsePage implements OnDestroy {
           this.newNoteworthyPodcasts.set([]);
         }),
         switchMap(() => {
-          const country = this.globalBrowse ? 'us' : this.detectedCountry;
+          const country = this.countryService.country();
           return forkJoin({
             topPodcasts: this.api.getTrendingPodcasts(25, undefined, country),
             featuredPodcasts: this.api.getTrendingPodcasts(5, FEATURED_GENRE_ID, country),
@@ -162,9 +163,23 @@ export class BrowsePage implements OnDestroy {
     this.router.navigate(['/browse/category', category.id]);
   }
 
-  protected toggleGlobalBrowse(): void {
-    this.globalBrowse = !this.globalBrowse;
-    this.category$.next(this.selectedCategory());
+  protected async presentCountryPicker(): Promise<void> {
+    const currentCode = this.countryService.country();
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Browse by Country',
+      buttons: [
+        ...PODCAST_MARKETS.map((m) => ({
+          text: `${this.countryService.getFlag(m.code)} ${m.name}`,
+          cssClass: m.code === currentCode ? 'country-active' : '',
+          handler: () => {
+            this.countryService.setCountry(m.code);
+            this.category$.next(this.selectedCategory());
+          },
+        })),
+        { text: 'Cancel', role: 'cancel' },
+      ],
+    });
+    await actionSheet.present();
   }
 
   protected retryCurrentCategory(): void {
@@ -177,11 +192,5 @@ export class BrowsePage implements OnDestroy {
 
   protected navigateToPodcast(podcast: Podcast): void {
     this.router.navigate(['/podcast', podcast.id]);
-  }
-
-  protected get countryFlag(): string {
-    const code = this.detectedCountry;
-    if (!/^[a-z]{2}$/.test(code)) return '🌍';
-    return code.split('').map((c) => String.fromCodePoint(c.charCodeAt(0) - 97 + 0x1f1e6)).join('');
   }
 }

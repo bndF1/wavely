@@ -4,14 +4,9 @@
     <ion-buttons slot="end">
       <ion-button
         class="country-toggle"
-        [class.country-toggle--global]="globalBrowse"
-        (click)="toggleGlobalBrowse()"
-        [attr.aria-label]="globalBrowse ? 'Showing global content, tap for local' : 'Showing local content, tap for global'">
-        @if (globalBrowse) {
-          <span class="country-toggle__flag">🌍</span>
-        } @else {
-          <span class="country-toggle__flag">{{ countryFlag }}</span>
-        }
+        [attr.aria-label]="'Browsing ' + countryService.country() + ' content, tap to change'"
+        (click)="presentCountryPicker()">
+        <span class="country-toggle__flag">{{ countryService.getFlag(countryService.country()) }}</span>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
