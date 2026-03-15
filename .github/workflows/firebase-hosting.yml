@@ -9,13 +9,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # semantic-release: push tags + create GitHub releases
-      issues: write
-      pull-requests: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # semantic-release needs full history
 
       - uses: actions/setup-node@v4
         with:
@@ -59,7 +55,18 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
-      - name: Create Release
-        run: bunx semantic-release
+      # Tag and release based solely on package.json version.
+      # If the tag already exists the step is a no-op (idempotent).
+      - name: Create GitHub Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v${VERSION}"
+          if git ls-remote --tags origin "refs/tags/${TAG}" | grep -q "${TAG}"; then
+            echo "Tag ${TAG} already exists — skipping release creation"
+          else
+            git tag "${TAG}"
+            git push origin "${TAG}"
+            gh release create "${TAG}" --generate-notes --title "${TAG}"
+          fi
