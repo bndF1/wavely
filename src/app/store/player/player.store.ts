@@ -49,6 +49,10 @@ export const PlayerStore = signalStore(
     addToQueue(episode: Episode): void {
       patchState(store, { queue: [...store.queue(), episode] });
     },
+    /** Insert episode at position 0 — plays immediately after current */
+    queueNext(episode: Episode): void {
+      patchState(store, { queue: [episode, ...store.queue()] });
+    },
     clearQueue(): void {
       patchState(store, { queue: [] });
     },

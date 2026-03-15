@@ -24,6 +24,7 @@ import {
   IonThumbnail,
   IonProgressBar,
   IonChip,
+  IonToggle,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -44,6 +45,7 @@ import { HistoryStore, HistoryEntry, HistoryFilter } from '../../store/history/h
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { HistorySyncService } from '../../core/services/history-sync.service';
 import { ThemeService, ThemeMode } from '../../core/services/theme.service';
+import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { Podcast } from '../../core/models/podcast.model';
 
 import { environment } from '../../../environments/environment';
@@ -77,6 +79,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
     IonThumbnail,
     IonProgressBar,
     IonChip,
+    IonToggle,
     EmptyStateComponent,
   ],
 })
@@ -85,6 +88,7 @@ export class LibraryPage {
   protected readonly authStore = inject(AuthStore);
   protected readonly historyStore = inject(HistoryStore);
   protected readonly themeService = inject(ThemeService);
+  protected readonly prefs = inject(UserPreferencesService);
   protected readonly appVersion = environment.appVersion;
   private readonly syncService = inject(SubscriptionSyncService);
   private readonly historySyncService = inject(HistorySyncService);

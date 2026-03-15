@@ -29,10 +29,12 @@ import {
   playSkipForward,
   playSkipBack,
   addOutline,
+  playSkipForwardOutline,
 } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { CountryService } from '../../core/services/country.service';
 import { PlayerStore } from '../../store/player/player.store';
+import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { Episode, Podcast } from '../../core/models/podcast.model';
 import { catchError, forkJoin, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -74,6 +76,7 @@ export class EpisodeDetailPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   protected readonly playerStore = inject(PlayerStore);
+  protected readonly prefs = inject(UserPreferencesService);
 
   // Signals for local state — reactive under OnPush
   protected readonly episode = signal<Episode | null>(null);
@@ -84,7 +87,7 @@ export class EpisodeDetailPage {
   readonly playbackRates = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
   constructor() {
-    addIcons({ playCircle, pauseCircle, playSkipForward, playSkipBack, addOutline });
+    addIcons({ playCircle, pauseCircle, playSkipForward, playSkipBack, addOutline, playSkipForwardOutline });
 
     this.route.paramMap
       .pipe(
@@ -230,5 +233,11 @@ export class EpisodeDetailPage {
     const ep = this.episode();
     const pod = this.podcast();
     if (ep) this.playerStore.addToQueue({ ...ep, podcastTitle: pod?.title });
+  }
+
+  protected playAsNext(): void {
+    const ep = this.episode();
+    const pod = this.podcast();
+    if (ep) this.playerStore.queueNext({ ...ep, podcastTitle: pod?.title });
   }
 }
