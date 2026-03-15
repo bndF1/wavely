@@ -6,6 +6,10 @@ jest.mock('@angular/fire/auth', () => ({
   signOut: jest.fn(),
 }));
 
+jest.mock('../../../environments/environment', () => ({
+  environment: { appVersion: '0.0.0-test', production: false },
+}), { virtual: true });
+
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
