@@ -23,6 +23,8 @@ export interface Episode {
   duration: number;
   releaseDate: string;
   fileSize?: number;
+  /** True for live radio streams — disables scrubber, speed controls, and progress sync. */
+  isLive?: boolean;
 }
 
 export interface PlaybackProgress {
