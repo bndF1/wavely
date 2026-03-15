@@ -128,7 +128,7 @@ export class PodcastApiService {
       genres: raw.genres ?? [],
       episodeCount: raw.trackCount,
       latestReleaseDate: raw.releaseDate,
-      artistId: raw.artistId != null ? String(raw.artistId) : undefined,
+      ...(raw.artistId != null && { artistId: String(raw.artistId) }),
     };
   }
 

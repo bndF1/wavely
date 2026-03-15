@@ -121,6 +121,11 @@ export class PodcastDetailPage {
     } else {
       this.syncService.addSubscription(this.podcast, uid);
     }
+    // Force synchronous change detection for the optimistic UI update.
+    // addSubscription() is async (await setDoc) — Zone.js delays tick() until
+    // the Firestore write resolves. Using detectChanges() ensures the button
+    // shows "Subscribed" immediately, before the network call completes.
+    this.cdr.detectChanges();
   }
 
   protected playEpisode(episode: Episode): void {
