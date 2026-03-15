@@ -321,7 +321,7 @@ describe('PodcastApiService', () => {
   describe('getEpisodesFromRss()', () => {
     const FEED_URL = 'https://example.com/feed.xml';
     const PODCAST_ID = 'pod-1';
-    const PROXY_URL = `https://corsproxy.io/?${FEED_URL}`;
+    const PROXY_URL = `https://corsproxy.io/?${encodeURIComponent(FEED_URL)}`;
 
     const rssXml = (items: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
@@ -435,6 +435,31 @@ describe('PodcastApiService', () => {
       httpMock.expectOne((r) => r.url === FEED_URL).flush(rssXml(audioItem(1)));
 
       expect(result[0].podcastId).toBe(PODCAST_ID);
+    });
+
+    it('uses safe ISO fallback when pubDate is missing or unparseable', () => {
+      const badDateItems = `
+<item>
+  <title>No Date</title>
+  <enclosure url="https://example.com/ep-nodate.mp3" type="audio/mpeg" length="1234"/>
+  <guid>guid-nodate</guid>
+</item>
+<item>
+  <title>Bad Date</title>
+  <pubDate>not-a-real-date</pubDate>
+  <enclosure url="https://example.com/ep-baddate.mp3" type="audio/mpeg" length="1234"/>
+  <guid>guid-baddate</guid>
+</item>`;
+
+      let result: { releaseDate: string }[] = [];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+      httpMock.expectOne((r) => r.url === FEED_URL).flush(rssXml(badDateItems));
+
+      // Both should produce a valid ISO timestamp, never "Invalid Date"
+      expect(result).toHaveLength(2);
+      result.forEach((ep) => {
+        expect(new Date(ep.releaseDate).toISOString()).toBe(ep.releaseDate);
+      });
     });
   });
 });
