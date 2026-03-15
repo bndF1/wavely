@@ -117,11 +117,12 @@ export class PodcastApiService {
    * Fetch episodes for a podcast via iTunes lookup.
    * Returns up to `limit` most recent episodes.
    */
-  getPodcastEpisodes(itunesId: string, limit = 200): Observable<Episode[]> {
-    const params = new HttpParams()
+  getPodcastEpisodes(itunesId: string, limit = 200, country?: string): Observable<Episode[]> {
+    let params = new HttpParams()
       .set('id', itunesId)
       .set('entity', 'podcastEpisode')
       .set('limit', String(limit));
+    if (country) params = params.set('country', country);
     return this.http
       .get<{ results: ItunesEpisodeRaw[] }>(`${this.itunesBase}/lookup`, { params })
       .pipe(

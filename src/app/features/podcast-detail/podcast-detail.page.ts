@@ -145,7 +145,7 @@ export class PodcastDetailPage {
   }
 
   private itunesEpisodes(id: string): Observable<Episode[]> {
-    return this.api.getPodcastEpisodes(id, 200).pipe(
+    return this.api.getPodcastEpisodes(id, 200, this.countryService.country()).pipe(
       retry({ count: 2, delay: 1000 }),
       catchError(() => {
         this.episodesError = 'Could not load episodes.';

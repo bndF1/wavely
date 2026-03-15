@@ -104,4 +104,29 @@ describe('EpisodeDetailPage', () => {
     });
   });
 
+  it('passes country to getPodcastEpisodes in strategy-3 fallback', () => {
+    // Arrange: no router state — force strategy 3 via podcastId in nav state
+    const episode = mockEpisode({ id: 'ep-2', podcastId: 'pod-2' });
+    const podcast = mockPodcast({ id: 'pod-2' });
+    history.pushState({ podcast: { id: 'pod-2' } }, '');
+
+    TestBed.resetTestingModule();
+    const apiMock = {
+      lookupPodcast: jest.fn().mockReturnValue(of(podcast)),
+      getPodcastEpisodes: jest.fn().mockReturnValue(of([episode])),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 'ep-2' })).asObservable() } },
+        { provide: PodcastApiService, useValue: apiMock },
+        { provide: PlayerStore, useValue: mockPlayerStore() },
+        { provide: CountryService, useValue: { country: signal('de') } },
+        { provide: Router, useValue: { navigate: jest.fn() } },
+      ],
+    });
+    TestBed.runInInjectionContext(() => new EpisodeDetailPage());
+
+    expect(apiMock.getPodcastEpisodes).toHaveBeenCalledWith('pod-2', 50, 'de');
+  });
+
 });
