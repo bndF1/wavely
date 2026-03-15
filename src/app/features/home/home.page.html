@@ -22,7 +22,7 @@
     @if (store.subscriptions().length > 0) {
       <div class="subscriptions-scroll">
         <div class="subscriptions-row">
-          @for (podcast of store.subscriptions(); track podcast) {
+          @for (podcast of store.subscriptions(); track podcast.id) {
             <wavely-podcast-card
               class="subscription-card"
               [podcast]="podcast"
@@ -71,7 +71,7 @@
 
     @if (!store.isLoading() && !store.error() && store.trending().length > 0) {
       <div class="podcast-grid">
-        @for (podcast of store.trending(); track podcast) {
+        @for (podcast of store.trending(); track podcast.id) {
           <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
         }
       </div>

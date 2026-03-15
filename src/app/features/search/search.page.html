@@ -48,7 +48,7 @@
 
   @if (!store.isLoading() && store.searchResults().length > 0) {
     <div class="podcast-grid">
-      @for (podcast of store.searchResults(); track podcast) {
+      @for (podcast of store.searchResults(); track podcast.id) {
         <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
       }
     </div>
