@@ -15,6 +15,7 @@ import { of, throwError } from 'rxjs';
 
 import { PodcastDetailPage } from './podcast-detail.page';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { CountryService } from '../../core/services/country.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { PlayerStore } from '../../store/player/player.store';
 import { AuthStore } from '../../store/auth/auth.store';
@@ -54,6 +55,7 @@ describe('PodcastDetailPage', () => {
           useValue: { paramMap: of(convertToParamMap({ id: 'pod-1' })) },
         },
         { provide: PodcastApiService, useValue: mockApi },
+        { provide: CountryService, useValue: { country: signal('us') } },
         { provide: PodcastsStore, useValue: mockPodcastsStore },
         { provide: PlayerStore, useValue: mockPlayer },
         { provide: AuthStore, useValue: mockAuth },
@@ -103,7 +105,7 @@ describe('PodcastDetailPage', () => {
     await createComponent();
 
     expect(component).toBeTruthy();
-    expect(mockApi.lookupPodcast).toHaveBeenCalledWith('pod-1');
+    expect(mockApi.lookupPodcast).toHaveBeenCalledWith('pod-1', 'us');
     // RSS feed is tried first (podcast has a feedUrl); iTunes fallback is skipped
     expect(mockApi.getEpisodesFromRss).toHaveBeenCalledWith(podcast.feedUrl, 'pod-1');
     expect(mockApi.getPodcastEpisodes).not.toHaveBeenCalled();
@@ -116,7 +118,7 @@ describe('PodcastDetailPage', () => {
     await createComponent();
 
     expect(mockApi.getEpisodesFromRss).toHaveBeenCalled();
-    expect(mockApi.getPodcastEpisodes).toHaveBeenCalledWith('pod-1', 200);
+    expect(mockApi.getPodcastEpisodes).toHaveBeenCalledWith('pod-1', 200, 'us');
     expect(component['episodes']).toHaveLength(2);
   });
 

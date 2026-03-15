@@ -31,6 +31,7 @@ import {
   addOutline,
 } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { CountryService } from '../../core/services/country.service';
 import { PlayerStore } from '../../store/player/player.store';
 import { Episode, Podcast } from '../../core/models/podcast.model';
 import { catchError, forkJoin, of, switchMap } from 'rxjs';
@@ -69,6 +70,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class EpisodeDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(PodcastApiService);
+  private readonly countryService = inject(CountryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   protected readonly playerStore = inject(PlayerStore);
@@ -105,7 +107,7 @@ export class EpisodeDetailPage {
           // Strategy 2: already loaded in player store
           const current = this.playerStore.currentEpisode();
           if (current?.id === episodeId) {
-            return this.api.lookupPodcast(current.podcastId).pipe(
+            return this.api.lookupPodcast(current.podcastId, this.countryService.country()).pipe(
               catchError(() => of(null)),
               switchMap((pod) => {
                 this.episode.set(current);
@@ -120,10 +122,10 @@ export class EpisodeDetailPage {
           const podcastId = navState?.podcast?.id;
           if (podcastId) {
             return forkJoin({
-              episodes: this.api.getPodcastEpisodes(podcastId, 50).pipe(
+              episodes: this.api.getPodcastEpisodes(podcastId, 50, this.countryService.country()).pipe(
                 catchError(() => of([] as Episode[])),
               ),
-              podcast: this.api.lookupPodcast(podcastId).pipe(
+              podcast: this.api.lookupPodcast(podcastId, this.countryService.country()).pipe(
                 catchError(() => of(null as Podcast | null)),
               ),
             }).pipe(

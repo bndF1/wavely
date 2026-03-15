@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { EpisodeDetailPage } from './episode-detail.page';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { CountryService } from '../../core/services/country.service';
 import { PlayerStore } from '../../store/player/player.store';
 import { mockEpisode, mockPodcast } from '../../../testing/podcast-fixtures';
 import { mockPlayerStore } from '../../../testing/mock-stores';
@@ -34,6 +36,7 @@ describe('EpisodeDetailPage', () => {
           },
         },
         { provide: PlayerStore, useValue: playerStore },
+        { provide: CountryService, useValue: { country: signal('us') } },
         { provide: Router, useValue: router },
       ],
     });
@@ -99,6 +102,31 @@ describe('EpisodeDetailPage', () => {
       playerStore.queue.set([mockEpisode({ id: episode!.id })]);
       expect(component['isInQueue'] ? 'In Queue' : 'Up Next').toBe('In Queue');
     });
+  });
+
+  it('passes country to getPodcastEpisodes in strategy-3 fallback', () => {
+    // Arrange: force strategy 3 by pushing only podcastId (no episode) into navigation state
+    const episode = mockEpisode({ id: 'ep-2', podcastId: 'pod-2' });
+    const podcast = mockPodcast({ id: 'pod-2' });
+    history.pushState({ podcast: { id: 'pod-2' } }, '');
+
+    TestBed.resetTestingModule();
+    const apiMock = {
+      lookupPodcast: jest.fn().mockReturnValue(of(podcast)),
+      getPodcastEpisodes: jest.fn().mockReturnValue(of([episode])),
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ActivatedRoute, useValue: { paramMap: new BehaviorSubject(convertToParamMap({ id: 'ep-2' })).asObservable() } },
+        { provide: PodcastApiService, useValue: apiMock },
+        { provide: PlayerStore, useValue: mockPlayerStore() },
+        { provide: CountryService, useValue: { country: signal('de') } },
+        { provide: Router, useValue: { navigate: jest.fn() } },
+      ],
+    });
+    TestBed.runInInjectionContext(() => new EpisodeDetailPage());
+
+    expect(apiMock.getPodcastEpisodes).toHaveBeenCalledWith('pod-2', 50, 'de');
   });
 
 });
