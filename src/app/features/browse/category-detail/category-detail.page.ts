@@ -26,6 +26,7 @@ import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { Podcast } from '../../../core/models/podcast.model';
 import { PodcastApiService } from '../../../core/services/podcast-api.service';
+import { CountryService } from '../../../core/services/country.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { PodcastCardComponent } from '../../../shared/components/podcast-card/podcast-card.component';
 import { PODCAST_CATEGORIES } from '../browse.page';
@@ -59,8 +60,7 @@ export class CategoryDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-
-  private readonly country: string;
+  private readonly countryService = inject(CountryService);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
 
@@ -79,7 +79,6 @@ export class CategoryDetailPage {
   );
 
   constructor() {
-    this.country = this.api.detectCountry();
     addIcons({ searchOutline, alertCircleOutline, refreshOutline });
 
     this.route.paramMap
@@ -106,7 +105,7 @@ export class CategoryDetailPage {
               'Category'
           );
 
-          return this.api.getTrendingPodcasts(50, rawGenreId, this.country).pipe(
+          return this.api.getTrendingPodcasts(50, rawGenreId, this.countryService.country()).pipe(
             catchError(() => {
               this.error.set('Could not load this category. Please try again.');
               return of([] as Podcast[]);
@@ -138,7 +137,7 @@ export class CategoryDetailPage {
     this.isLoading.set(true);
     this.error.set(null);
     this.api
-      .getTrendingPodcasts(50, currentGenreId, this.country)
+      .getTrendingPodcasts(50, currentGenreId, this.countryService.country())
       .pipe(
         catchError(() => {
           this.error.set('Could not load this category. Please try again.');

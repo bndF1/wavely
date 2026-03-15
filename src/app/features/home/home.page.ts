@@ -26,6 +26,7 @@ import {
 } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
+import { CountryService } from '../../core/services/country.service';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { Podcast } from '../../core/models/podcast.model';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -57,8 +58,7 @@ export class HomePage implements OnInit {
   private readonly api = inject(PodcastApiService);
   protected readonly store = inject(PodcastsStore);
   private readonly router = inject(Router);
-
-  private readonly country: string;
+  private readonly countryService = inject(CountryService);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
 
@@ -73,7 +73,6 @@ export class HomePage implements OnInit {
   };
 
   constructor() {
-    this.country = this.api.detectCountry();
     addIcons({
       searchOutline,
       refreshOutline,
@@ -113,7 +112,7 @@ export class HomePage implements OnInit {
   private loadTrending(): Promise<void> {
     this.store.setLoading(true);
     return new Promise((resolve) => {
-      this.api.getTrendingPodcasts(25, undefined, this.country).subscribe({
+      this.api.getTrendingPodcasts(25, undefined, this.countryService.country()).subscribe({
         next: (podcasts) => {
           this.store.setTrending(podcasts);
           this.store.setLoading(false);
