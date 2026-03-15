@@ -1,10 +1,12 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { ActionSheetController } from '@ionic/angular/standalone';
 import { of } from 'rxjs';
 
 import { BrowsePage, PODCAST_CATEGORIES } from './browse.page';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { CountryService } from '../../core/services/country.service';
 import { mockPodcast } from '../../../testing/podcast-fixtures';
 
 describe('BrowsePage', () => {
@@ -18,6 +20,14 @@ describe('BrowsePage', () => {
     detectCountry: jest.fn(() => 'us'),
   };
   const mockRouter = { navigate: jest.fn() };
+  const mockCountryService = {
+    country: signal('us'),
+    setCountry: jest.fn(),
+    getFlag: jest.fn(() => '🇺🇸'),
+  };
+  const mockActionSheetCtrl = {
+    create: jest.fn().mockResolvedValue({ present: jest.fn() }),
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -25,6 +35,8 @@ describe('BrowsePage', () => {
       providers: [
         { provide: PodcastApiService, useValue: mockApi },
         { provide: Router, useValue: mockRouter },
+        { provide: CountryService, useValue: mockCountryService },
+        { provide: ActionSheetController, useValue: mockActionSheetCtrl },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -79,5 +91,25 @@ describe('BrowsePage', () => {
     (component as any).navigateToPodcast(mockPodcast({ id: 'pod-9' }));
 
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/podcast', 'pod-9']);
+  });
+
+  it('presentCountryPicker opens action sheet and sets country on selection', async () => {
+    const mockPresent = jest.fn().mockResolvedValue(undefined);
+    let capturedHandler: (() => void) | undefined;
+
+    mockActionSheetCtrl.create.mockImplementationOnce(async (opts: { buttons: { handler?: () => void; role?: string; text?: string }[] }) => {
+      capturedHandler = opts.buttons.find((b) => b.text?.includes('United States'))?.handler;
+      return { present: mockPresent };
+    });
+
+    await (component as any).presentCountryPicker();
+
+    expect(mockActionSheetCtrl.create).toHaveBeenCalledWith(
+      expect.objectContaining({ header: 'Browse by Country' })
+    );
+    expect(mockPresent).toHaveBeenCalled();
+
+    capturedHandler?.();
+    expect(mockCountryService.setCountry).toHaveBeenCalledWith('us');
   });
 });

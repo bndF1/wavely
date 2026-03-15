@@ -1,10 +1,11 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 
 import { CategoryDetailPage } from './category-detail.page';
 import { PodcastApiService } from '../../../core/services/podcast-api.service';
+import { CountryService } from '../../../core/services/country.service';
 import { mockPodcast } from '../../../../testing/podcast-fixtures';
 
 describe('CategoryDetailPage', () => {
@@ -28,6 +29,12 @@ describe('CategoryDetailPage', () => {
     navigate: jest.fn(),
   };
 
+  const mockCountryService = {
+    country: signal('us'),
+    setCountry: jest.fn(),
+    getFlag: jest.fn(() => '🇺🇸'),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [CategoryDetailPage],
@@ -40,6 +47,7 @@ describe('CategoryDetailPage', () => {
         },
         { provide: PodcastApiService, useValue: mockApi },
         { provide: Router, useValue: mockRouter },
+        { provide: CountryService, useValue: mockCountryService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
