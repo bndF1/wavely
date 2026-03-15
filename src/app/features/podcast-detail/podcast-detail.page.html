@@ -88,7 +88,7 @@
     }
     @if (episodes.length > 0) {
       <ion-list lines="full">
-        @for (episode of episodes; track episode) {
+        @for (episode of episodes; track episode.id) {
           <ion-item
             button
             [attr.aria-label]="'Play ' + episode.title"
