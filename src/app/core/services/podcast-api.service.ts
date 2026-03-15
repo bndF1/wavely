@@ -59,7 +59,12 @@ export class PodcastApiService {
     const params = new HttpParams().set('id', itunesId).set('entity', 'podcast');
     return this.http
       .get<{ results: ItunesPodcast[] }>(`${this.itunesBase}/lookup`, { params })
-      .pipe(map((res) => this.mapItunesPodcast(res.results[0])));
+      .pipe(
+        map((res) => {
+          if (!res.results?.length) throw new Error('Podcast not found');
+          return this.mapItunesPodcast(res.results[0]);
+        }),
+      );
   }
 
   /**

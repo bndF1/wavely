@@ -123,7 +123,7 @@
     @if (store.subscriptions().length > 0) {
       <p class="list-hint">Swipe left to unsubscribe</p>
       <ion-list lines="full">
-        @for (podcast of store.subscriptions(); track podcast) {
+        @for (podcast of store.subscriptions(); track podcast.id) {
           <ion-item-sliding #slidingItem>
             <ion-item button detail="true" (click)="navigateToPodcast(podcast)">
               <ion-avatar slot="start" class="podcast-avatar">
