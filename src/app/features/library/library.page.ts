@@ -35,6 +35,8 @@ import {
   personCircleOutline,
   libraryOutline,
   timeOutline,
+  checkmarkCircleOutline,
+  radioButtonOffOutline,
 } from 'ionicons/icons';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
@@ -106,9 +108,7 @@ export class LibraryPage {
   protected readonly hiddenCount = computed(() => {
     const filter = this.historyStore.activeFilter();
     if (filter !== 'all' || this.showAllHistory()) return 0;
-    const all = this.historyStore.filteredEntries();
-    const shown = all.filter((e) => !e.completed).slice(0, LibraryPage.HISTORY_LIMIT);
-    return all.length - shown.length;
+    return this.historyStore.filteredEntries().length - this.recentHistory().length;
   });
 
   protected readonly historyFilters: { label: string; value: HistoryFilter }[] = [
@@ -134,6 +134,8 @@ export class LibraryPage {
       personCircleOutline,
       timeOutline,
       libraryOutline,
+      checkmarkCircleOutline,
+      radioButtonOffOutline,
     });
     this.loadHistory();
   }
@@ -222,6 +224,7 @@ export class LibraryPage {
     const diffHours = Math.floor(diffMins / 60);
     if (diffHours < 24) return `${diffHours}h ago`;
     const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays}d ago`;
     return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
