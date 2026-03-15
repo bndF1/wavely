@@ -107,8 +107,17 @@ describe('PodcastDetailPage', () => {
   });
 
   it('sets independent error messages when API calls fail', async () => {
-    mockApi.lookupPodcast.mockReturnValueOnce(throwError(() => new Error('podcast failed')));
-    mockApi.getPodcastEpisodes.mockReturnValueOnce(throwError(() => new Error('episodes failed')));
+    const podcastErr = throwError(() => new Error('podcast failed'));
+    const episodesErr = throwError(() => new Error('episodes failed'));
+    // retry(2) means 3 total attempts — mock all three
+    mockApi.lookupPodcast
+      .mockReturnValueOnce(podcastErr)
+      .mockReturnValueOnce(podcastErr)
+      .mockReturnValueOnce(podcastErr);
+    mockApi.getPodcastEpisodes
+      .mockReturnValueOnce(episodesErr)
+      .mockReturnValueOnce(episodesErr)
+      .mockReturnValueOnce(episodesErr);
 
     await createComponent();
 

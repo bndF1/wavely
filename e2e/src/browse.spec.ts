@@ -25,7 +25,7 @@ test.describe('Browse page', () => {
   test.beforeEach(async ({ page }) => {
     await page.route(ITUNES_TOP_PODCASTS_URL, async (route) => {
       const url = new URL(route.request().url());
-      const genreId = url.pathname.match(/genre\/(\d+)/)?.[1] ?? 'all';
+      const genreId = url.pathname.match(/genre=(\d+)/)?.[1] ?? 'all';
 
       const payloadByGenre: Record<string, unknown[]> = {
         all: [
