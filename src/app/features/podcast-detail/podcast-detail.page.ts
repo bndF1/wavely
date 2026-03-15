@@ -103,7 +103,7 @@ export class PodcastDetailPage {
                 return of(null);
               }),
             ),
-            episodes: this.api.getPodcastEpisodes(id, 50).pipe(
+            episodes: this.api.getPodcastEpisodes(id, 200).pipe(
               retry(2),
               catchError(() => {
                 this.episodesError = 'Could not load episodes.';
@@ -152,7 +152,7 @@ export class PodcastDetailPage {
           return of(null);
         }),
       ),
-      episodes: this.api.getPodcastEpisodes(id, 50).pipe(
+      episodes: this.api.getPodcastEpisodes(id, 200).pipe(
         retry(2),
         catchError(() => {
           this.episodesError = 'Could not load episodes.';
