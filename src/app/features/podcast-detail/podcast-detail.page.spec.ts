@@ -101,7 +101,7 @@ describe('PodcastDetailPage', () => {
 
     expect(component).toBeTruthy();
     expect(mockApi.lookupPodcast).toHaveBeenCalledWith('pod-1');
-    expect(mockApi.getPodcastEpisodes).toHaveBeenCalledWith('pod-1', 50);
+    expect(mockApi.getPodcastEpisodes).toHaveBeenCalledWith('pod-1', 200);
     expect(component['podcast']?.id).toBe('pod-1');
     expect(component['episodes']).toHaveLength(2);
   });
