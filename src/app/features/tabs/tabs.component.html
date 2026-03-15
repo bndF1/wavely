@@ -1,6 +1,9 @@
 <wavely-offline-banner></wavely-offline-banner>
 
 <ion-tabs>
+  @if (store.currentEpisode()) {
+    <wavely-mini-player slot="bottom" (openFull)="openFullPlayer()"></wavely-mini-player>
+  }
   <ion-tab-bar slot="bottom">
     <ion-tab-button tab="home" href="/tabs/home">
       <ion-icon name="home-outline"></ion-icon>
@@ -23,9 +26,3 @@
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
-
-@if (store.currentEpisode()) {
-  <ion-footer class="ion-no-border">
-    <wavely-mini-player (openFull)="openFullPlayer()"></wavely-mini-player>
-  </ion-footer>
-}
