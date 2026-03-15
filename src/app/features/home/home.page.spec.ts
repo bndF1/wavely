@@ -12,7 +12,10 @@ describe('HomePage', () => {
   let fixture: ComponentFixture<HomePage>;
   let component: HomePage;
 
-  const mockApi = { getTrendingPodcasts: jest.fn().mockReturnValue(of([mockPodcast({ id: 'p1' })])) };
+  const mockApi = {
+    getTrendingPodcasts: jest.fn().mockReturnValue(of([mockPodcast({ id: 'p1' })])),
+    detectCountry: jest.fn(() => 'us'),
+  };
   const mockStore = {
     trending: signal([]),
     setLoading: jest.fn(),
@@ -46,7 +49,7 @@ describe('HomePage', () => {
 
   it('creates and loads trending on init when empty', () => {
     expect(component).toBeTruthy();
-    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(25);
+    expect(mockApi.getTrendingPodcasts).toHaveBeenCalledWith(25, undefined, 'us');
   });
 
   it('navigates to search and podcast routes', () => {

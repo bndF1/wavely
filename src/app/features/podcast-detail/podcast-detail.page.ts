@@ -121,6 +121,11 @@ export class PodcastDetailPage {
     } else {
       this.syncService.addSubscription(this.podcast, uid);
     }
+    // Force synchronous change detection for the optimistic UI update.
+    // addSubscription() is async (await setDoc) — Zone.js delays tick() until
+    // the Firestore write resolves. Using detectChanges() ensures the button
+    // shows "Subscribed" immediately, before the network call completes.
+    this.cdr.detectChanges();
   }
 
   protected playEpisode(episode: Episode): void {
@@ -150,5 +155,11 @@ export class PodcastDetailPage {
 
   protected onImageError(event: Event): void {
     (event.target as HTMLImageElement).src = '/default-artwork.svg';
+  }
+
+  protected navigateToPublisher(): void {
+    if (this.podcast?.artistId) {
+      this.router.navigate(['/publisher', this.podcast.artistId]);
+    }
   }
 }
