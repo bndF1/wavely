@@ -105,7 +105,7 @@ describe('EpisodeDetailPage', () => {
   });
 
   it('passes country to getPodcastEpisodes in strategy-3 fallback', () => {
-    // Arrange: no router state — force strategy 3 via podcastId in nav state
+    // Arrange: force strategy 3 by pushing only podcastId (no episode) into navigation state
     const episode = mockEpisode({ id: 'ep-2', podcastId: 'pod-2' });
     const podcast = mockPodcast({ id: 'pod-2' });
     history.pushState({ podcast: { id: 'pod-2' } }, '');
