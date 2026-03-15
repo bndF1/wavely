@@ -1,0 +1,26 @@
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 40px 20px;
+}
+
+.state-icon {
+  font-size: 40px;
+  color: var(--ion-color-medium);
+}
+
+.state-title {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--wavely-on-surface);
+}
+
+.state-message {
+  margin: 0;
+  color: var(--wavely-on-surface-muted);
+  max-width: 420px;
+}
