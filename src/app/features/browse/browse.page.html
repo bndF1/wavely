@@ -136,4 +136,70 @@
       </wavely-empty-state>
     }
   </section>
+
+  <!-- Radio Section -->
+  <section class="browse-section">
+    <h2 class="section-title">
+      <ion-icon name="radio-outline" class="section-title__icon"></ion-icon>
+      Live Radio
+    </h2>
+
+    @if (isRadioLoading()) {
+      <ion-list lines="none" class="radio-list" aria-label="Loading radio stations">
+        @for (s of skeletons; track s) {
+          <ion-item class="radio-item radio-item--skeleton" aria-hidden="true">
+            <ion-thumbnail slot="start">
+              <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+            </ion-thumbnail>
+            <ion-label>
+              <ion-skeleton-text [animated]="true" style="width: 70%; height: 15px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width: 45%; height: 13px; margin-top: 6px"></ion-skeleton-text>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    } @else if (radioError()) {
+      <wavely-empty-state
+        icon="alert-circle-outline"
+        title="Could not load radio"
+        [subtitle]="radioError()!"
+        actionLabel="Retry"
+        (action)="retryRadio()">
+      </wavely-empty-state>
+    } @else if (radioStations().length === 0) {
+      <wavely-empty-state
+        icon="radio-outline"
+        title="No stations found"
+        subtitle="No live radio stations available for your country right now."
+        actionLabel="Retry"
+        (action)="retryRadio()">
+      </wavely-empty-state>
+    } @else {
+      <ion-list lines="none" class="radio-list">
+        @for (station of radioStations(); track station.stationuuid) {
+          <ion-item
+            button
+            class="radio-item"
+            [attr.aria-label]="'Play ' + station.name + ' live'"
+            (click)="playStation(station)">
+            <ion-thumbnail slot="start" class="radio-item__thumbnail">
+              <img
+                [src]="station.favicon || '/default-artwork.svg'"
+                [alt]="station.name"
+                loading="lazy"
+                (error)="$any($event.target).src='/default-artwork.svg'" />
+            </ion-thumbnail>
+            <ion-label>
+              <h3 class="radio-item__name">{{ station.name }}</h3>
+              <p class="radio-item__meta">
+                @if (station.bitrate) { {{ station.bitrate }} kbps · }{{ station.codec }}
+                @if (station.tags) { · {{ station.tags | slice:0:40 }} }
+              </p>
+            </ion-label>
+            <ion-badge slot="end" class="radio-item__live-badge" color="danger">LIVE</ion-badge>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  </section>
 </ion-content>

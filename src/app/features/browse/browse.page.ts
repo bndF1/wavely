@@ -20,16 +20,25 @@ import {
   IonText,
   IonButtons,
   IonButton,
+  IonThumbnail,
+  IonList,
+  IonItem,
+  IonBadge,
+  IonIcon,
   ActionSheetController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { alertCircleOutline, refreshOutline, searchOutline } from 'ionicons/icons';
+import { alertCircleOutline, refreshOutline, searchOutline, radioOutline } from 'ionicons/icons';
 import { Subject, switchMap, catchError, of, takeUntil, tap, forkJoin } from 'rxjs';
+import { SlicePipe } from '@angular/common';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { Podcast } from '../../core/models/podcast.model';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { CountryService, PODCAST_MARKETS } from '../../core/services/country.service';
+import { RadioApiService, radioStationToEpisode } from '../../core/services/radio-api.service';
+import { RadioStation } from '../../core/models/radio-station.model';
+import { PlayerStore } from '../../store/player/player.store';
 
 // Genre IDs used to populate the three Browse sections with distinct content.
 // Featured → News, New & Noteworthy → Technology, Top → overall chart.
@@ -79,12 +88,20 @@ const CHIP_SKELETON_COUNT = 6;
     IonText,
     IonButtons,
     IonButton,
+    IonThumbnail,
+    IonList,
+    IonItem,
+    IonBadge,
+    IonIcon,
+    SlicePipe,
     PodcastCardComponent,
     EmptyStateComponent,
   ],
 })
 export class BrowsePage implements OnDestroy {
   private readonly api = inject(PodcastApiService);
+  private readonly radioApi = inject(RadioApiService);
+  private readonly playerStore = inject(PlayerStore);
   private readonly router = inject(Router);
   protected readonly countryService = inject(CountryService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
@@ -100,11 +117,18 @@ export class BrowsePage implements OnDestroy {
   protected isLoading = signal(false);
   protected error = signal<string | null>(null);
 
+  protected radioStations = signal<RadioStation[]>([]);
+  protected isRadioLoading = signal(false);
+  protected radioError = signal<string | null>(null);
+
+  // Drives radio loading; switchMap cancels any in-flight request on country change.
+  private readonly radioCountry$ = new Subject<string>();
+
   private readonly category$ = new Subject<PodcastCategory>();
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
-    addIcons({ searchOutline, alertCircleOutline, refreshOutline });
+    addIcons({ searchOutline, alertCircleOutline, refreshOutline, radioOutline });
 
     this.category$
       .pipe(
@@ -142,6 +166,31 @@ export class BrowsePage implements OnDestroy {
       });
 
     this.category$.next(this.selectedCategory());
+
+    // Radio loading pipeline — switchMap cancels in-flight requests on country change.
+    this.radioCountry$
+      .pipe(
+        tap(() => {
+          this.isRadioLoading.set(true);
+          this.radioError.set(null);
+          this.radioStations.set([]);
+        }),
+        switchMap((country) =>
+          this.radioApi.getStationsByCountry(country).pipe(
+            catchError(() => {
+              this.radioError.set('Could not load radio stations. Please try again.');
+              return of([] as RadioStation[]);
+            })
+          )
+        ),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((stations) => {
+        this.radioStations.set(stations);
+        this.isRadioLoading.set(false);
+      });
+
+    this.radioCountry$.next(this.countryService.country());
   }
 
   ngOnDestroy(): void {
@@ -174,6 +223,7 @@ export class BrowsePage implements OnDestroy {
           handler: () => {
             this.countryService.setCountry(m.code);
             this.category$.next(this.selectedCategory());
+            this.radioCountry$.next(m.code);
           },
         })),
         { text: 'Cancel', role: 'cancel' },
@@ -192,6 +242,15 @@ export class BrowsePage implements OnDestroy {
 
   protected navigateToPodcast(podcast: Podcast): void {
     this.router.navigate(['/podcast', podcast.id]);
+  }
+
+  protected playStation(station: RadioStation): void {
+    this.radioApi.registerClick(station.stationuuid).subscribe();
+    this.playerStore.play(radioStationToEpisode(station));
+  }
+
+  protected retryRadio(): void {
+    this.radioCountry$.next(this.countryService.country());
   }
 
   protected get currentMarketName(): string {
