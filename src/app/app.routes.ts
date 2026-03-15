@@ -80,4 +80,11 @@ export const appRoutes: Route[] = [
         (m) => m.EpisodeDetailPage
       ),
   },
+  {
+    path: 'publisher/:artistId',
+    loadComponent: () =>
+      import('./features/publisher/publisher.page').then(
+        (m) => m.PublisherPage
+      ),
+  },
 ];

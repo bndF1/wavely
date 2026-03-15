@@ -66,13 +66,35 @@ export class PodcastApiService {
    * Fetch top podcasts chart via the iTunes RSS feed.
    * @param limit Number of results (max 100). Default 25.
    * @param genreId Optional iTunes genre ID. Omit for overall top chart.
+   * @param country ISO 3166-1 alpha-2 country code. Defaults to detected locale country.
    */
-  getTrendingPodcasts(limit = 25, genreId?: number): Observable<Podcast[]> {
+  getTrendingPodcasts(limit = 25, genreId?: number, country?: string): Observable<Podcast[]> {
+    const countryCode = country ?? this.detectCountry();
     const genrePath = genreId ? `/genre/${genreId}` : '';
-    const url = `${this.itunesBase}/us/rss/toppodcasts/limit=${limit}${genrePath}/json`;
+    const url = `${this.itunesBase}/${countryCode}/rss/toppodcasts/limit=${limit}${genrePath}/json`;
     return this.http
       .get<ItunesRssFeed>(url)
       .pipe(map((feed) => feed.feed.entry.map(this.mapRssEntry)));
+  }
+
+  /**
+   * Fetch all podcasts published by a given iTunes artist/publisher.
+   * Returns up to 100 podcasts sorted by iTunes default ranking.
+   */
+  getPublisherPodcasts(artistId: string): Observable<Podcast[]> {
+    const params = new HttpParams()
+      .set('id', artistId)
+      .set('entity', 'podcast')
+      .set('limit', '100');
+    return this.http
+      .get<{ results: Array<ItunesPodcast | ItunesArtistResult> }>(`${this.itunesBase}/lookup`, { params })
+      .pipe(
+        map((res) =>
+          res.results
+            .filter((r): r is ItunesPodcast => r.wrapperType === 'collection')
+            .map(this.mapItunesPodcast)
+        )
+      );
   }
 
   /**
@@ -106,6 +128,7 @@ export class PodcastApiService {
       genres: raw.genres ?? [],
       episodeCount: raw.trackCount,
       latestReleaseDate: raw.releaseDate,
+      ...(raw.artistId != null && { artistId: String(raw.artistId) }),
     };
   }
 
@@ -139,10 +162,12 @@ export class PodcastApiService {
 }
 
 interface ItunesPodcast {
+  wrapperType: 'collection';
   collectionId: number;
   collectionName: string;
   collectionCensoredName?: string;
   artistName: string;
+  artistId?: number;
   artworkUrl600: string;
   artworkUrl100: string;
   feedUrl: string;
@@ -175,4 +200,10 @@ interface ItunesEpisodeRaw {
   artworkUrl160?: string;
   trackTimeMillis?: number;
   releaseDate: string;
+}
+
+interface ItunesArtistResult {
+  wrapperType: 'artist';
+  artistId: number;
+  artistName: string;
 }

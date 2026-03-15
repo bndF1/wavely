@@ -21,23 +21,22 @@ import {
 } from '@ionic/angular/standalone';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addIcons } from 'ionicons';
-import { alertCircleOutline, refreshOutline, searchOutline } from 'ionicons/icons';
+import { alertCircleOutline, refreshOutline } from 'ionicons/icons';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
-import { Podcast } from '../../../core/models/podcast.model';
-import { PodcastApiService } from '../../../core/services/podcast-api.service';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
-import { PodcastCardComponent } from '../../../shared/components/podcast-card/podcast-card.component';
-import { PODCAST_CATEGORIES } from '../browse.page';
+import { Podcast } from '../../core/models/podcast.model';
+import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 
 const SKELETON_COUNT = 6;
 const PAGE_SIZE = 12;
 
 @Component({
-  selector: 'wavely-category-detail',
+  selector: 'wavely-publisher',
   standalone: true,
-  templateUrl: './category-detail.page.html',
-  styleUrls: ['./category-detail.page.scss'],
+  templateUrl: './publisher.page.html',
+  styleUrls: ['./publisher.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     IonBackButton,
@@ -54,18 +53,16 @@ const PAGE_SIZE = 12;
     EmptyStateComponent,
   ],
 })
-export class CategoryDetailPage {
+export class PublisherPage {
   private readonly api = inject(PodcastApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly country: string;
-
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
 
-  protected readonly genreId = signal<number | null>(null);
-  protected readonly genreName = signal('Category');
+  protected readonly artistId = signal<string | null>(null);
+  protected readonly publisherName = signal('Publisher');
   protected readonly podcasts = signal<Podcast[]>([]);
   protected readonly visibleCount = signal(PAGE_SIZE);
   protected readonly isLoading = signal(false);
@@ -79,8 +76,7 @@ export class CategoryDetailPage {
   );
 
   constructor() {
-    this.country = this.api.detectCountry();
-    addIcons({ searchOutline, alertCircleOutline, refreshOutline });
+    addIcons({ alertCircleOutline, refreshOutline });
 
     this.route.paramMap
       .pipe(
@@ -91,24 +87,18 @@ export class CategoryDetailPage {
           this.visibleCount.set(PAGE_SIZE);
         }),
         switchMap((params) => {
-          const rawGenreId = Number(params.get('genreId'));
+          const id = params.get('artistId');
 
-          if (!Number.isInteger(rawGenreId) || rawGenreId <= 0) {
-            this.genreId.set(null);
-            this.genreName.set('Category');
-            this.error.set('Invalid category. Please go back and try another one.');
+          if (!id) {
+            this.error.set('Invalid publisher. Please go back and try again.');
             return of([] as Podcast[]);
           }
 
-          this.genreId.set(rawGenreId);
-          this.genreName.set(
-            PODCAST_CATEGORIES.find((category) => category.id === rawGenreId)?.name ??
-              'Category'
-          );
+          this.artistId.set(id);
 
-          return this.api.getTrendingPodcasts(50, rawGenreId, this.country).pipe(
+          return this.api.getPublisherPodcasts(id).pipe(
             catchError(() => {
-              this.error.set('Could not load this category. Please try again.');
+              this.error.set('Could not load this publisher. Please try again.');
               return of([] as Podcast[]);
             })
           );
@@ -118,6 +108,9 @@ export class CategoryDetailPage {
       .subscribe((podcasts) => {
         this.podcasts.set(podcasts);
         this.visibleCount.set(Math.min(PAGE_SIZE, podcasts.length));
+        if (podcasts.length > 0) {
+          this.publisherName.set(podcasts[0].author);
+        }
         this.isLoading.set(false);
       });
   }
@@ -129,19 +122,16 @@ export class CategoryDetailPage {
   }
 
   protected retry(): void {
-    const currentGenreId = this.genreId();
-    if (!currentGenreId) {
-      this.error.set('Invalid category. Please go back and try another one.');
-      return;
-    }
+    const id = this.artistId();
+    if (!id) return;
 
     this.isLoading.set(true);
     this.error.set(null);
     this.api
-      .getTrendingPodcasts(50, currentGenreId, this.country)
+      .getPublisherPodcasts(id)
       .pipe(
         catchError(() => {
-          this.error.set('Could not load this category. Please try again.');
+          this.error.set('Could not load this publisher. Please try again.');
           return of([] as Podcast[]);
         }),
         takeUntilDestroyed(this.destroyRef)
@@ -149,6 +139,9 @@ export class CategoryDetailPage {
       .subscribe((podcasts) => {
         this.podcasts.set(podcasts);
         this.visibleCount.set(Math.min(PAGE_SIZE, podcasts.length));
+        if (podcasts.length > 0) {
+          this.publisherName.set(podcasts[0].author);
+        }
         this.isLoading.set(false);
       });
   }
