@@ -45,6 +45,9 @@ export class AudioService {
    * timestamp under the new episode's ID.
    */
   private activeEpisodeId: string | null = null;
+  /** Tracks isLive for the episode currently loaded in the audio element.
+   * Uses the same update point as activeEpisodeId to avoid store/audio race conditions. */
+  private activeEpisodeIsLive = false;
 
   private static readonly MEDIA_SESSION_POSITION_UPDATE_MS = 5000;
   private lastMediaSessionPositionUpdateMs = 0;
@@ -78,26 +81,30 @@ export class AudioService {
           // this field, not store.currentEpisode(), to avoid writing timestamps to
           // a new episode ID before audio.src has been updated.
           this.activeEpisodeId = episode.id;
+          this.activeEpisodeIsLive = episode.isLive ?? false;
           this.audio.load();
           this.updateMediaSession(episode);
 
-          // Asynchronously load saved position; apply it once metadata is ready
-          const episodeId = episode.id;
-          const uid = this.authStore.user()?.uid ?? null;
-          this.progressSync.loadProgress(episodeId, uid).then((savedPosition) => {
-            // Guard: discard if the episode changed while fetch was in-flight
-            if (this.store.currentEpisode()?.id !== episodeId) return;
-            if (savedPosition <= 1) return;
+          // Asynchronously load saved position; apply it once metadata is ready.
+          // Live streams have no saved position — skip restore entirely.
+          if (!episode.isLive) {
+            const episodeId = episode.id;
+            const uid = this.authStore.user()?.uid ?? null;
+            this.progressSync.loadProgress(episodeId, uid).then((savedPosition) => {
+              // Guard: discard if the episode changed while fetch was in-flight
+              if (this.store.currentEpisode()?.id !== episodeId) return;
+              if (savedPosition <= 1) return;
 
-            if (this.metadataLoaded) {
-              // Metadata already arrived — seek immediately
-              this.seeking = true;
-              this.audio!.currentTime = savedPosition;
-            } else {
-              // Metadata not yet loaded — defer to loadedmetadata handler
-              this.pendingRestorePosition = savedPosition;
-            }
-          });
+              if (this.metadataLoaded) {
+                // Metadata already arrived — seek immediately
+                this.seeking = true;
+                this.audio!.currentTime = savedPosition;
+              } else {
+                // Metadata not yet loaded — defer to loadedmetadata handler
+                this.pendingRestorePosition = savedPosition;
+              }
+            });
+          }
 
           // If already in "playing" state, play() after load.
           // This handles playNext() advancing to next episode while isPlaying stays true.
@@ -110,6 +117,7 @@ export class AudioService {
         } else {
           this.progressSync.flush();
           this.activeEpisodeId = null;
+          this.activeEpisodeIsLive = false;
           this.audio.src = '';
           this.audio.load();
           this.updateMediaSession(null);
@@ -284,10 +292,10 @@ export class AudioService {
       this.updateMediaSessionPositionState(currentTime, duration);
       // Throttled Firestore write during playback
       const uid = this.authStore.user()?.uid ?? null;
-      // Use activeEpisodeId (not store) — store.currentEpisode() may already reflect
-      // the next episode while audio.src still plays the previous one.
+      // Use activeEpisodeId/activeEpisodeIsLive (not store) — store.currentEpisode() may already
+      // reflect the next episode while audio.src still plays the previous one.
       const episodeId = this.activeEpisodeId;
-      if (episodeId) {
+      if (episodeId && !this.activeEpisodeIsLive) {
         this.progressSync.scheduleWrite(
           episodeId,
           currentTime,
@@ -309,7 +317,7 @@ export class AudioService {
       const uid = this.authStore.user()?.uid ?? null;
       const episode = this.store.currentEpisode();
       const episodeId = this.activeEpisodeId;
-      if (uid && episode && episode.id === episodeId) {
+      if (uid && episode && episode.id === episodeId && !episode.isLive) {
         const duration = this.store.duration() || episode.duration || 0;
         this.historySync.recordPlay(
           this.buildHistoryEntry(episode, this.audio!.currentTime, duration, false),
@@ -321,10 +329,11 @@ export class AudioService {
     this.audio.addEventListener('pause', () => {
       this.updateMediaSessionPlaybackState(false);
       // Flush progress on any pause (user-initiated or programmatic).
-      // Use activeEpisodeId — same race reason as timeupdate handler.
+      // Live streams have no position to persist — skip writes.
+      // Use activeEpisodeIsLive (not store) — same race reason as timeupdate handler.
       const uid = this.authStore.user()?.uid ?? null;
       const episodeId = this.activeEpisodeId;
-      if (episodeId && this.audio) {
+      if (episodeId && this.audio && !this.activeEpisodeIsLive) {
         this.progressSync.scheduleWrite(
           episodeId,
           this.audio.currentTime,
@@ -348,16 +357,18 @@ export class AudioService {
       const uid = this.authStore.user()?.uid ?? null;
       const episodeId = this.activeEpisodeId;
       const duration = this.store.duration();
-      if (episodeId) {
-        this.progressSync.markCompleted(episodeId, duration, uid);
-      }
-
       const episode = this.store.currentEpisode();
-      if (uid && episode && episode.id === episodeId) {
-        this.historySync.recordPlay(
-          this.buildHistoryEntry(episode, duration, duration, true),
-          uid,
-        );
+
+      if (!this.activeEpisodeIsLive) {
+        if (episodeId) {
+          this.progressSync.markCompleted(episodeId, duration, uid);
+        }
+        if (uid && episode && episode.id === episodeId) {
+          this.historySync.recordPlay(
+            this.buildHistoryEntry(episode, duration, duration, true),
+            uid,
+          );
+        }
       }
 
       this.store.playNext();
