@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import {
@@ -88,7 +88,28 @@ export class LibraryPage {
   private readonly historySyncService = inject(HistorySyncService);
   private readonly router = inject(Router);
 
-  protected readonly recentHistory = computed(() => this.historyStore.filteredEntries());
+  private static readonly HISTORY_LIMIT = 10;
+
+  protected readonly showAllHistory = signal(false);
+
+  protected readonly recentHistory = computed(() => {
+    const entries = this.historyStore.filteredEntries();
+    const filter = this.historyStore.activeFilter();
+    if (filter === 'all' && !this.showAllHistory()) {
+      return entries
+        .filter((e) => !e.completed)
+        .slice(0, LibraryPage.HISTORY_LIMIT);
+    }
+    return entries;
+  });
+
+  protected readonly hiddenCount = computed(() => {
+    const filter = this.historyStore.activeFilter();
+    if (filter !== 'all' || this.showAllHistory()) return 0;
+    const all = this.historyStore.filteredEntries();
+    const shown = all.filter((e) => !e.completed).slice(0, LibraryPage.HISTORY_LIMIT);
+    return all.length - shown.length;
+  });
 
   protected readonly historyFilters: { label: string; value: HistoryFilter }[] = [
     { label: 'All', value: 'all' },
@@ -135,6 +156,7 @@ export class LibraryPage {
   }
 
   protected selectFilter(filter: HistoryFilter): void {
+    this.showAllHistory.set(false);
     this.historyStore.setFilter(filter);
   }
 
@@ -185,6 +207,23 @@ export class LibraryPage {
     const s = Math.floor(seconds % 60);
     if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  protected toggleShowAll(): void {
+    this.showAllHistory.update((v) => !v);
+  }
+
+  protected formatRelativeTime(ts: number): string {
+    if (!ts) return '';
+    const diffMs = Date.now() - ts;
+    const diffMins = Math.floor(diffMs / 60_000);
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   }
 
   protected async signOut(): Promise<void> {
