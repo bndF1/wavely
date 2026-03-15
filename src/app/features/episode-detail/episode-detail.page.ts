@@ -128,12 +128,35 @@ export class EpisodeDetailPage {
               ),
             }).pipe(
               switchMap(({ episodes, podcast }) => {
+                // iTunes episodes use trackId-based IDs; RSS episodes use GUID-based IDs.
+                // If found via iTunes, use it directly.
                 const ep = episodes.find((e) => e.id === episodeId) ?? null;
-                if (!ep) this.error.set('Episode not found.');
-                this.episode.set(ep);
-                this.podcast.set(podcast);
-                this.isLoading.set(false);
-                return of(null);
+                if (ep) {
+                  this.episode.set(ep);
+                  this.podcast.set(podcast);
+                  this.isLoading.set(false);
+                  return of(null);
+                }
+
+                // Not in iTunes index — try RSS so deep links to older/RSS-sourced
+                // episodes (whose IDs are GUID-derived) still resolve.
+                if (!podcast?.feedUrl) {
+                  this.error.set('Episode not found.');
+                  this.isLoading.set(false);
+                  return of(null);
+                }
+
+                return this.api.getEpisodesFromRss(podcast.feedUrl, podcastId).pipe(
+                  catchError(() => of([] as Episode[])),
+                  switchMap((rssEpisodes) => {
+                    const rssEp = rssEpisodes.find((e) => e.id === episodeId) ?? null;
+                    if (!rssEp) this.error.set('Episode not found.');
+                    this.episode.set(rssEp);
+                    this.podcast.set(podcast);
+                    this.isLoading.set(false);
+                    return of(null);
+                  }),
+                );
               }),
             );
           }

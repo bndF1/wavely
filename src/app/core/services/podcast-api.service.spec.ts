@@ -321,7 +321,7 @@ describe('PodcastApiService', () => {
   describe('getEpisodesFromRss()', () => {
     const FEED_URL = 'https://example.com/feed.xml';
     const PODCAST_ID = 'pod-1';
-    const PROXY_URL = `https://corsproxy.io/?${FEED_URL}`;
+    const PROXY_URL = `https://corsproxy.io/?${encodeURIComponent(FEED_URL)}`;
 
     const rssXml = (items: string) => `<?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
