@@ -277,6 +277,7 @@ describe('PodcastApiService', () => {
       );
       expect(req.request.params.get('entity')).toBe('podcast');
       expect(req.request.params.get('limit')).toBe('100');
+      expect(req.request.params.get('country')).toBeNull();
 
       req.flush({
         results: [
@@ -302,6 +303,17 @@ describe('PodcastApiService', () => {
       expect(result.length).toBe(1);
       expect((result[0] as { id: string }).id).toBe('100001');
       expect((result[0] as { artistId: string }).artistId).toBe('131600381');
+    });
+
+    it('passes country param to iTunes lookup when provided', () => {
+      let result: unknown[] = [];
+
+      service.getPublisherPodcasts('131600381', 'es').subscribe((p) => (result = p));
+
+      const req = httpMock.expectOne((r) => r.url === `${ITUNES_BASE}/lookup`);
+      expect(req.request.params.get('country')).toBe('es');
+      req.flush({ results: [] });
+      expect(result.length).toBe(0);
     });
 
     it('returns empty array when only artist result is returned', () => {
