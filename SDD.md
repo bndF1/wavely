@@ -36,11 +36,16 @@
 
 | Attribute | Value |
 |-----------|-------|
-| Current version | `v1.1.0` |
+| Current version | `v1.2.0` |
 | Production URL | https://wavely-f659c.web.app |
 | Landing page | https://bndF1.github.io/wavely |
 | Repository | https://github.com/bndF1/wavely |
 | Platforms | Web PWA · Android (Capacitor) · iOS (Capacitor) |
+
+**v1.2.0 Features (Discovery & Library):**
+- Recent searches history (localStorage, last 8 queries)
+- Library episode filtering (All / Unplayed / In Progress)
+- Browse category detail pages (`/browse/category/:genreId`)
 
 **MVP Features (v1.1.0):**
 - Google OAuth login
@@ -815,56 +820,40 @@ bun run cap:build   # nx build + copy index + cap copy + cap sync
 
 ---
 
-## 19. Next Milestone — Discovery & Library
+## 19. Shipped — Discovery & Library (v1.2.0) ✅
 
-**Milestone label:** v1.1.0 Discovery & Library  
-**GitHub issues:** [#38](https://github.com/bndF1/wavely/issues/38), [#39](https://github.com/bndF1/wavely/issues/39), [#40](https://github.com/bndF1/wavely/issues/40)
+**Released:** v1.2.0 | **GitHub issues:** [#38](https://github.com/bndF1/wavely/issues/38), [#39](https://github.com/bndF1/wavely/issues/39), [#40](https://github.com/bndF1/wavely/issues/40)
 
-### Issue #38 — Search: Recent Searches & Quick Suggestions
+### Issue #38 — Search: Recent Searches ✅
 
-**Goal:** Store recent search queries and display them as suggestions before the user types.
+- `SearchHistoryService` persists last 8 queries in `localStorage`
+- Search page shows recent chips when input is focused and empty
+- Tapping a chip fills and submits the search
 
-**Acceptance criteria:**
-- Show last 8 search queries when search input is focused and empty
-- Persist in `localStorage` (no account needed)
-- Clear individual items or all history
-- Tapping a suggestion fills the search input
+### Issue #39 — Library: Episode Filtering ✅
 
-**Design notes:**
-- New `SearchHistoryService` (localStorage, no Firestore)
-- `SearchPage` updated: show suggestion list when `query === ''` and input focused
-- Suggestion list → existing `EmptyStateComponent` pattern or new dedicated UI
+- Filter chips: All | Unplayed | In Progress
+- `HistoryStore` extended with `activeFilter` signal + `filteredEntries` computed
+- `markPlayed` / `markUnplayed` actions sync to Firestore via `HistorySyncService`
 
-### Issue #39 — Library: Episode Filtering
+### Issue #40 — Browse: Category Detail Pages ✅
 
-**Goal:** Filter episodes in Library by status so users find unplayed/in-progress content faster.
+- Route `/browse/category/:genreId` → `CategoryDetailPage`
+- Category chip click navigates to detail page with top 50 podcasts for that genre
+- SSR render mode set to `RenderMode.Client` for parameterized route
 
-**Acceptance criteria:**
-- Filter chips: All | Unplayed | In Progress | Completed
-- "Mark as played / unplayed" action per episode item
-- Bulk "Mark all as played" option
-- Filtering respects `HistoryEntry.completed` + `position` from HistoryStore
+---
 
-**Design notes:**
-- HistoryStore needs a `filter: FilterChip` signal + filtered computed
-- `markPlayed(episodeId)` / `markUnplayed(episodeId)` methods on HistoryStore + HistorySyncService
-- Library page filter chips above episode list
+## 20. Next Milestone — Native Platform (v1.3.0)
 
-### Issue #40 — Browse: Featured Section + Category Detail Pages
+**GitHub issues:** [#41](https://github.com/bndF1/wavely/issues/41), [#42](https://github.com/bndF1/wavely/issues/42), [#43](https://github.com/bndF1/wavely/issues/43), [#44](https://github.com/bndF1/wavely/issues/44)
 
-**Goal:** Improve Browse with featured podcasts, editors picks, and category drilldown.
-
-**Acceptance criteria:**
-- Featured banner carousel (top of Browse)
-- Category detail page: tapping a category → list of top podcasts for that genre
-- "New & Noteworthy" section
-- Paginated category results
-
-**Design notes:**
-- New route: `/browse/category/:genreId` → CategoryDetailPage
-- `PodcastApiService.getTrendingPodcasts(50, genreId)` already supports `genreId` param
-- Featured/Noteworthy: curate from top iTunes results per locale
-- BrowsePage becomes a hub (chips link to category detail)
+| Issue | Title |
+|-------|-------|
+| #41 | Push notifications (FCM) |
+| #42 | Deep links / Universal Links |
+| #43 | App Store + Play Store submission |
+| #44 | Native share sheet |
 
 ---
 

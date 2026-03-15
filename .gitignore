@@ -72,3 +72,4 @@ src/environments/environment.staging.ts
 
 # E2E auth state — contains browser storage with Firebase auth tokens
 e2e/.auth/user.json
+playwright-report/
