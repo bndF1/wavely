@@ -19,7 +19,7 @@ export class PodcastApiService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly itunesBase = 'https://itunes.apple.com';
   // CORS proxy used when a feed blocks cross-origin browser requests.
-  // Override via environment if you need a different proxy in your deployment.
+  // To use a different proxy, subclass PodcastApiService and override this property.
   private readonly corsProxyUrl = 'https://corsproxy.io/?';
 
   /**

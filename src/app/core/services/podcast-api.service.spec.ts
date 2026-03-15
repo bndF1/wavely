@@ -436,5 +436,30 @@ describe('PodcastApiService', () => {
 
       expect(result[0].podcastId).toBe(PODCAST_ID);
     });
+
+    it('uses safe ISO fallback when pubDate is missing or unparseable', () => {
+      const badDateItems = `
+<item>
+  <title>No Date</title>
+  <enclosure url="https://example.com/ep-nodate.mp3" type="audio/mpeg" length="1234"/>
+  <guid>guid-nodate</guid>
+</item>
+<item>
+  <title>Bad Date</title>
+  <pubDate>not-a-real-date</pubDate>
+  <enclosure url="https://example.com/ep-baddate.mp3" type="audio/mpeg" length="1234"/>
+  <guid>guid-baddate</guid>
+</item>`;
+
+      let result: { releaseDate: string }[] = [];
+      service.getEpisodesFromRss(FEED_URL, PODCAST_ID).subscribe((eps) => (result = eps));
+      httpMock.expectOne((r) => r.url === FEED_URL).flush(rssXml(badDateItems));
+
+      // Both should produce a valid ISO timestamp, never "Invalid Date"
+      expect(result).toHaveLength(2);
+      result.forEach((ep) => {
+        expect(new Date(ep.releaseDate).toISOString()).toBe(ep.releaseDate);
+      });
+    });
   });
 });

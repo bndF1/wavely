@@ -147,7 +147,6 @@ export class EpisodeDetailPage {
                 }
 
                 return this.api.getEpisodesFromRss(podcast.feedUrl, podcastId).pipe(
-                  catchError(() => of([] as Episode[])),
                   switchMap((rssEpisodes) => {
                     const rssEp = rssEpisodes.find((e) => e.id === episodeId) ?? null;
                     if (!rssEp) this.error.set('Episode not found.');
