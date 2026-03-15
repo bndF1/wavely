@@ -72,6 +72,27 @@ service cloud.firestore {
       allow delete: if isOwner(uid);
     }
 
+    // Listening history: users/{uid}/history/{episodeId}
+    // create: full document required (from recordPlay)
+    // update: owner-only; request.resource.data includes existing fields so hasAll passes naturally
+    match /users/{uid}/history/{episodeId} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasAll(['episodeId', 'episodeTitle', 'podcastTitle', 'imageUrl', 'position', 'duration', 'lastPlayedAt', 'completed'])
+        && request.resource.data.episodeId is string
+        && request.resource.data.episodeTitle is string
+        && request.resource.data.podcastTitle is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.position is number
+        && request.resource.data.duration is number
+        && request.resource.data.position >= 0
+        && request.resource.data.duration >= 0
+        && request.resource.data.lastPlayedAt is number
+        && request.resource.data.completed is bool;
+      allow update: if isOwner(uid);
+      allow delete: if isOwner(uid);
+    }
+
     // Catch-all for any other user subcollections (deny by default)
     match /users/{uid}/{document=**} {
       allow read, write: if false;
