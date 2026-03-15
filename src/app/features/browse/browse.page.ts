@@ -24,6 +24,7 @@ import {
   IonList,
   IonItem,
   IonBadge,
+  IonIcon,
   ActionSheetController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -91,6 +92,7 @@ const CHIP_SKELETON_COUNT = 6;
     IonList,
     IonItem,
     IonBadge,
+    IonIcon,
     SlicePipe,
     PodcastCardComponent,
     EmptyStateComponent,
