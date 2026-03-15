@@ -128,6 +128,7 @@ test.describe('Home page', () => {
 
     await page.goto(`/podcast/${SUBSCRIPTION_PODCAST.id}`);
     await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
+    await page.waitForFunction(() => (window as any)['__e2eAuthReady'] === true, { timeout: 15000 });
 
     await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
     // Wait for the optimistic update to reflect in the UI before navigating

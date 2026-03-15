@@ -62,48 +62,22 @@ test.skip(() => !process.env['USE_EMULATORS'], 'Requires Firebase emulators');
 test.describe.serial('Subscriptions', () => {
   test('subscribe to podcast then appears in library', async ({ page }) => {
     const podcast = { id: '62001', title: 'Subscribe Flow Podcast' };
-
-    // Diagnostic listeners — capture browser state for CI debugging
-    const consoleLogs: string[] = [];
-    page.on('console', (msg) => consoleLogs.push(`[${msg.type()}] ${msg.text()}`));
-    page.on('pageerror', (err) => consoleLogs.push(`[pageerror] ${err.message}`));
-
     await mockPodcastEndpoints(page, podcast);
 
     await page.goto(`/podcast/${podcast.id}`);
-    // Wait for podcast content to load before interacting
     await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
 
-    // Diagnostic: inspect all ion-button elements before click
-    const buttonsBefore = await page.locator('ion-button').all();
-    for (const btn of buttonsBefore) {
-      const text = await btn.textContent();
-      const fill = await btn.getAttribute('fill');
-      console.log(`[diag:before-click] ion-button text=${JSON.stringify(text)} fill=${fill}`);
-    }
+    // Wait for Firebase Auth to restore the session. Without this, clicking
+    // Subscribe before auth resolves causes a race: the subscription is added
+    // locally (uid=null, no Firestore write), then AuthStore.init() processes
+    // the restored user and calls clearSubscriptions(), wiping it.
+    await page.waitForFunction(() => (window as any)['__e2eAuthReady'] === true, { timeout: 15000 });
 
     await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
-
-    // Small wait for Angular change detection + store update
-    await page.waitForTimeout(2000);
-
-    // Diagnostic: inspect all ion-button elements after click
-    const buttonsAfter = await page.locator('ion-button').all();
-    for (const btn of buttonsAfter) {
-      const text = await btn.textContent();
-      const fill = await btn.getAttribute('fill');
-      console.log(`[diag:after-click] ion-button text=${JSON.stringify(text)} fill=${fill}`);
-    }
-
-    // Print captured console logs
-    consoleLogs.forEach((log) => console.log(`[diag:console] ${log}`));
-
     await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     // SPA navigation preserves PodcastsStore state; page.goto would reload and
     // lose the subscription before the Firestore write completes.
-    // Fire-and-forget: Angular router navigation destroys the JS execution context,
-    // so page.evaluate rejects with "Execution context was destroyed" — that's expected.
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
@@ -116,10 +90,9 @@ test.describe.serial('Subscriptions', () => {
 
     await page.goto(`/podcast/${podcast.id}`);
     await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
+    await page.waitForFunction(() => (window as any)['__e2eAuthReady'] === true, { timeout: 15000 });
 
     await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
-    // Wait for the optimistic update to reflect in the UI before navigating
-    // (button changes to 'Subscribed' as soon as the store adds the podcast)
     await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
