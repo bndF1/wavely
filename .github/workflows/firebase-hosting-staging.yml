@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Generate environment stubs
+        run: node scripts/generate-env.mjs
+
       - name: Run unit tests
         run: bun run test
 
@@ -71,3 +74,13 @@ jobs:
           echo "> Channel expires in 30 days. Bookmark this URL — it stays stable as long as the channel is refreshed before expiry." >> $GITHUB_STEP_SUMMARY
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Add staging channel URL to Firebase Auth authorized domains
+        if: steps.deploy.outputs.url != ''
+        run: |
+          DOMAIN=$(echo "${{ steps.deploy.outputs.url }}" | sed 's|https://||' | sed 's|/.*||')
+          echo "Authorizing domain: $DOMAIN"
+          node scripts/firebase-add-auth-domain.mjs "$DOMAIN"
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          NG_APP_FIREBASE_PROJECT_ID: ${{ secrets.NG_APP_FIREBASE_PROJECT_ID }}
