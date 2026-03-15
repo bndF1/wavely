@@ -4,7 +4,7 @@
     <ion-buttons slot="end">
       <ion-button
         class="country-toggle"
-        [attr.aria-label]="'Browsing ' + countryService.country() + ' content, tap to change'"
+        [attr.aria-label]="'Browsing ' + currentMarketName + ' content, tap to change'"
         (click)="presentCountryPicker()">
         <span class="country-toggle__flag">{{ countryService.getFlag(countryService.country()) }}</span>
       </ion-button>

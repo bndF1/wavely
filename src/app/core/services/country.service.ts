@@ -55,15 +55,20 @@ export class CountryService {
   private initCountry(): string {
     if (isPlatformBrowser(this.platformId)) {
       const saved = localStorage.getItem(CountryService.STORAGE_KEY);
-      if (saved) return saved;
+      if (saved) {
+        const normalized = saved.toLowerCase();
+        if (/^[a-z]{2}$/.test(normalized)) return normalized;
+      }
     }
     return this.api.detectCountry();
   }
 
   setCountry(code: string): void {
-    this.country.set(code);
+    const normalized = code.toLowerCase();
+    if (!/^[a-z]{2}$/.test(normalized)) return;
+    this.country.set(normalized);
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(CountryService.STORAGE_KEY, code);
+      localStorage.setItem(CountryService.STORAGE_KEY, normalized);
     }
   }
 

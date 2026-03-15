@@ -193,4 +193,9 @@ export class BrowsePage implements OnDestroy {
   protected navigateToPodcast(podcast: Podcast): void {
     this.router.navigate(['/podcast', podcast.id]);
   }
+
+  protected get currentMarketName(): string {
+    const code = this.countryService.country();
+    return PODCAST_MARKETS.find((m) => m.code === code)?.name ?? code.toUpperCase();
+  }
 }

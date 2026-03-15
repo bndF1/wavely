@@ -92,4 +92,24 @@ describe('BrowsePage', () => {
 
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/podcast', 'pod-9']);
   });
+
+  it('presentCountryPicker opens action sheet and sets country on selection', async () => {
+    const mockPresent = jest.fn().mockResolvedValue(undefined);
+    let capturedHandler: (() => void) | undefined;
+
+    mockActionSheetCtrl.create.mockImplementationOnce(async (opts: { buttons: { handler?: () => void; role?: string; text?: string }[] }) => {
+      capturedHandler = opts.buttons.find((b) => b.text?.includes('United States'))?.handler;
+      return { present: mockPresent };
+    });
+
+    await (component as any).presentCountryPicker();
+
+    expect(mockActionSheetCtrl.create).toHaveBeenCalledWith(
+      expect.objectContaining({ header: 'Browse by Country' })
+    );
+    expect(mockPresent).toHaveBeenCalled();
+
+    capturedHandler?.();
+    expect(mockCountryService.setCountry).toHaveBeenCalledWith('us');
+  });
 });
