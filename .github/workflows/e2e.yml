@@ -75,6 +75,10 @@ jobs:
           USE_EMULATORS: 'true'
           FIREBASE_AUTH_EMULATOR_HOST: '127.0.0.1:9099'
           BASE_URL: 'http://localhost:4200'
+          # Note: real QA credentials (WAVELY_QA_EMAIL / WAVELY_QA_PASSWORD) are intentionally
+          # NOT exposed here — this job uses the Firebase Auth Emulator and never contacts
+          # production auth. They will be wired in a dedicated e2e-staging.yml smoke-test
+          # workflow that runs post-deploy against the staging Firebase project.
 
       - name: Upload Playwright report
         if: always()

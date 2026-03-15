@@ -1,10 +1,11 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { PublisherPage } from './publisher.page';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { CountryService } from '../../core/services/country.service';
 import { mockPodcast } from '../../../testing/podcast-fixtures';
 
 const ARTIST_ID = '131600381';
@@ -36,6 +37,7 @@ describe('PublisherPage', () => {
           useValue: { paramMap: routeParams$.asObservable() },
         },
         { provide: PodcastApiService, useValue: mockApi },
+        { provide: CountryService, useValue: { country: signal('us') } },
         { provide: Router, useValue: mockRouter },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -58,7 +60,7 @@ describe('PublisherPage', () => {
 
   it('loads podcasts for the given artistId', () => {
     expect(component).toBeTruthy();
-    expect(mockApi.getPublisherPodcasts).toHaveBeenCalledWith(ARTIST_ID);
+    expect(mockApi.getPublisherPodcasts).toHaveBeenCalledWith(ARTIST_ID, 'us');
     expect((component as any).podcasts().length).toBe(20);
   });
 
@@ -105,10 +107,10 @@ describe('PublisherPage', () => {
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/podcast', 'pod-42']);
   });
 
-  it('navigates to publisher page on navigateToPublisher', () => {
+  it('calls retry() which re-fetches podcasts with country for the current artist', () => {
     const mockArtistId = '999';
     (component as any).artistId.set(mockArtistId);
     (component as any).retry();
-    expect(mockApi.getPublisherPodcasts).toHaveBeenCalledWith(mockArtistId);
+    expect(mockApi.getPublisherPodcasts).toHaveBeenCalledWith(mockArtistId, 'us');
   });
 });
