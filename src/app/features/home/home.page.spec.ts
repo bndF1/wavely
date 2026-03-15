@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 import { HomePage } from './home.page';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
+import { CountryService } from '../../core/services/country.service';
 import { mockPodcast } from '../../../testing/podcast-fixtures';
 
 describe('HomePage', () => {
@@ -23,6 +24,11 @@ describe('HomePage', () => {
     setError: jest.fn(),
   };
   const mockRouter = { navigate: jest.fn() };
+  const mockCountryService = {
+    country: signal('us'),
+    setCountry: jest.fn(),
+    getFlag: jest.fn(() => '🇺🇸'),
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -31,6 +37,7 @@ describe('HomePage', () => {
         { provide: PodcastApiService, useValue: mockApi },
         { provide: PodcastsStore, useValue: mockStore },
         { provide: Router, useValue: mockRouter },
+        { provide: CountryService, useValue: mockCountryService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
