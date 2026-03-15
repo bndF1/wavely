@@ -26,6 +26,7 @@ import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { Podcast } from '../../core/models/podcast.model';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { CountryService } from '../../core/services/country.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 
@@ -55,6 +56,7 @@ const PAGE_SIZE = 12;
 })
 export class PublisherPage {
   private readonly api = inject(PodcastApiService);
+  private readonly countryService = inject(CountryService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -96,7 +98,7 @@ export class PublisherPage {
 
           this.artistId.set(id);
 
-          return this.api.getPublisherPodcasts(id).pipe(
+          return this.api.getPublisherPodcasts(id, this.countryService.country()).pipe(
             catchError(() => {
               this.error.set('Could not load this publisher. Please try again.');
               return of([] as Podcast[]);
@@ -128,7 +130,7 @@ export class PublisherPage {
     this.isLoading.set(true);
     this.error.set(null);
     this.api
-      .getPublisherPodcasts(id)
+      .getPublisherPodcasts(id, this.countryService.country())
       .pipe(
         catchError(() => {
           this.error.set('Could not load this publisher. Please try again.');

@@ -23,6 +23,7 @@ import {
 import { addIcons } from 'ionicons';
 import { checkmarkCircle, addCircleOutline, playCircleOutline, refreshOutline } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
+import { CountryService } from '../../core/services/country.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { PlayerStore } from '../../store/player/player.store';
 import { AuthStore } from '../../store/auth/auth.store';
@@ -60,6 +61,7 @@ import { map, switchMap } from 'rxjs/operators';
 export class PodcastDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(PodcastApiService);
+  private readonly countryService = inject(CountryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   protected readonly podcastsStore = inject(PodcastsStore);
@@ -121,7 +123,7 @@ export class PodcastDetailPage {
    * A 1 s delay between retries avoids triggering iTunes rate limiting.
    */
   private loadPodcastData(id: string): Observable<{ podcast: Podcast | null; episodes: Episode[] }> {
-    return this.api.lookupPodcast(id).pipe(
+    return this.api.lookupPodcast(id, this.countryService.country()).pipe(
       retry({ count: 2, delay: 1000 }),
       catchError(() => {
         this.podcastError = 'Could not load podcast info.';
