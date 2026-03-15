@@ -21,11 +21,11 @@ export const serverRoutes: ServerRoute[] = [
   },
   {
     path: 'podcast/:id',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Client,
   },
   {
     path: 'episode/:id',
-    renderMode: RenderMode.Server,
+    renderMode: RenderMode.Client,
   },
   {
     path: 'publisher/:artistId',

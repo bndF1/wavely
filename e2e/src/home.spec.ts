@@ -127,7 +127,12 @@ test.describe('Home page', () => {
     });
 
     await page.goto(`/podcast/${SUBSCRIPTION_PODCAST.id}`);
-    await page.getByRole('button', { name: /^subscribe$/i }).click();
+    await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
+    await page.waitForFunction(() => (window as any)['__e2eAuthReady'] === true, { timeout: 15000 });
+
+    await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
+    // Wait for the optimistic update to reflect in the UI before navigating
+    await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     // Navigate within the SPA to preserve PodcastsStore state (page.goto would reload,
     // potentially losing the subscription before the Firestore write completes).
@@ -135,6 +140,6 @@ test.describe('Home page', () => {
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/home').catch(() => {});
     await page.waitForURL('/tabs/home', { timeout: 10000 });
     await expect(page.getByRole('heading', { name: 'My Podcasts' })).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('.podcast-card__title', { hasText: SUBSCRIPTION_PODCAST.title })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('wavely-podcast-card').filter({ hasText: SUBSCRIPTION_PODCAST.title })).toBeVisible({ timeout: 10000 });
   });
 });

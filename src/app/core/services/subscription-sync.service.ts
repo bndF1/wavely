@@ -53,7 +53,12 @@ export class SubscriptionSyncService {
     if (!uid) return;
     try {
       const docRef = doc(this.firestore, 'users', uid, 'subscriptions', podcast.id);
-      await setDoc(docRef, { ...podcast });
+      // Strip undefined values — Firestore rejects them as "Unsupported field value"
+      const data: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(podcast)) {
+        if (value !== undefined) data[key] = value;
+      }
+      await setDoc(docRef, data);
     } catch (err) {
       console.error('[SubscriptionSyncService] Failed to persist subscription', err);
       // Rollback optimistic update

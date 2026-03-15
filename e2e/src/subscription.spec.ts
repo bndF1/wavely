@@ -65,18 +65,23 @@ test.describe.serial('Subscriptions', () => {
     await mockPodcastEndpoints(page, podcast);
 
     await page.goto(`/podcast/${podcast.id}`);
-    await page.getByRole('button', { name: /^subscribe$/i }).click();
+    await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
+
+    // Wait for Firebase Auth to restore the session. Without this, clicking
+    // Subscribe before auth resolves causes a race: the subscription is added
+    // locally (uid=null, no Firestore write), then AuthStore.init() processes
+    // the restored user and calls clearSubscriptions(), wiping it.
+    await page.waitForFunction(() => (window as any)['__e2eAuthReady'] === true, { timeout: 15000 });
+
+    await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
+    await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     // SPA navigation preserves PodcastsStore state; page.goto would reload and
     // lose the subscription before the Firestore write completes.
-    // Fire-and-forget: Angular router navigation destroys the JS execution context,
-    // so page.evaluate rejects with "Execution context was destroyed" — that's expected.
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
-    // ion-title doesn't expose role="heading" — match via locator
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    // Library renders subscriptions as ion-item with ion-label h2 (not wavely-podcast-card)
-    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible();
+    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 10000 });
   });
 
   test('unsubscribe removes podcast from library', async ({ page }) => {
@@ -84,23 +89,19 @@ test.describe.serial('Subscriptions', () => {
     await mockPodcastEndpoints(page, podcast);
 
     await page.goto(`/podcast/${podcast.id}`);
-    await page.getByRole('button', { name: /^subscribe$/i }).click();
-    // Wait for the optimistic update to reflect in the UI before navigating
-    // (button changes to 'Subscribed' as soon as the store adds the podcast)
-    await expect(page.getByRole('button', { name: /^subscribed$/i })).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
+    await page.waitForFunction(() => (window as any)['__e2eAuthReady'] === true, { timeout: 15000 });
+
+    await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
+    await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 15000 });
 
-    // ion-button[aria-label] is unreliable after Ionic hydration: Ionic forwards
-    // the host aria-label to the shadow <button> and clears the host attribute.
-    // Use ion-button[slot="end"] scoped to the podcast's ion-item-sliding instead.
-    const podcastItem = page.locator('ion-item-sliding').filter({
-      has: page.locator('ion-label h2').filter({ hasText: podcast.title }),
-    });
+    const podcastItem = page.locator('ion-item-sliding').filter({ hasText: podcast.title });
     await podcastItem.locator('ion-button[slot="end"]').click();
-    await expect(page.locator('ion-label h2').filter({ hasText: podcast.title })).toHaveCount(0);
+    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toHaveCount(0);
   });
 });
