@@ -34,6 +34,7 @@ describe('PodcastDetailPage', () => {
   let mockApi: {
     lookupPodcast: jest.Mock;
     getPodcastEpisodes: jest.Mock;
+    getEpisodesFromRss: jest.Mock;
   };
   let mockPodcastsStore: ReturnType<typeof createMockPodcastsStore>;
   let mockPlayer: ReturnType<typeof mockPlayerStore>;
@@ -80,6 +81,8 @@ describe('PodcastDetailPage', () => {
     mockApi = {
       lookupPodcast: jest.fn().mockReturnValue(of(podcast)),
       getPodcastEpisodes: jest.fn().mockReturnValue(of(episodes)),
+      // By default, RSS succeeds — callers won't fall back to iTunes
+      getEpisodesFromRss: jest.fn().mockReturnValue(of(episodes)),
     };
     mockPodcastsStore = createMockPodcastsStore();
     mockPlayer = mockPlayerStore();
@@ -101,29 +104,40 @@ describe('PodcastDetailPage', () => {
 
     expect(component).toBeTruthy();
     expect(mockApi.lookupPodcast).toHaveBeenCalledWith('pod-1');
-    expect(mockApi.getPodcastEpisodes).toHaveBeenCalledWith('pod-1', 200);
+    // RSS feed is tried first (podcast has a feedUrl); iTunes fallback is skipped
+    expect(mockApi.getEpisodesFromRss).toHaveBeenCalledWith(podcast.feedUrl, 'pod-1');
+    expect(mockApi.getPodcastEpisodes).not.toHaveBeenCalled();
     expect(component['podcast']?.id).toBe('pod-1');
     expect(component['episodes']).toHaveLength(2);
   });
 
-  it('sets independent error messages when API calls fail', async () => {
-    const podcastErr = throwError(() => new Error('podcast failed'));
-    const episodesErr = throwError(() => new Error('episodes failed'));
-    // retry(2) means 3 total attempts — mock all three
-    mockApi.lookupPodcast
-      .mockReturnValueOnce(podcastErr)
-      .mockReturnValueOnce(podcastErr)
-      .mockReturnValueOnce(podcastErr);
-    mockApi.getPodcastEpisodes
-      .mockReturnValueOnce(episodesErr)
-      .mockReturnValueOnce(episodesErr)
-      .mockReturnValueOnce(episodesErr);
-
+  it('falls back to iTunes when RSS returns no episodes', async () => {
+    mockApi.getEpisodesFromRss.mockReturnValue(of([]));
     await createComponent();
 
-    expect(component['podcastError']).toBe('Could not load podcast info.');
-    expect(component['episodesError']).toBe('Could not load episodes.');
-    expect(component['isLoading']).toBe(false);
+    expect(mockApi.getEpisodesFromRss).toHaveBeenCalled();
+    expect(mockApi.getPodcastEpisodes).toHaveBeenCalledWith('pod-1', 200);
+    expect(component['episodes']).toHaveLength(2);
+  });
+
+  it('sets independent error messages when API calls fail', async () => {
+    // retry({ count: 2, delay: 1000 }) means real timers are involved — use fake timers
+    jest.useFakeTimers();
+    try {
+      mockApi.lookupPodcast.mockReturnValue(throwError(() => new Error('podcast failed')));
+      // lookupPodcast fails → podcast is null → no feedUrl → falls back to iTunes
+      mockApi.getPodcastEpisodes.mockReturnValue(throwError(() => new Error('episodes failed')));
+
+      await createComponent();
+      // Advance past all retry delays (2 retries × 1000ms × 2 API calls = 4 s)
+      await jest.runAllTimersAsync();
+
+      expect(component['podcastError']).toBe('Could not load podcast info.');
+      expect(component['episodesError']).toBe('Could not load episodes.');
+      expect(component['isLoading']).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('adds subscription when not currently subscribed', async () => {
