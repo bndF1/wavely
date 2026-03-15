@@ -1,6 +1,9 @@
 {
   "name": "@wavely/source",
-  "version": "1.4.0",
+
+
+  "version": "1.4.1",
+
   "license": "MIT",
   "scripts": {
     "generate-env": "node --env-file=.env scripts/generate-env.mjs",
