@@ -18,6 +18,9 @@ export class PodcastApiService {
   private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly itunesBase = 'https://itunes.apple.com';
+  // CORS proxy used when a feed blocks cross-origin browser requests.
+  // To use a different proxy, subclass PodcastApiService and override this property.
+  private readonly corsProxyUrl = 'https://corsproxy.io/?';
 
   /**
    * Detect the user's country from the browser locale.
@@ -136,7 +139,7 @@ export class PodcastApiService {
 
     return this.http.get(feedUrl, { responseType: 'text' }).pipe(
       catchError(() =>
-        this.http.get(`https://corsproxy.io/?${feedUrl}`, { responseType: 'text' }),
+        this.http.get(`${this.corsProxyUrl}${encodeURIComponent(feedUrl)}`, { responseType: 'text' }),
       ),
       map(parse),
       catchError(() => of([] as Episode[])),
@@ -174,7 +177,7 @@ export class PodcastApiService {
           audioUrl: enclosure.getAttribute('url') ?? '',
           imageUrl: imageHref,
           duration: this.parseDuration(duration),
-          releaseDate: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
+          releaseDate: this.parsePubDate(pubDate),
         };
       });
   }
@@ -203,6 +206,13 @@ export class PodcastApiService {
     if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
     if (parts.length === 2) return parts[0] * 60 + parts[1];
     return Math.round(Number(raw)) || 0;
+  }
+
+  /** Parses a RFC-2822 pubDate string; returns a safe ISO fallback on invalid input. */
+  private parsePubDate(raw: string): string {
+    if (!raw) return new Date().toISOString();
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
   }
 
   private mapItunesPodcast(raw: ItunesPodcast): Podcast {
