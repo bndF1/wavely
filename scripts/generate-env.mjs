@@ -8,7 +8,6 @@
  */
 
 import { writeFileSync, readFileSync } from 'fs';
-import { execSync } from 'child_process';
 
 const target = process.env['ENV_TARGET'] ?? 'all';
 const isStaging = target === 'staging';
@@ -34,21 +33,7 @@ const get = (key) => {
 const getSentryDsn = () => process.env['NG_APP_SENTRY_DSN'] ?? '';
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
-
-// Prefer the latest git tag (set by semantic-release) over package.json version.
-// Uses `git tag --sort=-v:refname` instead of `git describe` so it works on any
-// branch — git describe only finds tags reachable from the current commit, which
-// excludes tags on main when building from dev/feature branches.
-let appVersion;
-try {
-  const tag = execSync('git tag --sort=-v:refname', { encoding: 'utf8' })
-    .trim()
-    .split('\n')
-    .find((t) => /^v\d+\.\d+\.\d+/.test(t));
-  appVersion = tag ? tag.replace(/^v/, '') : pkg.version ?? '0.0.0';
-} catch {
-  appVersion = pkg.version ?? '0.0.0';
-}
+const appVersion = pkg.version ?? '0.0.0';
 
 if (isProdOrStaging) {
   const missing = REQUIRED_KEYS.filter((key) => !get(key));
