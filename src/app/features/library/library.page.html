@@ -58,11 +58,15 @@
 
 <ion-content>
   <section class="library-section">
-    <h2 class="section-title">Recently Played</h2>
+    <div class="section-header">
+      <h2 class="section-title">Continue Listening</h2>
+      <ion-button fill="clear" size="small" class="clear-history-btn" (click)="clearHistory()">Clear</ion-button>
+    </div>
 
     <div class="history-filters" role="tablist" aria-label="History filters">
       @for (filter of historyFilters; track filter.value) {
         <ion-chip
+          button
           [class.active]="historyStore.activeFilter() === filter.value"
           [outline]="historyStore.activeFilter() !== filter.value"
           (click)="selectFilter(filter.value)">
@@ -72,12 +76,14 @@
     </div>
 
     @if (recentHistory().length === 0) {
-      <wavely-empty-state icon="time-outline" title="No listening history" subtitle="Start an episode and your recent listens will appear here."></wavely-empty-state>
+      @if (historyStore.activeFilter() === 'all') {
+        <wavely-empty-state icon="time-outline" title="Nothing in progress" subtitle="Start an episode and it will appear here to continue."></wavely-empty-state>
+      } @else {
+        <wavely-empty-state icon="time-outline" title="No episodes here" subtitle="Try a different filter."></wavely-empty-state>
+      }
     } @else {
+      <p class="list-hint">Swipe left or tap <ion-icon name="checkmark-circle-outline" style="vertical-align: middle"></ion-icon> to mark played</p>
       <ion-list lines="none">
-        <ion-button slot="end" fill="clear" size="small" class="clear-history-btn" (click)="clearHistory()">Clear history</ion-button>
-        <p class="list-hint">Swipe left to mark played or unplayed</p>
-
         @for (entry of recentHistory(); track entry.episodeId) {
           <ion-item-sliding #historyItem>
             <ion-item>
@@ -88,9 +94,11 @@
                 <h2>{{ entry.episodeTitle }}</h2>
                 <ion-note>{{ entry.podcastTitle }}</ion-note>
                 <div class="history-meta">
-                  <ion-note>{{ formatTime(entry.position) }} / {{ formatTime(entry.duration) }}</ion-note>
+                  <ion-note class="history-time">{{ formatRelativeTime(entry.lastPlayedAt) }}</ion-note>
                   @if (entry.completed) {
-                    <ion-note color="success">Completed</ion-note>
+                    <ion-note color="success">· Completed</ion-note>
+                  } @else if (entry.duration > 0) {
+                    <ion-note>· {{ formatTime(entry.duration - entry.position) }} left</ion-note>
                   }
                 </div>
                 <ion-progress-bar [value]="progressValue(entry)"></ion-progress-bar>
@@ -99,22 +107,33 @@
                 slot="end"
                 fill="clear"
                 size="small"
-                [color]="entry.completed ? 'medium' : 'success'"
+                class="mark-played-btn"
                 [attr.aria-label]="entry.completed ? 'Mark as unplayed' : 'Mark as played'"
-                (click)="entry.completed ? markUnplayed(entry.episodeId) : markPlayed(entry.episodeId)">
-                {{ entry.completed ? 'Mark as unplayed' : 'Mark as played' }}
+                (click)="entry.completed ? markUnplayed(entry.episodeId) : markPlayed(entry.episodeId)"
+              >
+                <ion-icon slot="icon-only" [name]="entry.completed ? 'radio-button-off-outline' : 'checkmark-circle-outline'"></ion-icon>
               </ion-button>
             </ion-item>
             <ion-item-options side="end">
               @if (entry.completed) {
-                <ion-item-option color="medium" (click)="markUnplayed(entry.episodeId); historyItem.close()">Mark as unplayed</ion-item-option>
+                <ion-item-option color="medium" (click)="markUnplayed(entry.episodeId); historyItem.close()">Mark unplayed</ion-item-option>
               } @else {
-                <ion-item-option color="success" (click)="markPlayed(entry.episodeId); historyItem.close()">Mark as played</ion-item-option>
+                <ion-item-option color="success" (click)="markPlayed(entry.episodeId); historyItem.close()">Mark played</ion-item-option>
               }
             </ion-item-options>
           </ion-item-sliding>
         }
       </ion-list>
+
+      @if (hiddenCount() > 0) {
+        <button type="button" class="show-all-btn" (click)="toggleShowAll()">
+          Show {{ hiddenCount() }} more episodes
+        </button>
+      } @else if (showAllHistory()) {
+        <button type="button" class="show-all-btn" (click)="toggleShowAll()">
+          Show less
+        </button>
+      }
     }
   </section>
 
