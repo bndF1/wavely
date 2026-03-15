@@ -107,7 +107,7 @@ describe('PublisherPage', () => {
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/podcast', 'pod-42']);
   });
 
-  it('navigates to publisher page on navigateToPublisher', () => {
+  it('calls retry() which re-fetches podcasts with country for the current artist', () => {
     const mockArtistId = '999';
     (component as any).artistId.set(mockArtistId);
     (component as any).retry();

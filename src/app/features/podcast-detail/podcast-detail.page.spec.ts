@@ -118,7 +118,7 @@ describe('PodcastDetailPage', () => {
     await createComponent();
 
     expect(mockApi.getEpisodesFromRss).toHaveBeenCalled();
-    expect(mockApi.getPodcastEpisodes).toHaveBeenCalledWith('pod-1', 200);
+    expect(mockApi.getPodcastEpisodes).toHaveBeenCalledWith('pod-1', 200, 'us');
     expect(component['episodes']).toHaveLength(2);
   });
 

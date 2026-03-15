@@ -122,7 +122,7 @@ export class EpisodeDetailPage {
           const podcastId = navState?.podcast?.id;
           if (podcastId) {
             return forkJoin({
-              episodes: this.api.getPodcastEpisodes(podcastId, 50).pipe(
+              episodes: this.api.getPodcastEpisodes(podcastId, 50, this.countryService.country()).pipe(
                 catchError(() => of([] as Episode[])),
               ),
               podcast: this.api.lookupPodcast(podcastId, this.countryService.country()).pipe(

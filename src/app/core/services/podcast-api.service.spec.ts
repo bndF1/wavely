@@ -236,6 +236,14 @@ describe('PodcastApiService', () => {
 
       expect(episodes[0].duration).toBe(90);
     });
+
+    it('forwards country param to the iTunes /lookup request', () => {
+      service.getPodcastEpisodes('999', 50, 'gb').subscribe();
+
+      const req = httpMock.expectOne((r) => r.url === `${ITUNES_BASE}/lookup`);
+      expect(req.request.params.get('country')).toBe('gb');
+      req.flush({ results: [] });
+    });
   });
 
   describe('getTrendingPodcasts()', () => {
