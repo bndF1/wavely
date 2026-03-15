@@ -75,7 +75,7 @@ export class PodcastApiService {
    */
   getTrendingPodcasts(limit = 25, genreId?: number, country?: string): Observable<Podcast[]> {
     const countryCode = country ?? this.detectCountry();
-    const genrePath = genreId ? `/genre/${genreId}` : '';
+    const genrePath = genreId ? `/genre=${genreId}` : '';
     const url = `${this.itunesBase}/${countryCode}/rss/toppodcasts/limit=${limit}${genrePath}/json`;
     return this.http
       .get<ItunesRssFeed>(url)
