@@ -122,7 +122,9 @@ export class PodcastApiService {
       .set('id', itunesId)
       .set('entity', 'podcastEpisode')
       .set('limit', String(limit));
-    if (country) params = params.set('country', country);
+    if (country) {
+      params = params.set('country', country);
+    }
     return this.http
       .get<{ results: ItunesEpisodeRaw[] }>(`${this.itunesBase}/lookup`, { params })
       .pipe(
