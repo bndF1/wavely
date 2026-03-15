@@ -6,7 +6,6 @@ import {
   IonTabButton,
   IonIcon,
   IonLabel,
-  IonFooter,
   ModalController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -35,7 +34,6 @@ import { OfflineBannerComponent } from '../../shared/components/offline-banner/o
     IonTabButton,
     IonIcon,
     IonLabel,
-    IonFooter,
     MiniPlayerComponent,
     OfflineBannerComponent,
   ],
