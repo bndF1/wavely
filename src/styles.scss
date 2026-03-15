@@ -107,6 +107,16 @@
   box-sizing: border-box;
 }
 
+// Prevent the browser from adding its own scrollbar — Ionic handles scrolling
+// inside ion-content. Without this, desktop browsers show a native scrollbar
+// alongside Ionic's internal scroll, creating an ugly double-scrollbar effect.
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--wavely-background);
+}
+
 ion-content {
   --background: var(--wavely-background);
 }
@@ -121,15 +131,6 @@ ion-toolbar {
 }
 
 /* ─── Desktop / wide-screen responsive ─── */
-
-// Constrain app frame on very large monitors (≥1440px)
-@media (min-width: 1440px) {
-  ion-app {
-    max-width: 1440px;
-    margin: 0 auto;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.08);
-  }
-}
 
 // Tablet and desktop: responsive podcast grids + generous padding
 @media (min-width: 768px) {

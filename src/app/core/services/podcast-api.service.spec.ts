@@ -215,7 +215,7 @@ describe('PodcastApiService', () => {
       service.getTrendingPodcasts(5, 1310, 'us').subscribe();
 
       const req = httpMock.expectOne(
-        `${ITUNES_BASE}/us/rss/toppodcasts/limit=5/genre/1310/json`
+        `${ITUNES_BASE}/us/rss/toppodcasts/limit=5/genre=1310/json`
       );
       req.flush({ feed: { entry: [] } });
     });
