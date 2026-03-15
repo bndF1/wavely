@@ -327,7 +327,7 @@ describe('PodcastApiService', () => {
   });
 
   describe('getPublisherPodcasts()', () => {
-    it('calls iTunes lookup with correct params and maps only collection results', () => {
+    it('calls iTunes lookup with correct params and maps only podcast results', () => {
       const artistId = '131600381';
       let result: unknown[] = [];
 
@@ -344,9 +344,10 @@ describe('PodcastApiService', () => {
         results: [
           // Artist record — should be filtered out
           { wrapperType: 'artist', artistId: 131600381, artistName: 'Cadena SER' },
-          // Podcast collection record — should be mapped
+          // Podcast record — should be mapped (iTunes returns wrapperType 'track' with kind 'podcast')
           {
-            wrapperType: 'collection',
+            wrapperType: 'track',
+            kind: 'podcast',
             collectionId: 100001,
             collectionName: 'Hoy por Hoy',
             artistName: 'Cadena SER',

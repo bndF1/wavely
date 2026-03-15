@@ -107,7 +107,7 @@ export class PodcastApiService {
       .pipe(
         map((res) =>
           res.results
-            .filter((r): r is ItunesPodcast => r.wrapperType === 'collection')
+            .filter((r): r is ItunesPodcast => 'kind' in r && r.kind === 'podcast')
             .map(this.mapItunesPodcast)
         )
       );
@@ -271,7 +271,8 @@ export class PodcastApiService {
 }
 
 interface ItunesPodcast {
-  wrapperType: 'collection';
+  wrapperType: 'collection' | 'track';
+  kind?: 'podcast';
   collectionId: number;
   collectionName: string;
   collectionCensoredName?: string;
