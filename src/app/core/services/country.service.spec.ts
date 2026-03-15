@@ -1,4 +1,4 @@
-import { PLATFORM_ID, signal } from '@angular/core';
+import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { PodcastApiService } from './podcast-api.service';
@@ -12,7 +12,7 @@ describe('CountryService', () => {
     getItemSpy = jest
       .spyOn(Storage.prototype, 'getItem')
       .mockImplementation((key) => (key === 'wavely:country' ? savedCountry : null));
-    setItemSpy = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {});
+    setItemSpy = jest.spyOn(Storage.prototype, 'setItem');
 
     TestBed.configureTestingModule({
       providers: [
