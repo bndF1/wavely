@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
+import { HistoryStore } from '../../store/history/history.store';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -19,12 +20,10 @@ import {
   IonSkeletonText,
   IonItem,
   IonLabel,
-  IonNote,
   IonThumbnail,
   IonList,
   RefresherCustomEvent,
 } from '@ionic/angular/standalone';
-import { DatePipe } from '@angular/common';
 import { addIcons } from 'ionicons';
 import {
   alertCircleOutline,
@@ -32,7 +31,6 @@ import {
   searchOutline,
   sparklesOutline,
   chevronDownOutline,
-  playCircleOutline,
 } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
@@ -41,6 +39,7 @@ import { PlayerStore } from '../../store/player/player.store';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { Episode, Podcast } from '../../core/models/podcast.model';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { EpisodeItemComponent } from '../../shared/components/episode-item/episode-item.component';
 
 const SKELETON_COUNT = 6;
 const FEED_LIMIT_PER_PODCAST = 10;
@@ -51,7 +50,6 @@ const FEED_PAGE_SIZE = 30;
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   imports: [
-    DatePipe,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -66,11 +64,11 @@ const FEED_PAGE_SIZE = 30;
     IonSkeletonText,
     IonItem,
     IonLabel,
-    IonNote,
     IonThumbnail,
     IonList,
     PodcastCardComponent,
     EmptyStateComponent,
+    EpisodeItemComponent,
   ],
 })
 export class HomePage implements OnInit {
@@ -80,6 +78,7 @@ export class HomePage implements OnInit {
   private readonly countryService = inject(CountryService);
   private readonly playerStore = inject(PlayerStore);
   private readonly prefs = inject(UserPreferencesService);
+  private readonly historyStore = inject(HistoryStore);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
   protected readonly feedSkeletons = Array.from({ length: 5 });
@@ -98,12 +97,18 @@ export class HomePage implements OnInit {
   private readonly allFeedEpisodes = signal<Episode[]>([]);
   protected readonly isFeedLoading = signal(false);
   protected readonly feedError = signal<string | null>(null);
-  private readonly feedLoaded = signal(false);
+  /** Comma-separated sorted IDs of subscriptions used for the last feed load */
+  private readonly lastLoadedSubIds = signal('');
   private readonly displayCount = signal(FEED_PAGE_SIZE);
 
-  protected readonly feedEpisodes = computed(() =>
-    this.allFeedEpisodes().slice(0, this.displayCount())
-  );
+  protected readonly feedEpisodes = computed(() => {
+    const completedIds = new Set(
+      this.historyStore.entries().filter((e) => e.completed).map((e) => e.episodeId)
+    );
+    return this.allFeedEpisodes()
+      .filter((ep) => !completedIds.has(ep.id))
+      .slice(0, this.displayCount());
+  });
   protected readonly hasMoreFeed = computed(
     () => this.displayCount() < this.allFeedEpisodes().length
   );
@@ -118,14 +123,15 @@ export class HomePage implements OnInit {
       alertCircleOutline,
       sparklesOutline,
       chevronDownOutline,
-      playCircleOutline,
     });
 
-    // Reactively load feed when subscriptions become available (handles async Firestore sync)
+    // Reload feed whenever the set of subscriptions changes (handles new subscriptions added later)
     effect(() => {
       const subs = this.store.subscriptions();
-      if (subs.length > 0 && !this.feedLoaded()) {
-        void this.loadFeed();
+      const subIds = subs.map((s) => s.id).sort().join(',');
+      if (subs.length > 0 && subIds !== this.lastLoadedSubIds()) {
+        void this.loadFeed(true);
+        this.lastLoadedSubIds.set(subIds);
       }
     });
   }
@@ -178,8 +184,8 @@ export class HomePage implements OnInit {
     this.router.navigate(['/episode', episode.id], { state: { episode, podcast } });
   }
 
-  protected onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = '/default-artwork.svg';
+  protected queueEpisode(episode: Episode): void {
+    this.playerStore.addToQueue(episode);
   }
 
   private loadTrending(): Promise<void> {
@@ -202,7 +208,7 @@ export class HomePage implements OnInit {
   private loadFeed(force = false): Promise<void> {
     const subs = this.store.subscriptions();
     if (subs.length === 0) return Promise.resolve();
-    if (this.feedLoaded() && !force) return Promise.resolve();
+    if (this.isFeedLoading() && !force) return Promise.resolve();
 
     this.isFeedLoading.set(true);
     this.feedError.set(null);
@@ -229,7 +235,6 @@ export class HomePage implements OnInit {
             this.feedError.set('Could not load episodes. Pull down to retry.');
           } else {
             this.allFeedEpisodes.set(episodes);
-            this.feedLoaded.set(true);
           }
           this.isFeedLoading.set(false);
           resolve();

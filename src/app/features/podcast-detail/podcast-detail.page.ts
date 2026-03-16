@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
 import {
   IonHeader,
   IonToolbar,
@@ -13,7 +12,6 @@ import {
   IonList,
   IonItem,
   IonLabel,
-  IonNote,
   IonSkeletonText,
   IonText,
   IonInfiniteScroll,
@@ -21,7 +19,7 @@ import {
   InfiniteScrollCustomEvent,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkCircle, addCircleOutline, playCircleOutline, refreshOutline } from 'ionicons/icons';
+import { checkmarkCircle, addCircleOutline, refreshOutline } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { CountryService } from '../../core/services/country.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
@@ -31,6 +29,7 @@ import { SubscriptionSyncService } from '../../core/services/subscription-sync.s
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { Podcast, Episode } from '../../core/models/podcast.model';
 import { Observable, catchError, of, retry } from 'rxjs';
+import { EpisodeItemComponent } from '../../shared/components/episode-item/episode-item.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs/operators';
 
@@ -40,7 +39,6 @@ import { map, switchMap } from 'rxjs/operators';
   styleUrls: ['./podcast-detail.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -52,12 +50,12 @@ import { map, switchMap } from 'rxjs/operators';
     IonList,
     IonItem,
     IonLabel,
-    IonNote,
     IonSkeletonText,
     IonText,
     IonInfiniteScroll,
     IonInfiniteScrollContent,
-],
+    EpisodeItemComponent,
+  ],
 })
 export class PodcastDetailPage {
   private readonly route = inject(ActivatedRoute);
@@ -85,7 +83,7 @@ export class PodcastDetailPage {
   protected hasMoreEpisodes = false;
 
   constructor() {
-    addIcons({ checkmarkCircle, addCircleOutline, playCircleOutline, refreshOutline });
+    addIcons({ checkmarkCircle, addCircleOutline, refreshOutline });
 
     // Stream driven from route params — survives reuse; auto-unsubscribes on destroy
     this.route.paramMap
@@ -212,14 +210,9 @@ export class PodcastDetailPage {
     });
   }
 
-  protected formatDuration(seconds: number): string {
-    if (!seconds) return '';
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m ${s > 0 ? s + 's' : ''}`.trim();
-    return `${s}s`;
+  protected queueEpisode(episode: Episode): void {
+    if (!this.podcast) return;
+    this.playerStore.addToQueue({ ...episode, podcastTitle: this.podcast.title });
   }
 
   protected onImageError(event: Event): void {
