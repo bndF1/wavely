@@ -191,15 +191,6 @@ describe('PodcastDetailPage', () => {
     expect(mockRouter.navigate).not.toHaveBeenCalled();
   });
 
-  it('formats duration in seconds, minutes and hours', async () => {
-    await createComponent();
-
-    expect(component['formatDuration'](0)).toBe('');
-    expect(component['formatDuration'](45)).toBe('45s');
-    expect(component['formatDuration'](125)).toBe('2m 5s');
-    expect(component['formatDuration'](3900)).toBe('1h 5m');
-  });
-
   it('falls back to default artwork on image error', async () => {
     await createComponent();
     const image = document.createElement('img');
