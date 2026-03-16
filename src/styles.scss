@@ -47,7 +47,7 @@
 
 /* ─── Dark mode ─── */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.force-light-theme) {
     --wavely-background:      #121212;
     --wavely-surface:         #1E1E1E;
     --wavely-surface-variant: #2A2A2A;

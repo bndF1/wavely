@@ -22,7 +22,7 @@ function setupMatchMedia(prefersDark = false): void {
 describe('ThemeService', () => {
   beforeEach(() => {
     localStorage.clear();
-    document.documentElement.classList.remove('ion-palette-dark');
+    document.documentElement.classList.remove('ion-palette-dark', 'force-light-theme');
     setupMatchMedia(false);
   });
 
@@ -52,14 +52,25 @@ describe('ThemeService', () => {
       service.setMode('dark');
       TestBed.flushEffects();
       expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(true);
+      expect(document.documentElement.classList.contains('force-light-theme')).toBe(false);
     });
 
-    it('"light" removes ion-palette-dark class from <html>', () => {
+    it('"light" removes ion-palette-dark and adds force-light-theme to <html>', () => {
       document.documentElement.classList.add('ion-palette-dark');
       const service = createService();
       service.setMode('light');
       TestBed.flushEffects();
       expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(false);
+      expect(document.documentElement.classList.contains('force-light-theme')).toBe(true);
+    });
+
+    it('"system" removes force-light-theme when switching back from light', () => {
+      const service = createService();
+      service.setMode('light');
+      TestBed.flushEffects();
+      service.setMode('system');
+      TestBed.flushEffects();
+      expect(document.documentElement.classList.contains('force-light-theme')).toBe(false);
     });
 
     it('"system" adds class when prefers-color-scheme is dark', () => {
