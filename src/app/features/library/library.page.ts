@@ -187,7 +187,7 @@ export class LibraryPage {
   }
 
   protected navigateToBrowse(): void {
-    this.router.navigate(['/tabs/browse']);
+    this.router.navigate(['/tabs/discover']);
   }
 
   protected unsubscribe(podcast: Podcast, slidingItem: IonItemSliding): void {
