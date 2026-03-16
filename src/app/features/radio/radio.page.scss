@@ -35,6 +35,15 @@ ion-chip {
   }
 }
 
+.section-title {
+  margin: 14px 16px 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wavely-on-surface-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .radio-list {
   --background: transparent;
   padding: 4px 16px 12px;
@@ -80,5 +89,10 @@ ion-chip {
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.05em;
+  }
+
+  &__favorite-btn {
+    --padding-start: 0;
+    --padding-end: 0;
   }
 }
