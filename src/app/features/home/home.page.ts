@@ -184,23 +184,6 @@ export class HomePage implements OnInit {
     (event.target as HTMLImageElement).src = '/default-artwork.svg';
   }
 
-  protected playEpisode(episode: Episode): void {
-    this.playerStore.clearQueue();
-    if (this.prefs.autoQueueEnabled()) {
-      const idx = this.allFeedEpisodes().findIndex((e) => e.id === episode.id);
-      this.allFeedEpisodes()
-        .slice(idx + 1)
-        .forEach((e) => this.playerStore.addToQueue(e));
-    }
-    this.playerStore.play(episode);
-    const podcast = this.store.subscriptions().find((p) => p.id === episode.podcastId);
-    this.router.navigate(['/episode', episode.id], { state: { episode, podcast } });
-  }
-
-  protected onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = '/default-artwork.svg';
-  }
-
   private loadTrending(): Promise<void> {
     this.store.setLoading(true);
     return new Promise((resolve) => {
