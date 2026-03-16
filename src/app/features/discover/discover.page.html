@@ -90,6 +90,52 @@
       </section>
     }
 
+    <section class="discover-section">
+      <h2 class="section-title">Trending Now</h2>
+
+      @if (isBrowseLoading()) {
+        <div class="podcast-grid" aria-label="Loading trending podcasts">
+          @for (s of skeletons; track s) {
+            <ion-card class="skeleton-card" aria-hidden="true">
+              <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
+              <ion-card-content>
+                <ion-skeleton-text [animated]="true" style="width: 85%; height: 16px"></ion-skeleton-text>
+                <ion-skeleton-text [animated]="true" style="width: 60%; height: 14px"></ion-skeleton-text>
+              </ion-card-content>
+            </ion-card>
+          }
+        </div>
+      }
+
+      @if (!isBrowseLoading() && !browseError() && topPodcasts().length > 0) {
+        <div class="podcast-grid">
+          @for (podcast of topPodcasts(); track podcast.id) {
+            <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
+          }
+        </div>
+      }
+
+      @if (browseError() && !isBrowseLoading()) {
+        <wavely-empty-state
+          icon="alert-circle-outline"
+          title="Could not load discover"
+          [subtitle]="browseError()!"
+          actionLabel="Retry"
+          (action)="retryBrowse()">
+        </wavely-empty-state>
+      }
+
+      @if (!isBrowseLoading() && !browseError() && topPodcasts().length === 0) {
+        <wavely-empty-state
+          icon="search-outline"
+          title="No podcasts available"
+          subtitle="Try refreshing or check back later."
+          actionLabel="Refresh"
+          (action)="retryBrowse()">
+        </wavely-empty-state>
+      }
+    </section>
+
     <div class="category-scroll">
       <div class="category-row">
         @if (isBrowseLoading()) {
@@ -165,52 +211,6 @@
         </div>
       } @else {
         <ion-text color="medium" class="section-empty">No new and noteworthy podcasts yet.</ion-text>
-      }
-    </section>
-
-    <section class="discover-section">
-      <h2 class="section-title">Top Podcasts</h2>
-
-      @if (isBrowseLoading()) {
-        <div class="podcast-grid" aria-label="Loading top podcasts">
-          @for (s of skeletons; track s) {
-            <ion-card class="skeleton-card" aria-hidden="true">
-              <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
-              <ion-card-content>
-                <ion-skeleton-text [animated]="true" style="width: 85%; height: 16px"></ion-skeleton-text>
-                <ion-skeleton-text [animated]="true" style="width: 60%; height: 14px"></ion-skeleton-text>
-              </ion-card-content>
-            </ion-card>
-          }
-        </div>
-      }
-
-      @if (!isBrowseLoading() && !browseError() && topPodcasts().length > 0) {
-        <div class="podcast-grid">
-          @for (podcast of topPodcasts(); track podcast.id) {
-            <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
-          }
-        </div>
-      }
-
-      @if (browseError() && !isBrowseLoading()) {
-        <wavely-empty-state
-          icon="alert-circle-outline"
-          title="Could not load discover"
-          [subtitle]="browseError()!"
-          actionLabel="Retry"
-          (action)="retryBrowse()">
-        </wavely-empty-state>
-      }
-
-      @if (!isBrowseLoading() && !browseError() && topPodcasts().length === 0) {
-        <wavely-empty-state
-          icon="search-outline"
-          title="No podcasts available"
-          subtitle="Try refreshing or check back later."
-          actionLabel="Refresh"
-          (action)="retryBrowse()">
-        </wavely-empty-state>
       }
     </section>
   }

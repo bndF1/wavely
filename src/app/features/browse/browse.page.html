@@ -17,7 +17,7 @@
     <h2 class="section-title">Trending Now</h2>
 
     @if (isLoading()) {
-      <div class="podcast-grid" aria-label="Loading category podcasts">
+      <div class="podcast-grid" aria-label="Loading trending podcasts">
         @for (s of skeletons; track s) {
           <ion-card class="skeleton-card" aria-hidden="true">
             <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
