@@ -99,8 +99,8 @@ export class RadioPage implements OnDestroy {
 
     const needle = selected.toLowerCase();
     return this.stations().filter((station) =>
-      station.tags
-        ?.toLowerCase()
+      (station.tags ?? '')
+        .toLowerCase()
         .split(',')
         .map((tag) => tag.trim())
         .includes(needle)
