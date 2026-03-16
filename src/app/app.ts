@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, PLATFORM_ID, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { collection, Firestore, getDocs } from '@angular/fire/firestore';
@@ -22,10 +23,12 @@ export class App {
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 
+  private readonly platformId = inject(PLATFORM_ID);
+
   constructor() {
     this.authStore.init();
 
-    if (environment.useEmulators) {
+    if (environment.useEmulators && isPlatformBrowser(this.platformId)) {
       const authService = inject(AuthService);
       const firestore = inject(Firestore);
 
