@@ -58,6 +58,11 @@ export const appRoutes: Route[] = [
         pathMatch: 'full',
       },
       {
+        path: 'search',
+        redirectTo: 'discover',
+        pathMatch: 'full',
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full',
@@ -91,5 +96,11 @@ export const appRoutes: Route[] = [
       import('./features/publisher/publisher.page').then(
         (m) => m.PublisherPage
       ),
+  },
+  {
+    path: 'settings',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/settings/settings.page').then((m) => m.SettingsPage),
   },
 ];

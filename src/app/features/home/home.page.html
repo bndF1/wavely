@@ -66,27 +66,12 @@
       @if (!isFeedLoading() && !feedError() && feedEpisodes().length > 0) {
         <ion-list lines="none" class="feed-list">
           @for (episode of feedEpisodes(); track episode.id) {
-            <ion-item button class="feed-item" (click)="playEpisode(episode)">
-              <ion-thumbnail slot="start" class="feed-thumbnail">
-                <img
-                  [src]="episode.imageUrl || '/default-artwork.svg'"
-                  [alt]="episode.title"
-                  (error)="onImageError($event)" />
-              </ion-thumbnail>
-              <ion-label>
-                <h3 class="feed-episode-title">{{ episode.title }}</h3>
-                <ion-note>{{ episode.podcastTitle }}</ion-note>
-                <ion-note class="feed-date">{{ episode.releaseDate | date:'MMM d' }}</ion-note>
-              </ion-label>
-              <ion-button
-                slot="end"
-                fill="clear"
-                size="small"
-                aria-label="Play episode"
-                (click)="$event.stopPropagation(); playEpisode(episode)">
-                <ion-icon slot="icon-only" name="play-circle-outline"></ion-icon>
-              </ion-button>
-            </ion-item>
+            <wavely-episode-item
+              [episode]="episode"
+              [podcastTitle]="episode.podcastTitle"
+              (episodePlay)="playEpisode($event)"
+              (addToQueue)="queueEpisode($event)">
+            </wavely-episode-item>
           }
         </ion-list>
 
@@ -100,9 +85,7 @@
   }
 
   <section class="home-section">
-    <h2 class="section-title">
-      {{ store.subscriptions().length === 0 ? 'Popular right now' : 'Trending' }}
-    </h2>
+    <h2 class="section-title">Trending</h2>
     @if (store.subscriptions().length === 0) {
       <p class="section-subtitle">Discover what's popular and subscribe to personalise your feed.</p>
     }

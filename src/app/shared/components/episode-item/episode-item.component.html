@@ -1,0 +1,49 @@
+<ion-item button class="episode-item" (click)="emitPlay()">
+  <ion-thumbnail slot="start" class="episode-item__thumbnail">
+    <img
+      [src]="episode().imageUrl || '/default-artwork.svg'"
+      [alt]="episode().title"
+      loading="lazy"
+      (error)="onImageError($event)" />
+  </ion-thumbnail>
+
+  <ion-label>
+    <h3 class="episode-item__title">{{ episode().title }}</h3>
+
+    @if (showPodcastTitle() && displayPodcastTitle()) {
+      <ion-note>{{ displayPodcastTitle() }}</ion-note>
+    }
+
+    @if (showReleaseDate() || (showDuration() && episode().duration)) {
+      <ion-note class="episode-item__meta">
+        @if (showReleaseDate() && episode().releaseDate) {
+          {{ episode().releaseDate | date:'mediumDate' }}
+        }
+        @if (showDuration() && episode().duration) {
+          @if (showReleaseDate() && episode().releaseDate) {
+            <span> · </span>
+          }
+          <span>{{ formatDuration(episode().duration) }}</span>
+        }
+      </ion-note>
+    }
+  </ion-label>
+
+  <ion-button
+    slot="end"
+    fill="clear"
+    size="small"
+    [attr.aria-label]="'Queue ' + episode().title"
+    (click)="emitQueue($event)">
+    <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+  </ion-button>
+
+  <ion-button
+    slot="end"
+    fill="clear"
+    size="small"
+    [attr.aria-label]="'Play ' + episode().title"
+    (click)="emitPlay(); $event.stopPropagation()">
+    <ion-icon slot="icon-only" name="play-circle-outline"></ion-icon>
+  </ion-button>
+</ion-item>

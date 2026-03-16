@@ -1,0 +1,65 @@
+:host {
+  display: block;
+}
+
+.episode-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+
+  &__thumb {
+    --border-radius: 8px;
+    width: 56px;
+    height: 56px;
+    margin-inline-end: 12px;
+    flex-shrink: 0;
+
+    img {
+      border-radius: 8px;
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &__label {
+    white-space: normal !important;
+  }
+
+  &__title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ion-text-color);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 2px;
+  }
+
+  &__podcast {
+    display: block;
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+  }
+
+  &__meta {
+    display: block;
+    font-size: 0.75rem;
+  }
+
+  &__queue-btn,
+  &__play-btn {
+    --padding-start: 4px;
+    --padding-end: 4px;
+    color: var(--ion-color-medium);
+  }
+
+  &__play-btn {
+    color: var(--ion-color-primary);
+    font-size: 1.5rem;
+
+    ion-icon {
+      font-size: 1.75rem;
+    }
+  }
+}
