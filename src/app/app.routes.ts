@@ -97,4 +97,10 @@ export const appRoutes: Route[] = [
         (m) => m.PublisherPage
       ),
   },
+  {
+    path: 'settings',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/settings/settings.page').then((m) => m.SettingsPage),
+  },
 ];
