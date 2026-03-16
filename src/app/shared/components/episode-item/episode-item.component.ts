@@ -21,7 +21,6 @@ export class EpisodeItemComponent {
 
   readonly episodePlay = output<Episode>();
   readonly addToQueue = output<Episode>();
-  readonly queue = output<Episode>();
 
   constructor() {
     addIcons({ playCircleOutline, addOutline });
@@ -33,9 +32,7 @@ export class EpisodeItemComponent {
 
   protected emitQueue(event: Event): void {
     event.stopPropagation();
-    const episode = this.episode();
-    this.addToQueue.emit(episode);
-    this.queue.emit(episode);
+    this.addToQueue.emit(this.episode());
   }
 
   protected formatDuration(seconds: number): string {
