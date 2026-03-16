@@ -91,7 +91,7 @@ These expire after 7 days (configured in `firebase.json`).
 
 ## README & Landing Page Updates (MANDATORY)
 
-Whenever promoting to **dev or staging**, the README and landing page **must** be updated to reflect what's been built. This is non-negotiable — do it as part of the promotion PR, not as a follow-up.
+For **every promotion PR** (`feature/*` → `dev`, `dev` → `staging`, `staging` → `main`), the README and landing page **must** be updated to reflect what's been built. This is non-negotiable — do it as part of the promotion PR, not as a follow-up.
 
 | Promotion | What to update |
 |-----------|----------------|

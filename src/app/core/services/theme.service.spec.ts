@@ -1,3 +1,4 @@
+import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ThemeService } from './theme.service';
 
@@ -29,7 +30,9 @@ describe('ThemeService', () => {
   afterEach(() => TestBed.resetTestingModule());
 
   function createService(): ThemeService {
-    TestBed.configureTestingModule({ providers: [ThemeService] });
+    TestBed.configureTestingModule({
+      providers: [ThemeService, { provide: PLATFORM_ID, useValue: 'browser' }],
+    });
     return TestBed.inject(ThemeService);
   }
 

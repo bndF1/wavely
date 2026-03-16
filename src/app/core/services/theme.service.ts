@@ -1,4 +1,5 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID, signal, effect } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -10,12 +11,16 @@ export type ThemeMode = 'system' | 'light' | 'dark';
 export class ThemeService {
   private static readonly STORAGE_KEY = 'wavely:theme';
 
+  private readonly platformId = inject(PLATFORM_ID);
+
   readonly mode = signal<ThemeMode>(this.loadSavedMode());
 
   constructor() {
     effect(() => {
       this.applyTheme(this.mode());
-      localStorage.setItem(ThemeService.STORAGE_KEY, this.mode());
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem(ThemeService.STORAGE_KEY, this.mode());
+      }
     });
   }
 
@@ -24,11 +29,13 @@ export class ThemeService {
   }
 
   private loadSavedMode(): ThemeMode {
+    if (!isPlatformBrowser(this.platformId)) return 'system';
     const saved = localStorage.getItem(ThemeService.STORAGE_KEY);
     return (saved as ThemeMode) ?? 'system';
   }
 
   private applyTheme(mode: ThemeMode): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     const html = document.documentElement;
     if (mode === 'dark') {
       html.classList.add('ion-palette-dark');
