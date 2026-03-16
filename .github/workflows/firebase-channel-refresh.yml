@@ -49,6 +49,9 @@ jobs:
           NG_APP_FIREBASE_MEASUREMENT_ID: ${{ secrets.NG_APP_FIREBASE_MEASUREMENT_ID }}
 
       - name: Build
+        run: bunx nx build --configuration=production && cp dist/wavely/browser/index.csr.html dist/wavely/browser/index.html
+
+      - name: Refresh dev channel
         id: deploy
         run: |
           OUTPUT=$(bunx firebase-tools hosting:channel:deploy dev \
