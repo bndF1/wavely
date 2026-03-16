@@ -55,7 +55,7 @@
   } @else if (error()) {
     <wavely-empty-state
       icon="alert-circle-outline"
-      title="Could not load radio"
+      [title]="isSearchMode() ? 'Search failed' : 'Could not load radio'"
       [subtitle]="error()!"
       actionLabel="Retry"
       (action)="retry()">

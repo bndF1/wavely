@@ -17,12 +17,11 @@ import {
   IonThumbnail,
   IonTitle,
   IonToolbar,
-  SearchbarInputEventDetail,
+  SearchbarCustomEvent,
 } from '@ionic/angular/standalone';
-import { IonSearchbarCustomEvent } from '@ionic/core';
 import { addIcons } from 'ionicons';
 import { alertCircleOutline, heart, heartOutline, radioOutline, refreshOutline, searchOutline } from 'ionicons/icons';
-import { Subject, catchError, debounceTime, distinctUntilChanged, of, switchMap, takeUntil, tap } from 'rxjs';
+import { Subject, catchError, debounceTime, of, switchMap, takeUntil, tap } from 'rxjs';
 
 import { RadioStation } from '../../core/models/radio-station.model';
 import { PODCAST_MARKETS, CountryService } from '../../core/services/country.service';
@@ -158,7 +157,6 @@ export class RadioPage implements OnDestroy {
     this.search$
       .pipe(
         debounceTime(350),
-        distinctUntilChanged(),
         tap((q) => {
           if (q.trim()) {
             this.isLoading.set(true);
@@ -193,7 +191,7 @@ export class RadioPage implements OnDestroy {
     this.destroy$.complete();
   }
 
-  protected onSearchInput(event: IonSearchbarCustomEvent<SearchbarInputEventDetail>): void {
+  protected onSearchInput(event: SearchbarCustomEvent): void {
     const q = (event.detail.value ?? '').trim();
     this.searchQuery.set(q);
     if (q) {
