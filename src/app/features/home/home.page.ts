@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
+import { HistoryStore } from '../../store/history/history.store';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -77,6 +78,7 @@ export class HomePage implements OnInit {
   private readonly countryService = inject(CountryService);
   private readonly playerStore = inject(PlayerStore);
   private readonly prefs = inject(UserPreferencesService);
+  private readonly historyStore = inject(HistoryStore);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
   protected readonly feedSkeletons = Array.from({ length: 5 });
@@ -95,12 +97,18 @@ export class HomePage implements OnInit {
   private readonly allFeedEpisodes = signal<Episode[]>([]);
   protected readonly isFeedLoading = signal(false);
   protected readonly feedError = signal<string | null>(null);
-  private readonly feedLoaded = signal(false);
+  /** Comma-separated sorted IDs of subscriptions used for the last feed load */
+  private readonly lastLoadedSubIds = signal('');
   private readonly displayCount = signal(FEED_PAGE_SIZE);
 
-  protected readonly feedEpisodes = computed(() =>
-    this.allFeedEpisodes().slice(0, this.displayCount())
-  );
+  protected readonly feedEpisodes = computed(() => {
+    const completedIds = new Set(
+      this.historyStore.entries().filter((e) => e.completed).map((e) => e.episodeId)
+    );
+    return this.allFeedEpisodes()
+      .filter((ep) => !completedIds.has(ep.id))
+      .slice(0, this.displayCount());
+  });
   protected readonly hasMoreFeed = computed(
     () => this.displayCount() < this.allFeedEpisodes().length
   );
@@ -117,11 +125,13 @@ export class HomePage implements OnInit {
       chevronDownOutline,
     });
 
-    // Reactively load feed when subscriptions become available (handles async Firestore sync)
+    // Reload feed whenever the set of subscriptions changes (handles new subscriptions added later)
     effect(() => {
       const subs = this.store.subscriptions();
-      if (subs.length > 0 && !this.feedLoaded()) {
-        void this.loadFeed();
+      const subIds = subs.map((s) => s.id).sort().join(',');
+      if (subs.length > 0 && subIds !== this.lastLoadedSubIds()) {
+        void this.loadFeed(true);
+        this.lastLoadedSubIds.set(subIds);
       }
     });
   }
@@ -198,7 +208,7 @@ export class HomePage implements OnInit {
   private loadFeed(force = false): Promise<void> {
     const subs = this.store.subscriptions();
     if (subs.length === 0) return Promise.resolve();
-    if (this.feedLoaded() && !force) return Promise.resolve();
+    if (this.isFeedLoading() && !force) return Promise.resolve();
 
     this.isFeedLoading.set(true);
     this.feedError.set(null);
@@ -225,7 +235,6 @@ export class HomePage implements OnInit {
             this.feedError.set('Could not load episodes. Pull down to retry.');
           } else {
             this.allFeedEpisodes.set(episodes);
-            this.feedLoaded.set(true);
           }
           this.isFeedLoading.set(false);
           resolve();
