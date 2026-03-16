@@ -45,7 +45,10 @@ import { PlayerStore } from '../../store/player/player.store';
 const FEATURED_GENRE_ID = 1489;    // News
 const NOTEWORTHY_GENRE_ID = 1318;  // Technology
 
-export { PodcastCategory, PODCAST_CATEGORIES } from './browse.constants';
+import type { PodcastCategory } from './browse.constants';
+import { PODCAST_CATEGORIES } from './browse.constants';
+export type { PodcastCategory };
+export { PODCAST_CATEGORIES };
 
 const SKELETON_COUNT = 6;
 const CHIP_SKELETON_COUNT = 6;

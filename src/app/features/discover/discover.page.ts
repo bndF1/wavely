@@ -58,7 +58,8 @@ import { Podcast } from '../../core/models/podcast.model';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { PODCAST_CATEGORIES, PodcastCategory } from '../browse/browse.constants';
+import { PODCAST_CATEGORIES } from '../browse/browse.constants';
+import type { PodcastCategory } from '../browse/browse.constants';
 
 const FEATURED_GENRE_ID = 1489;
 const NOTEWORTHY_GENRE_ID = 1318;
