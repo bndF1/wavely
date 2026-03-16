@@ -74,6 +74,57 @@ The environment files (`src/environments/environment*.ts`) are gitignored **on p
 - PRs → `staging`: unit tests + E2E (Playwright + emulators)
 - PRs → `main`: unit tests + E2E + Lighthouse CI
 
+## Bug Tracking Methodology (MANDATORY)
+
+Every bug — whether found in QA, code review, user report, or automated tests — **must have a GitHub issue filed before any fix is committed.**
+
+### Bug lifecycle
+
+1. **Discover bug** → immediately file a GitHub issue (do not fix without an issue)
+2. **File issue** with full context:
+   ```bash
+   gh issue create \
+     --repo bndF1/wavely \
+     --title "bug(scope): short description" \
+     --label "bug" \
+     --body "## Steps to Reproduce\n1. \n\n## Expected\n\n## Actual\n\n## Root Cause (if known)\n\n## Fix"
+   ```
+3. **Branch from dev**: `git checkout -b fix/{issue-number}-short-desc dev`
+4. **Fix + tests** on the branch
+5. **PR to dev** — PR description must include `Closes #<issue-number>`
+6. Issues auto-close when the PR merges
+
+### Priority labels
+
+| Label | Meaning | Response time |
+|-------|---------|--------------|
+| `priority: P0` | Production down / security breach | Fix immediately |
+| `priority: P1` | Core feature broken for all users | Fix in current cycle |
+| `priority: P2` | Feature degraded or workaround exists | Fix in next cycle |
+| `priority: P3` | Minor / cosmetic | Backlog |
+
+### Security bugs
+
+Security issues follow the same flow **plus** the [security rules](#-security--absolute-rules-never-break-no-exceptions) above. Invoke the `wavely-security` skill for triage.
+
+---
+
+## Agent Ecosystem
+
+Wavely has specialized sub-agents. Always delegate instead of doing work directly.
+
+| Skill | When to invoke |
+|-------|---------------|
+| `wavely-orchestrator` | Start here for any task — decomposes and delegates |
+| `wavely-qa` | Testing, regression, pre-release sweeps, accessibility |
+| `wavely-design` | UI/UX reviews, design system, landing page |
+| `wavely-security` | Firebase key rotation, Firestore rules, security alerts |
+| `wavely-git-flow` | Branch strategy, PR creation, conflict resolution |
+
+Agents can and should run **in parallel** when their tasks are independent.
+
+---
+
 ## Implementation Roadmap (Milestones)
 
 | Milestone | GitHub | Focus |
