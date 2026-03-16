@@ -100,6 +100,16 @@
           fill="clear"
           size="small"
           [disabled]="isInQueue"
+          (click)="playAsNext()"
+          aria-label="Play this episode next"
+          class="add-to-queue-btn play-next-btn">
+          <ion-icon slot="start" name="play-skip-forward-outline"></ion-icon>
+          Play Next
+        </ion-button>
+        <ion-button
+          fill="clear"
+          size="small"
+          [disabled]="isInQueue"
           (click)="addToQueue()"
           [attr.aria-label]="isInQueue ? 'Already in queue' : 'Add to Up Next queue'"
           class="add-to-queue-btn">

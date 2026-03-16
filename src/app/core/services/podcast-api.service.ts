@@ -264,6 +264,7 @@ export class PodcastApiService {
       description: raw.description ?? '',
       audioUrl: raw.previewUrl ?? '',
       imageUrl: raw.artworkUrl600 ?? raw.artworkUrl160,
+      podcastTitle: raw.collectionName,
       duration: Math.round((raw.trackTimeMillis ?? 0) / 1000),
       releaseDate: raw.releaseDate,
     };
@@ -303,6 +304,7 @@ interface ItunesEpisodeRaw {
   kind: string;
   trackId: number;
   collectionId: number;
+  collectionName?: string;
   trackName: string;
   description?: string;
   previewUrl?: string;
