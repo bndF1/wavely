@@ -7,10 +7,10 @@
 [![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)](https://angular.io)
 [![Ionic](https://img.shields.io/badge/Ionic-8-blue?logo=ionic)](https://ionicframework.com)
 [![Capacitor](https://img.shields.io/badge/Capacitor-8-green?logo=capacitor)](https://capacitorjs.com)
-[![Status](https://img.shields.io/badge/status-alpha-orange)](https://wavely-f659c.web.app)
+[![Status](https://img.shields.io/badge/status-beta-blue)](https://wavely-f659c.web.app)
 [![Release](https://img.shields.io/github/v/release/bndF1/wavely)](https://github.com/bndF1/wavely/releases)
 
-> ⚠️ **Early Alpha** — The app is live but pre-MVP. Expect rough edges and frequent changes.
+> 🚀 **Public Beta** — Core features are stable. Active development continues — see [milestones](https://github.com/bndF1/wavely/milestones) for what's coming.
 
 ## 🌐 Live Environments
 
@@ -36,9 +36,15 @@ Every PR also gets an ephemeral preview channel: `https://wavely-f659c--pr-<numb
 | 📱 **Cross-Platform** | ✅ | iOS + Android (Capacitor) + Web (PWA) from a single codebase |
 | 🌙 **Dark Mode** | ✅ | System-aware with manual override, persisted to localStorage |
 | 📡 **PWA / Offline** | ✅ | Angular service worker — app shell, artwork cached 7 days |
-| 🔍 **Search & Browse** | ✅ | Real-time debounced search, browse by category, trending podcasts |
+| 🔍 **Search & Browse** | ✅ | Real-time debounced search, browse by category, country-aware trending |
 | 📚 **Library** | ✅ | Subscribe/unsubscribe with Firestore sync |
-| 🗃 **State Management** | ✅ | NgRx SignalStore for player, podcasts, and auth |
+| 🗃 **State Management** | ✅ | NgRx SignalStore for player, podcasts, auth, and history |
+| 📻 **Internet Radio** | ✅ | Browse and play radio stations by category and country (Radio Browser API) |
+| 🕓 **Listening History** | ✅ | Episode history with progress tracking, synced to Firestore, filterable |
+| 📋 **Queue / Up Next** | ✅ | Add to queue, Play Next, reorder/remove, auto-queue from episode feed |
+| 🏠 **Episode Feed** | ✅ | Latest episodes from subscriptions on Home tab, date-sorted with load more |
+| 🌍 **Country-aware Content** | ✅ | iTunes market selection, localized trending podcasts per country |
+| 👤 **Publisher Profiles** | ✅ | Browse all shows from a podcast's author/publisher |
 
 ---
 
