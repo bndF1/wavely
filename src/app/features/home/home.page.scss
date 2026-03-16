@@ -15,6 +15,13 @@
   letter-spacing: -0.2px;
 }
 
+.section-subtitle {
+  margin: -8px 0 14px;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  line-height: 1.4;
+}
+
 .podcast-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

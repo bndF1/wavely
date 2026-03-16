@@ -16,10 +16,9 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <section class="home-section">
-    <h2 class="section-title">My Podcasts</h2>
-
-    @if (store.subscriptions().length > 0) {
+  @if (store.subscriptions().length > 0) {
+    <section class="home-section">
+      <h2 class="section-title">My Podcasts</h2>
       <div class="subscriptions-scroll">
         <div class="subscriptions-row">
           @for (podcast of store.subscriptions(); track podcast.id) {
@@ -31,16 +30,8 @@
           }
         </div>
       </div>
-    } @else {
-      <wavely-empty-state
-        icon="library-outline"
-        title="No subscriptions yet"
-        subtitle="Subscribe to podcasts to quickly access them here."
-        actionLabel="Browse podcasts"
-        (action)="navigateToBrowse()">
-      </wavely-empty-state>
-    }
-  </section>
+    </section>
+  }
 
   @if (store.subscriptions().length > 0) {
     <section class="home-section">
@@ -110,6 +101,9 @@
 
   <section class="home-section">
     <h2 class="section-title">Trending</h2>
+    @if (store.subscriptions().length === 0) {
+      <p class="section-subtitle">Discover what's popular and subscribe to personalise your feed.</p>
+    }
 
     @if (store.error() && !store.isLoading()) {
       <wavely-empty-state
