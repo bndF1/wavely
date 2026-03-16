@@ -19,7 +19,7 @@ export class EpisodeItemComponent {
   readonly showReleaseDate = input<boolean>(true);
   readonly showDuration = input<boolean>(false);
 
-  readonly play = output<Episode>();
+  readonly episodePlay = output<Episode>();
   readonly addToQueue = output<Episode>();
   readonly queue = output<Episode>();
 
@@ -28,7 +28,7 @@ export class EpisodeItemComponent {
   }
 
   protected emitPlay(): void {
-    this.play.emit(this.episode());
+    this.episodePlay.emit(this.episode());
   }
 
   protected emitQueue(event: Event): void {

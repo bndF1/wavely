@@ -69,7 +69,7 @@
             <wavely-episode-item
               [episode]="episode"
               [podcastTitle]="episode.podcastTitle"
-              (play)="playEpisode($event)"
+              (episodePlay)="playEpisode($event)"
               (addToQueue)="queueEpisode($event)">
             </wavely-episode-item>
           }
