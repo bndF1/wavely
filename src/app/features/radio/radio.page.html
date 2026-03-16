@@ -121,7 +121,6 @@
             <p class="radio-item__meta">
               @if (station.bitrate) { {{ station.bitrate }} kbps · }{{ station.codec }}
               @if (station.tags) { · {{ station.tags | slice:0:40 }} }
-              @if (isSearchMode() && station.countrycode) { · {{ station.countrycode.toUpperCase() }} }
             </p>
           </ion-label>
           <ion-badge slot="end" class="radio-item__live-badge" color="danger">LIVE</ion-badge>
