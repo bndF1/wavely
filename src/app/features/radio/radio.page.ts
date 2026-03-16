@@ -19,7 +19,7 @@ import {
   IonToolbar,
   SearchbarInputEventDetail,
 } from '@ionic/angular/standalone';
-import { IonInputCustomEvent } from '@ionic/core';
+import { IonSearchbarCustomEvent } from '@ionic/core';
 import { addIcons } from 'ionicons';
 import { alertCircleOutline, heart, heartOutline, radioOutline, refreshOutline, searchOutline } from 'ionicons/icons';
 import { Subject, catchError, debounceTime, distinctUntilChanged, of, switchMap, takeUntil, tap } from 'rxjs';
@@ -193,7 +193,7 @@ export class RadioPage implements OnDestroy {
     this.destroy$.complete();
   }
 
-  protected onSearchInput(event: IonInputCustomEvent<SearchbarInputEventDetail>): void {
+  protected onSearchInput(event: IonSearchbarCustomEvent<SearchbarInputEventDetail>): void {
     const q = (event.detail.value ?? '').trim();
     this.searchQuery.set(q);
     if (q) {
