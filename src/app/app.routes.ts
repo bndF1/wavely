@@ -38,19 +38,29 @@ export const appRoutes: Route[] = [
           import('./features/home/home.page').then((m) => m.HomePage),
       },
       {
-        path: 'browse',
+        path: 'discover',
         loadComponent: () =>
-          import('./features/browse/browse.page').then((m) => m.BrowsePage),
+          import('./features/discover/discover.page').then((m) => m.DiscoverPage),
       },
       {
-        path: 'search',
+        path: 'radio',
         loadComponent: () =>
-          import('./features/search/search.page').then((m) => m.SearchPage),
+          import('./features/radio/radio.page').then((m) => m.RadioPage),
       },
       {
         path: 'library',
         loadComponent: () =>
           import('./features/library/library.page').then((m) => m.LibraryPage),
+      },
+      {
+        path: 'browse',
+        redirectTo: 'discover',
+        pathMatch: 'full',
+      },
+      {
+        path: 'search',
+        redirectTo: 'discover',
+        pathMatch: 'full',
       },
       {
         path: '',

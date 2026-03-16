@@ -1,0 +1,144 @@
+.search-bar-wrapper {
+  padding: 8px 8px 0;
+  position: sticky;
+  top: 0;
+  z-index: 11;
+  background: var(--wavely-background);
+}
+
+.country-toggle {
+  &__flag {
+    font-size: 20px;
+    line-height: 1;
+  }
+}
+
+.discover-section {
+  padding: 12px 16px 8px;
+}
+
+.section-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--wavely-on-surface);
+}
+
+.category-scroll {
+  overflow-x: auto;
+  padding: 4px 16px 8px;
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  background: var(--wavely-background);
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.category-row {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+}
+
+ion-chip {
+  --background: var(--wavely-surface-variant);
+  --color: var(--wavely-on-surface);
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
+
+  &.selected {
+    --background: var(--chip-color, var(--wavely-primary));
+    --color: #fff;
+  }
+}
+
+.chip-skeleton {
+  pointer-events: none;
+}
+
+.podcast-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.podcast-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.carousel-item,
+.skeleton-card {
+  flex: 0 0 min(220px, 64vw);
+}
+
+.section-empty {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 2px;
+}
+
+.search-skeleton-list {
+  padding: 8px 0;
+
+  ion-thumbnail {
+    --size: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+}
+
+.recent-searches__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.recent-searches__clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: var(--ion-color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.recent-searches__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recent-searches__chip {
+  margin: 0;
+}
+
+.recent-searches__remove {
+  border: none;
+  background: transparent;
+  color: var(--ion-color-medium);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+  padding: 0;
+  cursor: pointer;
+  font-size: 18px;
+}

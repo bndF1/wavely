@@ -14,8 +14,8 @@ import {
   home,
   compassOutline,
   compass,
-  searchOutline,
-  search,
+  radioOutline,
+  radio,
   libraryOutline,
   library,
 } from 'ionicons/icons';
@@ -48,8 +48,8 @@ export class TabsComponent {
       home,
       compassOutline,
       compass,
-      searchOutline,
-      search,
+      radioOutline,
+      radio,
       libraryOutline,
       library,
     });

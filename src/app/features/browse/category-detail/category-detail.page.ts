@@ -29,7 +29,7 @@ import { PodcastApiService } from '../../../core/services/podcast-api.service';
 import { CountryService } from '../../../core/services/country.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { PodcastCardComponent } from '../../../shared/components/podcast-card/podcast-card.component';
-import { PODCAST_CATEGORIES } from '../browse.page';
+import { PODCAST_CATEGORIES } from '../browse.constants';
 
 const SKELETON_COUNT = 6;
 const PAGE_SIZE = 12;
