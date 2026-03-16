@@ -1,3 +1,4 @@
+import { SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import {
   ActionSheetController,
@@ -7,7 +8,6 @@ import {
   IonChip,
   IonContent,
   IonHeader,
-  IonIcon,
   IonItem,
   IonLabel,
   IonList,
@@ -49,8 +49,8 @@ const ALL_TAG = 'All';
     IonItem,
     IonThumbnail,
     IonBadge,
-    IonIcon,
     IonSkeletonText,
+    SlicePipe,
     EmptyStateComponent,
   ],
 })
