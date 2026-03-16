@@ -13,15 +13,30 @@
 </ion-header>
 
 <ion-content>
-  <div class="tag-scroll">
-    <div class="tag-row">
-      @for (tag of availableTags(); track tag) {
-        <ion-chip button [class.selected]="selectedTag() === tag" (click)="selectTag(tag)">
-          <ion-label>{{ tag }}</ion-label>
-        </ion-chip>
-      }
-    </div>
+  <div class="search-bar-wrapper">
+    <ion-searchbar
+      placeholder="Search stations worldwide…"
+      [value]="searchQuery()"
+      [debounce]="0"
+      (ionInput)="onSearchInput($event)"
+      (ionClear)="onSearchClear()"
+      animated
+      enterkeyhint="search"
+      aria-label="Search radio stations">
+    </ion-searchbar>
   </div>
+
+  @if (!isSearchMode() && availableTags().length > 1) {
+    <div class="tag-scroll">
+      <div class="tag-row">
+        @for (tag of availableTags(); track tag) {
+          <ion-chip button [class.selected]="selectedTag() === tag" (click)="selectTag(tag)">
+            <ion-label>{{ tag }}</ion-label>
+          </ion-chip>
+        }
+      </div>
+    </div>
+  }
 
   @if (isLoading()) {
     <ion-list lines="none" class="radio-list" aria-label="Loading radio stations">
@@ -47,10 +62,10 @@
     </wavely-empty-state>
   } @else if (filteredStations().length === 0) {
     <wavely-empty-state
-      icon="radio-outline"
-      title="No stations found"
-      subtitle="No live radio stations available with your current filters."
-      actionLabel="Retry"
+      [icon]="isSearchMode() ? 'search-outline' : 'radio-outline'"
+      [title]="isSearchMode() ? 'No stations found' : 'No stations available'"
+      [subtitle]="isSearchMode() ? 'Try a different name or keyword.' : 'No live radio stations available with your current filters.'"
+      [actionLabel]="isSearchMode() ? '' : 'Retry'"
       (action)="retry()">
     </wavely-empty-state>
   } @else {
@@ -100,6 +115,10 @@
       <h2 class="section-title">All Stations</h2>
     }
 
+    @if (isSearchMode()) {
+      <p class="search-results-hint">Showing global results for "{{ searchQuery() }}"</p>
+    }
+
     <ion-list lines="none" class="radio-list">
       @for (station of filteredStations(); track station.stationuuid) {
         <ion-item
@@ -119,6 +138,7 @@
             <p class="radio-item__meta">
               @if (station.bitrate) { {{ station.bitrate }} kbps · }{{ station.codec }}
               @if (station.tags) { · {{ station.tags | slice:0:40 }} }
+              @if (isSearchMode() && station.countrycode) { · {{ station.countrycode.toUpperCase() }} }
             </p>
           </ion-label>
           <ion-badge slot="end" class="radio-item__live-badge" color="danger">LIVE</ion-badge>
@@ -140,3 +160,4 @@
     </ion-list>
   }
 </ion-content>
+
