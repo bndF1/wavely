@@ -32,10 +32,13 @@ export class ThemeService {
     const html = document.documentElement;
     if (mode === 'dark') {
       html.classList.add('ion-palette-dark');
+      html.classList.remove('force-light-theme');
     } else if (mode === 'light') {
       html.classList.remove('ion-palette-dark');
+      html.classList.add('force-light-theme');
     } else {
       // system: follow prefers-color-scheme
+      html.classList.remove('force-light-theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       html.classList.toggle('ion-palette-dark', prefersDark);
     }
