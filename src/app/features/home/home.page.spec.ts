@@ -64,7 +64,7 @@ describe('HomePage', () => {
     (component as any).navigateToSearch();
     (component as any).navigateToPodcast(mockPodcast({ id: 'pod-7' }));
 
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/tabs/search']);
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/tabs/discover']);
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/podcast', 'pod-7']);
   });
 });

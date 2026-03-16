@@ -160,11 +160,11 @@ export class HomePage implements OnInit {
   }
 
   protected navigateToSearch(): void {
-    this.router.navigate(['/tabs/search']);
+    this.router.navigate(['/tabs/discover']);
   }
 
   protected navigateToBrowse(): void {
-    this.router.navigate(['/tabs/browse']);
+    this.router.navigate(['/tabs/discover']);
   }
 
   protected playEpisode(episode: Episode): void {
