@@ -269,9 +269,20 @@ gh pr create --base dev
 - [x] Listening history UX improvements (filterable, synced to Firestore)
 - [x] Queue / Up Next UX overhaul and episode feed on Home tab
 
-### v1.5 — Navigation Restructure (planned)
-- [ ] Merge Search + Browse into a unified Discover tab
-- [ ] Radio as a dedicated hub tab
+### v1.5.0 — Navigation Restructure ✅ Shipped
+- [x] Discover tab: unified Search + Browse hub
+- [x] Radio as a dedicated hub tab
+
+### v1.5.1 — Light Theme Fix ✅ Shipped
+- [x] Light mode broken when OS was in dark mode
+- [x] Theme service hardening (SSR safety, localStorage validation)
+
+### v1.5.2 — UX Quick Wins ✅ Shipped
+- [x] Trending section first in Discover tab
+- [x] Radio station limit raised to 100 results
+- [x] Search page removed from Discover (consolidated into the tab's own search bar)
+- [x] Logout now stops the audio player
+- [x] Onboarding UX: Home shows trending when no subscriptions
 
 ### v2.0 — Native Platform
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
