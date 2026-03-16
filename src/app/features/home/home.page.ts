@@ -19,12 +19,10 @@ import {
   IonSkeletonText,
   IonItem,
   IonLabel,
-  IonNote,
   IonThumbnail,
   IonList,
   RefresherCustomEvent,
 } from '@ionic/angular/standalone';
-import { DatePipe } from '@angular/common';
 import { addIcons } from 'ionicons';
 import {
   alertCircleOutline,
@@ -32,7 +30,6 @@ import {
   searchOutline,
   sparklesOutline,
   chevronDownOutline,
-  playCircleOutline,
 } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
@@ -41,6 +38,7 @@ import { PlayerStore } from '../../store/player/player.store';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { Episode, Podcast } from '../../core/models/podcast.model';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { EpisodeItemComponent } from '../../shared/components/episode-item/episode-item.component';
 
 const SKELETON_COUNT = 6;
 const FEED_LIMIT_PER_PODCAST = 10;
@@ -51,7 +49,6 @@ const FEED_PAGE_SIZE = 30;
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   imports: [
-    DatePipe,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -66,11 +63,11 @@ const FEED_PAGE_SIZE = 30;
     IonSkeletonText,
     IonItem,
     IonLabel,
-    IonNote,
     IonThumbnail,
     IonList,
     PodcastCardComponent,
     EmptyStateComponent,
+    EpisodeItemComponent,
   ],
 })
 export class HomePage implements OnInit {
@@ -118,7 +115,6 @@ export class HomePage implements OnInit {
       alertCircleOutline,
       sparklesOutline,
       chevronDownOutline,
-      playCircleOutline,
     });
 
     // Reactively load feed when subscriptions become available (handles async Firestore sync)
@@ -178,8 +174,8 @@ export class HomePage implements OnInit {
     this.router.navigate(['/episode', episode.id], { state: { episode, podcast } });
   }
 
-  protected onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = '/default-artwork.svg';
+  protected queueEpisode(episode: Episode): void {
+    this.playerStore.addToQueue(episode);
   }
 
   private loadTrending(): Promise<void> {

@@ -95,23 +95,14 @@
       <h2 class="section-title">Episodes</h2>
     }
     @if (episodes.length > 0) {
-      <ion-list lines="full">
+      <ion-list lines="none">
         @for (episode of episodes; track episode.id) {
-          <ion-item
-            button
-            [attr.aria-label]="'Play ' + episode.title"
-            (click)="playEpisode(episode)">
-            <ion-icon name="play-circle-outline" slot="start" class="play-icon" aria-hidden="true"></ion-icon>
-            <ion-label>
-              <h3 class="episode-title">{{ episode.title }}</h3>
-              <ion-note class="episode-meta">
-                {{ episode.releaseDate | date:'mediumDate' }}
-                @if (episode.duration) {
-                  <span> · {{ formatDuration(episode.duration) }}</span>
-                }
-              </ion-note>
-            </ion-label>
-          </ion-item>
+          <wavely-episode-item
+            [episode]="episode"
+            [podcastTitle]="podcast?.title"
+            (play)="playEpisode($event)"
+            (addToQueue)="queueEpisode($event)">
+          </wavely-episode-item>
         }
       </ion-list>
 
