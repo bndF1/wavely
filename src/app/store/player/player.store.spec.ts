@@ -265,5 +265,12 @@ describe('PlayerStore', () => {
       expect(store.currentTime()).toBe(0);
       expect(store.duration()).toBe(0);
     });
+
+    it('does NOT clear the queue (queue must be cleared explicitly via clearQueue())', () => {
+      const ep = mockEpisode();
+      store.addToQueue(ep);
+      store.close();
+      expect(store.queue()).toHaveLength(1);
+    });
   });
 });

@@ -80,9 +80,9 @@ export const PlayerStore = signalStore(
         patchState(store, { isPlaying: false, currentTime: 0 });
       }
     },
-    /** Dismiss player entirely */
+    /** Dismiss player entirely — does NOT clear the queue (call clearQueue() separately for logout/user-switch) */
     close(): void {
-      patchState(store, { currentEpisode: null, isPlaying: false, currentTime: 0, duration: 0, queue: [] });
+      patchState(store, { currentEpisode: null, isPlaying: false, currentTime: 0, duration: 0 });
     },
   }))
 );

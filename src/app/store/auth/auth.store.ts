@@ -48,11 +48,19 @@ export const AuthStore = signalStore(
       tap(() => {
         authService.user$.subscribe((user) => {
           const previousUid = store.user()?.uid ?? null;
+          const isUserSwitch = !!user && user.uid !== previousUid;
+          const isSignOut = !user && !!previousUid;
+
+          // Stop the player and clear queue BEFORE updating store.user to prevent
+          // progress writes being attributed to the new user's UID during the transition.
+          if (isUserSwitch || isSignOut) {
+            playerStore.close();
+            playerStore.clearQueue();
+          }
+
           patchState(store, { user, loading: false });
 
-          if (user && user.uid !== previousUid) {
-            // Clear any previous user's subscriptions and player state (handles direct user-switch A→B)
-            playerStore.close();
+          if (isUserSwitch) {
             syncService.clearSubscriptions();
             historyStore.clear();
             historyStore.setLoading(true);
@@ -81,9 +89,8 @@ export const AuthStore = signalStore(
                 console.error('[AuthStore] Failed to load history', err);
                 historyStore.setLoading(false);
               });
-          } else if (!user && previousUid) {
-            // User just signed out — stop player and clear all in-memory state
-            playerStore.close();
+          } else if (isSignOut) {
+            // Player already closed above — clear all in-memory state
             syncService.clearSubscriptions();
             historyStore.clear();
           }
