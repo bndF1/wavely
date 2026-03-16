@@ -21,7 +21,7 @@ function feedEntry(id: string, title: string, author: string, genreLabel: string
 
 test.skip(() => !process.env['USE_EMULATORS'], 'Requires Firebase emulators');
 
-test.describe('Browse page', () => {
+test.describe('Discover browse content', () => {
   test.beforeEach(async ({ page }) => {
     await page.route(ITUNES_TOP_PODCASTS_URL, async (route) => {
       const url = new URL(route.request().url());
@@ -45,34 +45,30 @@ test.describe('Browse page', () => {
     });
   });
 
-  test('browse tab/category grid renders', async ({ page }) => {
+  test('old browse path redirects to discover', async ({ page }) => {
     await page.goto('/tabs/browse');
+    await expect(page).toHaveURL(/\/tabs\/discover/);
+  });
 
-    await expect(page.locator('ion-title').filter({ hasText: 'Browse' })).toBeVisible();
+  test('discover tab/category grid renders', async ({ page }) => {
+    await page.goto('/tabs/discover');
+
+    await expect(page.locator('ion-title').filter({ hasText: 'Discover' })).toBeVisible();
     await expect(page.locator('.category-row ion-chip')).toHaveCount(12);
     await expect(page.locator('wavely-podcast-card').first()).toBeVisible();
   });
 
   test('clicking category navigates to category detail page', async ({ page }) => {
-    await page.goto('/tabs/browse');
-    // Wait for initial podcasts to load before interacting
+    await page.goto('/tabs/discover');
     await page.locator('wavely-podcast-card').first().waitFor({ timeout: 10000 });
 
-    // Clicking a non-"All" category chip now navigates to /browse/category/:genreId
     await Promise.all([
       page.waitForURL(/\/browse\/category\/1303/, { timeout: 10000 }),
       page.locator('ion-chip').filter({ hasText: /^Comedy$/ }).locator('ion-label').click(),
     ]);
+
     await expect(page.url()).toContain('/browse/category/1303');
-    // Category detail page should load and show results for genre 1303
     await expect(page.locator('wavely-podcast-card').first()).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Comedy Gold', { exact: false })).toBeVisible({ timeout: 10000 });
-  });
-
-  test('trending/new sections visible', async ({ page }) => {
-    await page.goto('/tabs/browse');
-
-    await expect(page.getByText('News', { exact: true })).toBeVisible();
-    await expect(page.locator('wavely-podcast-card')).not.toHaveCount(0);
   });
 });

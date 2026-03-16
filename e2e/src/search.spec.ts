@@ -8,9 +8,14 @@ test.skip(
   'Requires Firebase Auth Emulator (USE_EMULATORS=true)'
 );
 
-test.describe('Search page', () => {
-  test('shows a search bar when navigating to /tabs/search', async ({ page }) => {
+test.describe('Discover search', () => {
+  test('old search path redirects to /tabs/discover', async ({ page }) => {
     await page.goto('/tabs/search');
+    await expect(page).toHaveURL(/\/tabs\/discover/);
+  });
+
+  test('shows a search bar on discover page', async ({ page }) => {
+    await page.goto('/tabs/discover');
     const searchbar = page.locator('ion-searchbar');
     await expect(searchbar).toBeVisible();
   });
@@ -38,7 +43,7 @@ test.describe('Search page', () => {
       })
     );
 
-    await page.goto('/tabs/search');
+    await page.goto('/tabs/discover');
     const searchbar = page.locator('ion-searchbar');
     await searchbar.locator('input').fill('javascript');
     await page.waitForSelector('wavely-podcast-card', { timeout: 5000 });
@@ -55,7 +60,7 @@ test.describe('Search page', () => {
       })
     );
 
-    await page.goto('/tabs/search');
+    await page.goto('/tabs/discover');
     const searchbar = page.locator('ion-searchbar');
     await searchbar.locator('input').fill('xyznoexist');
     await page.waitForTimeout(500);
