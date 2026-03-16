@@ -25,6 +25,8 @@ export class ThemeService {
   }
 
   setMode(mode: ThemeMode): void {
+    const valid: ThemeMode[] = ['system', 'light', 'dark'];
+    if (!valid.includes(mode)) return;
     this.mode.set(mode);
   }
 
