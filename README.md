@@ -38,7 +38,7 @@ Every PR also gets an ephemeral preview channel: `https://wavely-f659c--pr-<numb
 | 📡 **PWA / Offline** | ✅ | Angular service worker — app shell, artwork cached 7 days |
 | 🔍 **Search & Browse** | ✅ | Real-time debounced search, browse by category, country-aware trending |
 | 📚 **Library** | ✅ | Subscribe/unsubscribe with Firestore sync |
-| 🗃 **State Management** | ✅ | NgRx SignalStore for player, podcasts, auth, and history |
+| 🗃 **State Management** | ✅ | NgRx SignalStore for player (+ queue), podcasts, auth, and history |
 | 📻 **Internet Radio** | ✅ | Browse and play radio stations by category and country (Radio Browser API) |
 | 🕓 **Listening History** | ✅ | Episode history with progress tracking, synced to Firestore, filterable |
 | 📋 **Queue / Up Next** | ✅ | Add to queue, Play Next, reorder/remove, auto-queue from episode feed |
@@ -111,21 +111,26 @@ wavely/
 │   └── app/
 │       ├── core/                 # Services, guards, interceptors, models
 │       │   └── services/
-│       │       ├── audio.service.ts             # HTMLMediaElement wrapper
+│       │       ├── audio.service.ts             # HTMLMediaElement wrapper + Media Session
 │       │       ├── podcast-api.service.ts       # iTunes Search API client
+│       │       ├── radio-api.service.ts         # Radio Browser API client
 │       │       ├── auth.service.ts              # Firebase Auth wrapper
 │       │       ├── subscription-sync.service.ts # Firestore ↔ store sync
+│       │       ├── history-sync.service.ts      # Listening history Firestore sync
+│       │       ├── search-history.service.ts    # Local search history
 │       │       └── progress-sync.service.ts     # Playback progress sync
 │       ├── features/             # Lazy-loaded pages
-│       │   ├── home/             # Subscriptions feed + trending
-│       │   ├── browse/           # Categories + trending
-│       │   ├── search/           # Real-time search
-│       │   ├── library/          # Subscribed podcasts
+│       │   ├── home/             # Subscriptions feed + episode feed
+│       │   ├── browse/           # Categories + trending + radio
+│       │   ├── search/           # Real-time search + history
+│       │   ├── library/          # Subscribed podcasts + history
 │       │   ├── podcast-detail/   # Episode list + subscribe
+│       │   ├── publisher/        # All shows from a publisher
 │       │   └── episode-detail/   # Player + description
 │       ├── store/                # NgRx SignalStores
 │       │   ├── auth/             # AuthStore — user session
-│       │   ├── player/           # PlayerStore — playback state
+│       │   ├── player/           # PlayerStore — playback state + queue
+│       │   ├── history/          # HistoryStore — listening history
 │       │   └── podcasts/         # PodcastsStore — subscriptions, search
 │       └── shared/               # Reusable components, pipes, directives
 ├── e2e/                          # Playwright E2E tests + Firebase emulator setup
@@ -238,22 +243,45 @@ gh pr create --base dev
 - [x] Comprehensive E2E test suite (Playwright + emulators)
 - [x] Unit test coverage ≥ 80%
 
-### v1.0.0 — MVP (in progress)
-- [ ] Background audio & lockscreen controls ([#35](https://github.com/bndF1/wavely/issues/35))
-- [ ] Up Next queue ([#34](https://github.com/bndF1/wavely/issues/34))
-- [ ] Listening history ([#28](https://github.com/bndF1/wavely/issues/28))
-- [ ] Error states & offline handling ([#36](https://github.com/bndF1/wavely/issues/36))
-- [ ] Lighthouse CI ([#37](https://github.com/bndF1/wavely/issues/37))
+### v1.0.0 — Foundation ✅ Shipped
+- [x] Audio player, dark mode, PWA, cross-platform (iOS/Android/Web)
+- [x] iTunes search, browse by category, library with Firestore sync
 
-### v1.1.0 — Discovery & Library
-- [ ] Search history ([#38](https://github.com/bndF1/wavely/issues/38))
-- [ ] Episode filtering ([#39](https://github.com/bndF1/wavely/issues/39))
-- [ ] Browse improvements ([#40](https://github.com/bndF1/wavely/issues/40))
+### v1.1.0 — MVP Complete ✅ Shipped
+- [x] Up Next queue with auto-advance and persistence ([#34](https://github.com/bndF1/wavely/issues/34))
+- [x] Listening history with progress tracking ([#28](https://github.com/bndF1/wavely/issues/28))
+- [x] Background audio & lockscreen controls ([#35](https://github.com/bndF1/wavely/issues/35))
+- [x] Error states, offline handling, empty state illustrations ([#36](https://github.com/bndF1/wavely/issues/36))
+- [x] Lighthouse CI for performance and accessibility ([#37](https://github.com/bndF1/wavely/issues/37))
 
-### v1.2.0 — Native Platform
+### v1.2.0 — Discovery & Library ✅ Shipped
+- [x] Search history and quick suggestions ([#38](https://github.com/bndF1/wavely/issues/38))
+- [x] Episode filtering (unplayed / in-progress) ([#39](https://github.com/bndF1/wavely/issues/39))
+- [x] Browse: category detail pages, featured section ([#40](https://github.com/bndF1/wavely/issues/40))
+
+### v1.3.0–v1.3.5 — Stability & Bugfixes ✅ Shipped
+- [x] Country-aware trending podcasts and iTunes market selection
+- [x] Publisher profiles (browse all shows from an author)
+- [x] Firebase Auth fixes across all environments
+
+### v1.4.0–v1.4.2 — Radio, History UX & Queue ✅ Shipped
+- [x] Internet radio via Radio Browser API (browse by category and country)
+- [x] Listening history UX improvements (filterable, synced to Firestore)
+- [x] Queue / Up Next UX overhaul and episode feed on Home tab
+
+### v1.5 — Navigation Restructure (planned)
+- [ ] Merge Search + Browse into a unified Discover tab
+- [ ] Radio as a dedicated hub tab
+
+### v2.0 — Native Platform
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
 - [ ] Deep links / Universal Links ([#42](https://github.com/bndF1/wavely/issues/42))
 - [ ] App Store + Play Store submission ([#43](https://github.com/bndF1/wavely/issues/43))
+
+### v3.0 — Advanced Features
+- [ ] Sleep timer ([#45](https://github.com/bndF1/wavely/issues/45))
+- [ ] Chapter support ([#46](https://github.com/bndF1/wavely/issues/46))
+- [ ] Offline downloads ([#48](https://github.com/bndF1/wavely/issues/48))
 
 ---
 
