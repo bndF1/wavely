@@ -77,7 +77,7 @@ test.describe('Player', () => {
     });
 
     await page.goto(`/podcast/${PLAYER_PODCAST.id}`);
-    await page.getByRole('button', { name: new RegExp(`Play ${PLAYER_EPISODE.title}`, 'i') }).click();
+    await page.getByRole('button', { name: `Play ${PLAYER_EPISODE.title}`, exact: true }).click();
     await expect(page).toHaveURL(/\/episode\//);
 
     // Navigate within the SPA to preserve PlayerStore state (page.goto would reload)
