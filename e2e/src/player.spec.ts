@@ -119,6 +119,6 @@ test.describe('Player', () => {
     await expect(page.locator('.episode-title')).toHaveText(PLAYER_EPISODE.title);
     await expect(page.getByRole('button', { name: /skip back 30 seconds/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /skip forward 30 seconds/i })).toBeVisible();
-    await expect(page.locator('button.play-pause-btn')).toBeVisible();
+    await expect(page.locator('ion-button.play-pause-btn')).toBeVisible();
   });
 });
