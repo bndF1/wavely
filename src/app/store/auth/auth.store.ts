@@ -12,6 +12,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { HistorySyncService } from '../../core/services/history-sync.service';
 import { HistoryStore } from '../history/history.store';
+import { PlayerStore } from '../player/player.store';
 import type { User } from 'firebase/auth';
 
 interface AuthState {
@@ -40,7 +41,8 @@ export const AuthStore = signalStore(
     authService = inject(AuthService),
     syncService = inject(SubscriptionSyncService),
     historySyncService = inject(HistorySyncService),
-    historyStore = inject(HistoryStore)
+    historyStore = inject(HistoryStore),
+    playerStore = inject(PlayerStore)
   ) => ({
     init: rxMethod<void>(
       tap(() => {
@@ -49,7 +51,8 @@ export const AuthStore = signalStore(
           patchState(store, { user, loading: false });
 
           if (user && user.uid !== previousUid) {
-            // Clear any previous user's subscriptions first (handles direct user-switch A→B)
+            // Clear any previous user's subscriptions and player state (handles direct user-switch A→B)
+            playerStore.close();
             syncService.clearSubscriptions();
             historyStore.clear();
             historyStore.setLoading(true);
@@ -79,7 +82,8 @@ export const AuthStore = signalStore(
                 historyStore.setLoading(false);
               });
           } else if (!user && previousUid) {
-            // User just signed out — clear in-memory subscriptions
+            // User just signed out — stop player and clear all in-memory state
+            playerStore.close();
             syncService.clearSubscriptions();
             historyStore.clear();
           }

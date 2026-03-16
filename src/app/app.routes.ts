@@ -58,11 +58,6 @@ export const appRoutes: Route[] = [
         pathMatch: 'full',
       },
       {
-        path: 'search',
-        redirectTo: 'discover',
-        pathMatch: 'full',
-      },
-      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full',

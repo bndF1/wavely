@@ -28,7 +28,6 @@ import { DatePipe } from '@angular/common';
 import { addIcons } from 'ionicons';
 import {
   alertCircleOutline,
-  libraryOutline,
   refreshOutline,
   searchOutline,
   sparklesOutline,
@@ -116,7 +115,6 @@ export class HomePage implements OnInit {
     addIcons({
       searchOutline,
       refreshOutline,
-      libraryOutline,
       alertCircleOutline,
       sparklesOutline,
       chevronDownOutline,
