@@ -7,11 +7,11 @@
       (error)="onImageError($event)" />
   </ion-thumbnail>
 
-  <ion-label>
+  <ion-label class="episode-item__label">
     <h3 class="episode-item__title">{{ episode().title }}</h3>
 
     @if (showPodcastTitle() && displayPodcastTitle()) {
-      <ion-note>{{ displayPodcastTitle() }}</ion-note>
+      <ion-note class="episode-item__podcast">{{ displayPodcastTitle() }}</ion-note>
     }
 
     @if (showReleaseDate() || (showDuration() && episode().duration)) {
@@ -33,6 +33,7 @@
     slot="end"
     fill="clear"
     size="small"
+    class="episode-item__queue-btn"
     [attr.aria-label]="'Queue ' + episode().title"
     (click)="emitQueue($event)">
     <ion-icon slot="icon-only" name="add-outline"></ion-icon>
@@ -42,6 +43,7 @@
     slot="end"
     fill="clear"
     size="small"
+    class="episode-item__play-btn"
     [attr.aria-label]="'Play ' + episode().title"
     (click)="emitPlay(); $event.stopPropagation()">
     <ion-icon slot="icon-only" name="play-circle-outline"></ion-icon>

@@ -4,6 +4,14 @@
   top: 0;
   z-index: 11;
   background: var(--wavely-background);
+
+  ion-searchbar {
+    --color: var(--wavely-on-surface);
+    --placeholder-color: var(--wavely-on-surface-variant);
+    --icon-color: var(--wavely-on-surface-variant);
+    --clear-button-color: var(--wavely-on-surface-variant);
+    --background: var(--wavely-surface-variant);
+  }
 }
 
 .country-toggle {
