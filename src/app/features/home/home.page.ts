@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
+import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -79,6 +80,7 @@ export class HomePage implements OnInit {
   private readonly router = inject(Router);
   private readonly countryService = inject(CountryService);
   private readonly playerStore = inject(PlayerStore);
+  private readonly prefs = inject(UserPreferencesService);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
   protected readonly feedSkeletons = Array.from({ length: 5 });
@@ -166,6 +168,13 @@ export class HomePage implements OnInit {
   }
 
   protected playEpisode(episode: Episode): void {
+    this.playerStore.clearQueue();
+    if (this.prefs.autoQueueEnabled()) {
+      const idx = this.allFeedEpisodes().findIndex((e) => e.id === episode.id);
+      this.allFeedEpisodes()
+        .slice(idx + 1)
+        .forEach((e) => this.playerStore.addToQueue(e));
+    }
     this.playerStore.play(episode);
     const podcast = this.store.subscriptions().find((p) => p.id === episode.podcastId);
     this.router.navigate(['/episode', episode.id], { state: { episode, podcast } });

@@ -35,7 +35,7 @@ export class UserPreferencesService {
   private persist(patch: Partial<WavelyPreferences>): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
-      const current = this.load();
+      const current: WavelyPreferences = { autoQueueEnabled: this.autoQueueEnabled() };
       localStorage.setItem(PREFS_KEY, JSON.stringify({ ...current, ...patch }));
     } catch {
       // localStorage unavailable — silently ignore

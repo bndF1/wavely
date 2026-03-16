@@ -238,6 +238,10 @@ export class LibraryPage {
     this.router.navigate(['/login']);
   }
 
+  protected onAutoQueueChange(event: CustomEvent<{ checked: boolean }>): void {
+    this.prefs.setAutoQueueEnabled(event.detail.checked);
+  }
+
   protected onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = '/default-artwork.svg';

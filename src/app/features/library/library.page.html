@@ -176,7 +176,7 @@
         <ion-toggle
           slot="end"
           [checked]="prefs.autoQueueEnabled()"
-          (ionChange)="prefs.setAutoQueueEnabled($any($event).detail.checked)"
+          (ionChange)="onAutoQueueChange($event)"
           aria-label="Auto-queue episodes">
         </ion-toggle>
       </ion-item>
