@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 import {
   IonTabs,
@@ -6,7 +7,6 @@ import {
   IonTabButton,
   IonIcon,
   IonLabel,
-  ModalController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -21,7 +21,6 @@ import {
 } from 'ionicons/icons';
 import { PlayerStore } from '../../store/player/player.store';
 import { MiniPlayerComponent } from '../player/mini-player/mini-player.component';
-import { FullPlayerComponent } from '../player/full-player/full-player.component';
 import { OfflineBannerComponent } from '../../shared/components/offline-banner/offline-banner.component';
 
 @Component({
@@ -40,7 +39,7 @@ import { OfflineBannerComponent } from '../../shared/components/offline-banner/o
 })
 export class TabsComponent {
   readonly store = inject(PlayerStore);
-  private readonly modalCtrl = inject(ModalController);
+  private readonly router = inject(Router);
 
   constructor() {
     addIcons({
@@ -55,14 +54,10 @@ export class TabsComponent {
     });
   }
 
-  async openFullPlayer(): Promise<void> {
-    const modal = await this.modalCtrl.create({
-      component: FullPlayerComponent,
-      breakpoints: [0, 1],
-      initialBreakpoint: 1,
-      handle: true,
-      cssClass: 'full-player-modal',
-    });
-    await modal.present();
+  openFullPlayer(): void {
+    const episode = this.store.currentEpisode();
+    if (episode?.id) {
+      void this.router.navigate(['/episode', episode.id]);
+    }
   }
 }

@@ -8,36 +8,31 @@ jest.mock('@angular/fire/auth', () => ({
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
 
 import { TabsComponent } from './tabs.component';
 import { PlayerStore } from '../../store/player/player.store';
-import { FullPlayerComponent } from '../player/full-player/full-player.component';
 
 describe('TabsComponent', () => {
   let fixture: ComponentFixture<TabsComponent>;
   let component: TabsComponent;
 
-  const present = jest.fn().mockResolvedValue(undefined);
-  const mockModalCtrl = {
-    create: jest.fn().mockResolvedValue({ present }),
+  const mockRouter = { navigate: jest.fn() };
+
+  const mockPlayerStore = {
+    currentEpisode: jest.fn(() => null),
+    isPlaying: jest.fn(() => false),
+    currentTime: jest.fn(() => 0),
+    duration: jest.fn(() => 0),
+    playbackRate: jest.fn(() => 1),
   };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TabsComponent],
       providers: [
-        {
-          provide: PlayerStore,
-          useValue: {
-            currentEpisode: jest.fn(() => null),
-            isPlaying: jest.fn(() => false),
-            currentTime: jest.fn(() => 0),
-            duration: jest.fn(() => 0),
-            playbackRate: jest.fn(() => 1),
-          },
-        },
-        { provide: ModalController, useValue: mockModalCtrl },
+        { provide: PlayerStore, useValue: mockPlayerStore },
+        { provide: Router, useValue: mockRouter },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -58,16 +53,15 @@ describe('TabsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('opens full player modal', async () => {
-    await component.openFullPlayer();
+  it('navigates to episode detail when opening full player', () => {
+    mockPlayerStore.currentEpisode.mockReturnValue({ id: 'ep-123', title: 'Test' });
+    component.openFullPlayer();
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/episode', 'ep-123']);
+  });
 
-    expect(mockModalCtrl.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        component: FullPlayerComponent,
-        breakpoints: [0, 1],
-        initialBreakpoint: 1,
-      })
-    );
-    expect(present).toHaveBeenCalledTimes(1);
+  it('does not navigate when no episode is playing', () => {
+    mockPlayerStore.currentEpisode.mockReturnValue(null);
+    component.openFullPlayer();
+    expect(mockRouter.navigate).not.toHaveBeenCalled();
   });
 });
