@@ -19,7 +19,11 @@ export class ThemeService {
     effect(() => {
       this.applyTheme(this.mode());
       if (isPlatformBrowser(this.platformId)) {
-        localStorage.setItem(ThemeService.STORAGE_KEY, this.mode());
+        try {
+          localStorage.setItem(ThemeService.STORAGE_KEY, this.mode());
+        } catch {
+          // Safari private mode or storage quota exceeded — ignore
+        }
       }
     });
   }
@@ -30,8 +34,13 @@ export class ThemeService {
 
   private loadSavedMode(): ThemeMode {
     if (!isPlatformBrowser(this.platformId)) return 'system';
-    const saved = localStorage.getItem(ThemeService.STORAGE_KEY);
-    return (saved as ThemeMode) ?? 'system';
+    try {
+      const saved = localStorage.getItem(ThemeService.STORAGE_KEY);
+      const valid: ThemeMode[] = ['system', 'light', 'dark'];
+      return valid.includes(saved as ThemeMode) ? (saved as ThemeMode) : 'system';
+    } catch {
+      return 'system';
+    }
   }
 
   private applyTheme(mode: ThemeMode): void {
