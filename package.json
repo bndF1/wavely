@@ -105,6 +105,5 @@
     "@swc/core",
     "protobufjs",
     "unrs-resolver"
-  ],
-  "version": "1.5.1"
+  ]
 }
