@@ -28,6 +28,7 @@ import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { PlayerStore } from '../../store/player/player.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
+import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { Podcast, Episode } from '../../core/models/podcast.model';
 import { Observable, catchError, of, retry } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -68,6 +69,7 @@ export class PodcastDetailPage {
   protected readonly playerStore = inject(PlayerStore);
   private readonly authStore = inject(AuthStore);
   private readonly syncService = inject(SubscriptionSyncService);
+  private readonly prefs = inject(UserPreferencesService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   private static readonly PAGE_SIZE = 15;
@@ -196,11 +198,13 @@ export class PodcastDetailPage {
   protected playEpisode(episode: Episode): void {
     if (!this.podcast) return;
     const podcastTitle = this.podcast.title;
-    // Queue from allEpisodes so episodes not yet loaded in the infinite scroll are included
-    const idx = this.allEpisodes.findIndex((e) => e.id === episode.id);
-    const upcoming = this.allEpisodes.slice(idx + 1);
     this.playerStore.clearQueue();
-    upcoming.forEach((e) => this.playerStore.addToQueue({ ...e, podcastTitle }));
+    if (this.prefs.autoQueueEnabled()) {
+      // Queue from allEpisodes so episodes not yet loaded in the infinite scroll are included
+      const idx = this.allEpisodes.findIndex((e) => e.id === episode.id);
+      const upcoming = this.allEpisodes.slice(idx + 1);
+      upcoming.forEach((e) => this.playerStore.addToQueue({ ...e, podcastTitle }));
+    }
     this.playerStore.play({ ...episode, podcastTitle });
     // Navigate to episode detail, passing full objects via router state to avoid extra API calls
     this.router.navigate(['/episode', episode.id], {

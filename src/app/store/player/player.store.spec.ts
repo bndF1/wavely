@@ -156,6 +156,30 @@ describe('PlayerStore', () => {
     });
   });
 
+  describe('queueNext()', () => {
+    it('inserts episode at position 0 when queue is empty', () => {
+      const ep = mockEpisode({ id: 'next-1' });
+      store.queueNext(ep);
+      expect(store.queue()[0].id).toBe('next-1');
+    });
+
+    it('inserts episode before existing queue items', () => {
+      const existing = mockEpisode({ id: 'existing-1' });
+      const priority = mockEpisode({ id: 'priority-1' });
+      store.addToQueue(existing);
+      store.queueNext(priority);
+      expect(store.queue()[0].id).toBe('priority-1');
+      expect(store.queue()[1].id).toBe('existing-1');
+    });
+
+    it('multiple queueNext calls stack in LIFO order', () => {
+      store.queueNext(mockEpisode({ id: 'first' }));
+      store.queueNext(mockEpisode({ id: 'second' }));
+      expect(store.queue()[0].id).toBe('second');
+      expect(store.queue()[1].id).toBe('first');
+    });
+  });
+
 
   describe('removeFromQueue()', () => {
     it('removes only the matching episode id', () => {

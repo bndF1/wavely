@@ -19,6 +19,7 @@ describe('HomePage', () => {
   };
   const mockStore = {
     trending: signal([]),
+    subscriptions: signal([]),
     setLoading: jest.fn(),
     setTrending: jest.fn(),
     setError: jest.fn(),
