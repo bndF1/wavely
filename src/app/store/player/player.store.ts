@@ -82,7 +82,7 @@ export const PlayerStore = signalStore(
     },
     /** Dismiss player entirely */
     close(): void {
-      patchState(store, { currentEpisode: null, isPlaying: false, currentTime: 0, duration: 0 });
+      patchState(store, { currentEpisode: null, isPlaying: false, currentTime: 0, duration: 0, queue: [] });
     },
   }))
 );

@@ -59,6 +59,7 @@
         <h2 class="section-title">Favorites</h2>
         <ion-list lines="none" class="radio-list">
           @for (station of favoriteStations(); track station.stationuuid) {
+            @let isFav = isStationFavorite(station.stationuuid);
             <ion-item
               button
               class="radio-item"
@@ -84,12 +85,12 @@
                 fill="clear"
                 size="small"
                 class="radio-item__favorite-btn"
-                [attr.aria-label]="isStationFavorite(station.stationuuid) ? 'Remove from favorites' : 'Add to favorites'"
+                [attr.aria-label]="isFav ? 'Remove from favorites' : 'Add to favorites'"
                 (click)="onToggleFavorite(station, $event)">
                 <ion-icon
                   slot="icon-only"
-                  [name]="isStationFavorite(station.stationuuid) ? 'heart' : 'heart-outline'"
-                  [color]="isStationFavorite(station.stationuuid) ? 'danger' : 'medium'">
+                  [name]="isFav ? 'heart' : 'heart-outline'"
+                  [color]="isFav ? 'danger' : 'medium'">
                 </ion-icon>
               </ion-button>
             </ion-item>
@@ -102,6 +103,7 @@
 
     <ion-list lines="none" class="radio-list">
       @for (station of filteredStations(); track station.stationuuid) {
+        @let isFav = isStationFavorite(station.stationuuid);
         <ion-item
           button
           class="radio-item"
@@ -119,6 +121,7 @@
             <p class="radio-item__meta">
               @if (station.bitrate) { {{ station.bitrate }} kbps · }{{ station.codec }}
               @if (station.tags) { · {{ station.tags | slice:0:40 }} }
+              @if (isSearchMode() && station.countrycode) { · {{ station.countrycode.toUpperCase() }} }
             </p>
           </ion-label>
           <ion-badge slot="end" class="radio-item__live-badge" color="danger">LIVE</ion-badge>
@@ -127,12 +130,12 @@
             fill="clear"
             size="small"
             class="radio-item__favorite-btn"
-            [attr.aria-label]="isStationFavorite(station.stationuuid) ? 'Remove from favorites' : 'Add to favorites'"
+            [attr.aria-label]="isFav ? 'Remove from favorites' : 'Add to favorites'"
             (click)="onToggleFavorite(station, $event)">
             <ion-icon
               slot="icon-only"
-              [name]="isStationFavorite(station.stationuuid) ? 'heart' : 'heart-outline'"
-              [color]="isStationFavorite(station.stationuuid) ? 'danger' : 'medium'">
+              [name]="isFav ? 'heart' : 'heart-outline'"
+              [color]="isFav ? 'danger' : 'medium'">
             </ion-icon>
           </ion-button>
         </ion-item>
