@@ -100,9 +100,7 @@
   }
 
   <section class="home-section">
-    <h2 class="section-title">
-      {{ store.subscriptions().length === 0 ? 'Popular right now' : 'Trending' }}
-    </h2>
+    <h2 class="section-title">Trending</h2>
     @if (store.subscriptions().length === 0) {
       <p class="section-subtitle">Discover what's popular and subscribe to personalise your feed.</p>
     }
