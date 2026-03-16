@@ -14,85 +14,7 @@
 
 <ion-content>
   <section class="browse-section">
-    <h2 class="section-title">Top in News</h2>
-
-    @if (isLoading()) {
-      <div class="podcast-carousel" aria-label="Loading top news podcasts">
-        @for (s of skeletons; track s) {
-          <ion-card class="skeleton-card" aria-hidden="true">
-            <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
-            <ion-card-content>
-              <ion-skeleton-text [animated]="true" style="width: 85%; height: 16px"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width: 60%; height: 14px"></ion-skeleton-text>
-            </ion-card-content>
-          </ion-card>
-        }
-      </div>
-    } @else if (featuredPodcasts().length > 0) {
-      <div class="podcast-carousel">
-        @for (podcast of featuredPodcasts(); track podcast.id) {
-          <div class="carousel-item">
-            <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
-          </div>
-        }
-      </div>
-    } @else {
-      <ion-text color="medium" class="section-empty">No featured podcasts right now.</ion-text>
-    }
-  </section>
-
-  <div class="category-scroll">
-    <div class="category-row">
-      @if (isLoading()) {
-        @for (s of chipSkeletons; track s) {
-          <ion-chip class="chip-skeleton" aria-hidden="true">
-            <ion-skeleton-text [animated]="true" style="width: 72px; height: 16px;"></ion-skeleton-text>
-          </ion-chip>
-        }
-      } @else {
-        @for (cat of categories; track cat.id) {
-          <ion-chip
-            button
-            [class.selected]="selectedCategory().id === cat.id"
-            [style.--chip-color]="cat.color"
-            (click)="selectCategory(cat)">
-            <ion-label>{{ cat.name }}</ion-label>
-          </ion-chip>
-        }
-      }
-    </div>
-  </div>
-
-  <section class="browse-section">
-    <h2 class="section-title">Top in Technology</h2>
-
-    @if (isLoading()) {
-      <div class="podcast-carousel" aria-label="Loading top technology podcasts">
-        @for (s of skeletons; track s) {
-          <ion-card class="skeleton-card" aria-hidden="true">
-            <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
-            <ion-card-content>
-              <ion-skeleton-text [animated]="true" style="width: 85%; height: 16px"></ion-skeleton-text>
-              <ion-skeleton-text [animated]="true" style="width: 60%; height: 14px"></ion-skeleton-text>
-            </ion-card-content>
-          </ion-card>
-        }
-      </div>
-    } @else if (newNoteworthyPodcasts().length > 0) {
-      <div class="podcast-carousel">
-        @for (podcast of newNoteworthyPodcasts(); track podcast.id) {
-          <div class="carousel-item">
-            <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
-          </div>
-        }
-      </div>
-    } @else {
-      <ion-text color="medium" class="section-empty">No new and noteworthy podcasts yet.</ion-text>
-    }
-  </section>
-
-  <section class="browse-section">
-    <h2 class="section-title">Top Podcasts</h2>
+    <h2 class="section-title">Trending Now</h2>
 
     @if (isLoading()) {
       <div class="podcast-grid" aria-label="Loading category podcasts">
@@ -134,6 +56,84 @@
         actionLabel="Refresh"
         (action)="retryCurrentCategory()">
       </wavely-empty-state>
+    }
+  </section>
+
+  <div class="category-scroll">
+    <div class="category-row">
+      @if (isLoading()) {
+        @for (s of chipSkeletons; track s) {
+          <ion-chip class="chip-skeleton" aria-hidden="true">
+            <ion-skeleton-text [animated]="true" style="width: 72px; height: 16px;"></ion-skeleton-text>
+          </ion-chip>
+        }
+      } @else {
+        @for (cat of categories; track cat.id) {
+          <ion-chip
+            button
+            [class.selected]="selectedCategory().id === cat.id"
+            [style.--chip-color]="cat.color"
+            (click)="selectCategory(cat)">
+            <ion-label>{{ cat.name }}</ion-label>
+          </ion-chip>
+        }
+      }
+    </div>
+  </div>
+
+  <section class="browse-section">
+    <h2 class="section-title">Top in News</h2>
+
+    @if (isLoading()) {
+      <div class="podcast-carousel" aria-label="Loading top news podcasts">
+        @for (s of skeletons; track s) {
+          <ion-card class="skeleton-card" aria-hidden="true">
+            <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
+            <ion-card-content>
+              <ion-skeleton-text [animated]="true" style="width: 85%; height: 16px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width: 60%; height: 14px"></ion-skeleton-text>
+            </ion-card-content>
+          </ion-card>
+        }
+      </div>
+    } @else if (featuredPodcasts().length > 0) {
+      <div class="podcast-carousel">
+        @for (podcast of featuredPodcasts(); track podcast.id) {
+          <div class="carousel-item">
+            <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
+          </div>
+        }
+      </div>
+    } @else {
+      <ion-text color="medium" class="section-empty">No featured podcasts right now.</ion-text>
+    }
+  </section>
+
+  <section class="browse-section">
+    <h2 class="section-title">Top in Technology</h2>
+
+    @if (isLoading()) {
+      <div class="podcast-carousel" aria-label="Loading top technology podcasts">
+        @for (s of skeletons; track s) {
+          <ion-card class="skeleton-card" aria-hidden="true">
+            <ion-skeleton-text [animated]="true" style="height: 120px"></ion-skeleton-text>
+            <ion-card-content>
+              <ion-skeleton-text [animated]="true" style="width: 85%; height: 16px"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" style="width: 60%; height: 14px"></ion-skeleton-text>
+            </ion-card-content>
+          </ion-card>
+        }
+      </div>
+    } @else if (newNoteworthyPodcasts().length > 0) {
+      <div class="podcast-carousel">
+        @for (podcast of newNoteworthyPodcasts(); track podcast.id) {
+          <div class="carousel-item">
+            <wavely-podcast-card [podcast]="podcast" (cardClick)="navigateToPodcast($event)"></wavely-podcast-card>
+          </div>
+        }
+      </div>
+    } @else {
+      <ion-text color="medium" class="section-empty">No new and noteworthy podcasts yet.</ion-text>
     }
   </section>
 

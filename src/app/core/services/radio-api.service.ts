@@ -38,7 +38,7 @@ export class RadioApiService {
   private readonly http = inject(HttpClient);
 
   /** Fetch top stations for a given ISO 3166-1 alpha-2 country code, sorted by votes. */
-  getStationsByCountry(countryCode: string, limit = 40): Observable<RadioStation[]> {
+  getStationsByCountry(countryCode: string, limit = 100): Observable<RadioStation[]> {
     const params = new HttpParams()
       .set('countrycode', countryCode.toUpperCase())
       .set('hidebroken', 'true')
