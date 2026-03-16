@@ -18,9 +18,6 @@ import {
   IonButton,
   IonIcon,
   IonPopover,
-  IonListHeader,
-  IonRadioGroup,
-  IonRadio,
   IonThumbnail,
   IonProgressBar,
   IonChip,
@@ -29,22 +26,19 @@ import {
 import { addIcons } from 'ionicons';
 import {
   addOutline,
-  moonOutline,
-  sunnyOutline,
-  contrastOutline,
   logOutOutline,
   personCircleOutline,
   libraryOutline,
   timeOutline,
   checkmarkCircleOutline,
   radioButtonOffOutline,
+  settingsOutline,
 } from 'ionicons/icons';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { HistoryStore, HistoryEntry, HistoryFilter } from '../../store/history/history.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { HistorySyncService } from '../../core/services/history-sync.service';
-import { ThemeService, ThemeMode } from '../../core/services/theme.service';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { Podcast } from '../../core/models/podcast.model';
 
@@ -73,9 +67,6 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
     IonButton,
     IonIcon,
     IonPopover,
-    IonListHeader,
-    IonRadioGroup,
-    IonRadio,
     IonThumbnail,
     IonProgressBar,
     IonChip,
@@ -87,7 +78,6 @@ export class LibraryPage {
   protected readonly store = inject(PodcastsStore);
   protected readonly authStore = inject(AuthStore);
   protected readonly historyStore = inject(HistoryStore);
-  protected readonly themeService = inject(ThemeService);
   protected readonly prefs = inject(UserPreferencesService);
   protected readonly appVersion = environment.appVersion;
   private readonly syncService = inject(SubscriptionSyncService);
@@ -122,24 +112,17 @@ export class LibraryPage {
     { label: 'Completed', value: 'completed' },
   ];
 
-  protected readonly themeOptions: { label: string; value: ThemeMode; icon: string }[] = [
-    { label: 'System default', value: 'system', icon: 'contrast-outline' },
-    { label: 'Light', value: 'light', icon: 'sunny-outline' },
-    { label: 'Dark', value: 'dark', icon: 'moon-outline' },
-  ];
 
   constructor() {
     addIcons({
       addOutline,
-      moonOutline,
-      sunnyOutline,
-      contrastOutline,
       logOutOutline,
       personCircleOutline,
       timeOutline,
       libraryOutline,
       checkmarkCircleOutline,
       radioButtonOffOutline,
+      settingsOutline,
     });
     this.loadHistory();
   }
@@ -231,6 +214,10 @@ export class LibraryPage {
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays}d ago`;
     return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  protected navigateToSettings(): void {
+    this.router.navigate(['/settings']);
   }
 
   protected async signOut(): Promise<void> {

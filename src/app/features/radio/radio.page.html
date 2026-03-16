@@ -54,6 +54,52 @@
       (action)="retry()">
     </wavely-empty-state>
   } @else {
+    @if (favoriteStations().length > 0) {
+      <section class="radio-section">
+        <h2 class="section-title">Favorites</h2>
+        <ion-list lines="none" class="radio-list">
+          @for (station of favoriteStations(); track station.stationuuid) {
+            <ion-item
+              button
+              class="radio-item"
+              [attr.aria-label]="'Play ' + station.name + ' live'"
+              (click)="playStation(station)">
+              <ion-thumbnail slot="start" class="radio-item__thumbnail">
+                <img
+                  [src]="station.favicon || '/default-artwork.svg'"
+                  [alt]="station.name"
+                  loading="lazy"
+                  (error)="$any($event.target).src='/default-artwork.svg'" />
+              </ion-thumbnail>
+              <ion-label>
+                <h3 class="radio-item__name">{{ station.name }}</h3>
+                <p class="radio-item__meta">
+                  @if (station.bitrate) { {{ station.bitrate }} kbps · }{{ station.codec }}
+                  @if (station.tags) { · {{ station.tags | slice:0:40 }} }
+                </p>
+              </ion-label>
+              <ion-badge slot="end" class="radio-item__live-badge" color="danger">LIVE</ion-badge>
+              <ion-button
+                slot="end"
+                fill="clear"
+                size="small"
+                class="radio-item__favorite-btn"
+                [attr.aria-label]="isStationFavorite(station.stationuuid) ? 'Remove from favorites' : 'Add to favorites'"
+                (click)="onToggleFavorite(station, $event)">
+                <ion-icon
+                  slot="icon-only"
+                  [name]="isStationFavorite(station.stationuuid) ? 'heart' : 'heart-outline'"
+                  [color]="isStationFavorite(station.stationuuid) ? 'danger' : 'medium'">
+                </ion-icon>
+              </ion-button>
+            </ion-item>
+          }
+        </ion-list>
+      </section>
+
+      <h2 class="section-title">All Stations</h2>
+    }
+
     <ion-list lines="none" class="radio-list">
       @for (station of filteredStations(); track station.stationuuid) {
         <ion-item
@@ -76,6 +122,19 @@
             </p>
           </ion-label>
           <ion-badge slot="end" class="radio-item__live-badge" color="danger">LIVE</ion-badge>
+          <ion-button
+            slot="end"
+            fill="clear"
+            size="small"
+            class="radio-item__favorite-btn"
+            [attr.aria-label]="isStationFavorite(station.stationuuid) ? 'Remove from favorites' : 'Add to favorites'"
+            (click)="onToggleFavorite(station, $event)">
+            <ion-icon
+              slot="icon-only"
+              [name]="isStationFavorite(station.stationuuid) ? 'heart' : 'heart-outline'"
+              [color]="isStationFavorite(station.stationuuid) ? 'danger' : 'medium'">
+            </ion-icon>
+          </ion-button>
         </ion-item>
       }
     </ion-list>

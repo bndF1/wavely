@@ -8,6 +8,7 @@ import {
   IonChip,
   IonContent,
   IonHeader,
+  IonIcon,
   IonItem,
   IonLabel,
   IonList,
@@ -17,12 +18,13 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { alertCircleOutline, radioOutline, refreshOutline } from 'ionicons/icons';
+import { alertCircleOutline, heart, heartOutline, radioOutline, refreshOutline } from 'ionicons/icons';
 import { Subject, catchError, of, switchMap, takeUntil, tap } from 'rxjs';
 
 import { RadioStation } from '../../core/models/radio-station.model';
 import { PODCAST_MARKETS, CountryService } from '../../core/services/country.service';
 import { RadioApiService, radioStationToEpisode } from '../../core/services/radio-api.service';
+import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { PlayerStore } from '../../store/player/player.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
@@ -49,6 +51,7 @@ const ALL_TAG = 'All';
     IonItem,
     IonThumbnail,
     IonBadge,
+    IonIcon,
     IonSkeletonText,
     SlicePipe,
     EmptyStateComponent,
@@ -58,6 +61,7 @@ export class RadioPage implements OnDestroy {
   private readonly radioApi = inject(RadioApiService);
   private readonly playerStore = inject(PlayerStore);
   protected readonly countryService = inject(CountryService);
+  protected readonly prefs = inject(UserPreferencesService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
@@ -107,11 +111,16 @@ export class RadioPage implements OnDestroy {
     );
   });
 
+  protected readonly favoriteStations = computed(() => {
+    const stations = this.stations();
+    return stations.filter((station) => this.prefs.isFavorite(station.stationuuid));
+  });
+
   private readonly country$ = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
-    addIcons({ alertCircleOutline, refreshOutline, radioOutline });
+    addIcons({ alertCircleOutline, refreshOutline, radioOutline, heart, heartOutline });
 
     this.country$
       .pipe(
@@ -151,6 +160,15 @@ export class RadioPage implements OnDestroy {
   protected playStation(station: RadioStation): void {
     this.radioApi.registerClick(station.stationuuid).subscribe();
     this.playerStore.play(radioStationToEpisode(station));
+  }
+
+  protected onToggleFavorite(station: RadioStation, event: Event): void {
+    event.stopPropagation();
+    this.prefs.toggleFavorite(station.stationuuid);
+  }
+
+  protected isStationFavorite(stationuuid: string): boolean {
+    return this.prefs.isFavorite(stationuuid);
   }
 
   protected retry(): void {
