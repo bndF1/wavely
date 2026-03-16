@@ -66,3 +66,66 @@
     line-height: 1.5;
   }
 }
+
+/* Episode feed */
+.feed-list {
+  margin: 0 -16px;
+}
+
+.feed-item {
+  --padding-start: 16px;
+  --inner-padding-end: 8px;
+}
+
+.feed-thumbnail {
+  --size: 56px;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-inline-end: 12px;
+
+  img, ion-skeleton-text {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.feed-episode-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--wavely-on-surface);
+}
+
+.feed-date {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--wavely-on-surface-muted);
+}
+
+.load-more-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 4px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--ion-color-light);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--wavely-primary);
+  cursor: pointer;
+  text-align: center;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
