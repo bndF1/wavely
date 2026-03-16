@@ -1,6 +1,5 @@
 {
   "name": "@wavely/source",
-"version": "1.4.2",
   "license": "MIT",
   "scripts": {
     "generate-env": "node --env-file=.env scripts/generate-env.mjs",
@@ -105,5 +104,6 @@
     "@swc/core",
     "protobufjs",
     "unrs-resolver"
-  ]
+  ],
+  "version": "1.5.1"
 }

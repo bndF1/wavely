@@ -1,3 +1,4 @@
+import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ThemeService } from './theme.service';
 
@@ -22,14 +23,16 @@ function setupMatchMedia(prefersDark = false): void {
 describe('ThemeService', () => {
   beforeEach(() => {
     localStorage.clear();
-    document.documentElement.classList.remove('ion-palette-dark');
+    document.documentElement.classList.remove('ion-palette-dark', 'force-light-theme');
     setupMatchMedia(false);
   });
 
   afterEach(() => TestBed.resetTestingModule());
 
   function createService(): ThemeService {
-    TestBed.configureTestingModule({ providers: [ThemeService] });
+    TestBed.configureTestingModule({
+      providers: [ThemeService, { provide: PLATFORM_ID, useValue: 'browser' }],
+    });
     return TestBed.inject(ThemeService);
   }
 
@@ -44,6 +47,22 @@ describe('ThemeService', () => {
       const service = createService();
       expect(service.mode()).toBe('dark');
     });
+
+    it('defaults to "system" when localStorage contains an invalid value', () => {
+      localStorage.setItem(STORAGE_KEY, 'corrupted');
+      const service = createService();
+      expect(service.mode()).toBe('system');
+    });
+  });
+
+  describe('SSR (non-browser)', () => {
+    it('constructs without touching localStorage or document and defaults to "system"', () => {
+      TestBed.configureTestingModule({
+        providers: [ThemeService, { provide: PLATFORM_ID, useValue: 'server' }],
+      });
+      const service = TestBed.inject(ThemeService);
+      expect(service.mode()).toBe('system');
+    });
   });
 
   describe('setMode()', () => {
@@ -52,14 +71,25 @@ describe('ThemeService', () => {
       service.setMode('dark');
       TestBed.flushEffects();
       expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(true);
+      expect(document.documentElement.classList.contains('force-light-theme')).toBe(false);
     });
 
-    it('"light" removes ion-palette-dark class from <html>', () => {
+    it('"light" removes ion-palette-dark and adds force-light-theme to <html>', () => {
       document.documentElement.classList.add('ion-palette-dark');
       const service = createService();
       service.setMode('light');
       TestBed.flushEffects();
       expect(document.documentElement.classList.contains('ion-palette-dark')).toBe(false);
+      expect(document.documentElement.classList.contains('force-light-theme')).toBe(true);
+    });
+
+    it('"system" removes force-light-theme when switching back from light', () => {
+      const service = createService();
+      service.setMode('light');
+      TestBed.flushEffects();
+      service.setMode('system');
+      TestBed.flushEffects();
+      expect(document.documentElement.classList.contains('force-light-theme')).toBe(false);
     });
 
     it('"system" adds class when prefers-color-scheme is dark', () => {

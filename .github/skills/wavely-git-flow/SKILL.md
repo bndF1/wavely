@@ -89,6 +89,23 @@ https://wavely-f659c--pr-<number>-<hash>.web.app
 
 These expire after 7 days (configured in `firebase.json`).
 
+## README & Landing Page Updates (MANDATORY)
+
+For **every promotion PR** (`feature/*` → `dev`, `dev` → `staging`, `staging` → `main`), the README and landing page **must** be updated to reflect what's been built. This is non-negotiable — do it as part of the promotion PR, not as a follow-up.
+
+| Promotion | What to update |
+|-----------|----------------|
+| `feature/*` → `dev` | README: mark the feature as in-progress or done in the roadmap/changelog; landing: update if user-facing |
+| `dev` → `staging` | README: update milestone progress, feature list, "What's new" section; landing: reflect any new capabilities |
+| `staging` → `main` | README: finalize release notes, bump "Current version" badge; landing: full update for production |
+
+**Checklist before opening a promotion PR:**
+- [ ] README reflects the features included in this promotion
+- [ ] Landing page updated if any user-facing change is included
+- [ ] Version badge / "Latest release" line in README is accurate
+
+---
+
 ## Standard Workflow
 
 ```bash
