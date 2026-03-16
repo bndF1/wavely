@@ -15,18 +15,18 @@ test.describe('Tab navigation', () => {
     await expect(tabBar).toBeVisible();
   });
 
-  test('navigates to Browse tab', async ({ page }) => {
+  test('navigates to Discover tab', async ({ page }) => {
     await page.goto('/tabs');
-    const browseTab = page.getByRole('tab', { name: /browse/i });
-    await browseTab.click();
-    await expect(page).toHaveURL(/\/tabs\/browse/);
+    const discoverTab = page.getByRole('tab', { name: /discover/i });
+    await discoverTab.click();
+    await expect(page).toHaveURL(/\/tabs\/discover/);
   });
 
-  test('navigates to Search tab', async ({ page }) => {
+  test('navigates to Radio tab', async ({ page }) => {
     await page.goto('/tabs');
-    const searchTab = page.getByRole('tab', { name: /search/i });
-    await searchTab.click();
-    await expect(page).toHaveURL(/\/tabs\/search/);
+    const radioTab = page.getByRole('tab', { name: /radio/i });
+    await radioTab.click();
+    await expect(page).toHaveURL(/\/tabs\/radio/);
   });
 
   test('navigates to Library tab', async ({ page }) => {
