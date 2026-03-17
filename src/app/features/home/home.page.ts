@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed, effect } from '@angular/co
 import { Router } from '@angular/router';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import {
   IonHeader,
@@ -41,7 +41,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { EpisodeItemComponent } from '../../shared/components/episode-item/episode-item.component';
 
 const SKELETON_COUNT = 6;
-const FEED_LIMIT_PER_PODCAST = 10;
+const FEED_LIMIT_PER_PODCAST = 20;
 const FEED_PAGE_SIZE = 30;
 const FEED_MAX_AGE_DAYS = 30;
 
@@ -139,6 +139,12 @@ export class HomePage implements OnInit {
     }
   }
 
+  ionViewWillEnter(): void {
+    if (!this.isFeedLoading()) {
+      void this.loadFeed(true);
+    }
+  }
+
   protected async handleRefresh(event: RefresherCustomEvent): Promise<void> {
     await Promise.all([this.loadTrending(), this.loadFeed(true)]);
     event.detail.complete();
@@ -212,11 +218,31 @@ export class HomePage implements OnInit {
     this.displayCount.set(FEED_PAGE_SIZE);
 
     return new Promise((resolve) => {
-      const requests = subs.map((podcast) =>
-        this.api.getPodcastEpisodes(podcast.id, FEED_LIMIT_PER_PODCAST).pipe(
+      const requests = subs.map((podcast) => {
+        if (podcast.feedUrl) {
+          return this.api.getEpisodesFromRss(podcast.feedUrl, podcast.id).pipe(
+            map((eps) => eps.slice(0, FEED_LIMIT_PER_PODCAST)),
+            // Enrich RSS episodes with podcastTitle (not set by RSS parser)
+            map((eps) => eps.map((ep) => ({ ...ep, podcastTitle: ep.podcastTitle ?? podcast.title }))),
+            // Fall back to iTunes when RSS returns no episodes (e.g. CORS/proxy block)
+            switchMap((eps) =>
+              eps.length > 0
+                ? of(eps)
+                : this.api.getPodcastEpisodes(podcast.id, FEED_LIMIT_PER_PODCAST).pipe(
+                    catchError(() => of([] as Episode[])),
+                  ),
+            ),
+            catchError(() =>
+              this.api.getPodcastEpisodes(podcast.id, FEED_LIMIT_PER_PODCAST).pipe(
+                catchError(() => of([] as Episode[])),
+              ),
+            ),
+          );
+        }
+        return this.api.getPodcastEpisodes(podcast.id, FEED_LIMIT_PER_PODCAST).pipe(
           catchError(() => of([] as Episode[])),
-        )
-      );
+        );
+      });
 
       forkJoin(requests).subscribe({
         next: (results) => {

@@ -67,6 +67,7 @@
         <ion-list lines="none" class="feed-list">
           @for (episode of feedEpisodes(); track episode.id) {
             <wavely-episode-item
+              class="feed-item"
               [episode]="episode"
               [podcastTitle]="episode.podcastTitle"
               (episodePlay)="playEpisode($event)"
