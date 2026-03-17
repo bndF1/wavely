@@ -76,12 +76,12 @@
 
 /* Episode feed */
 .feed-list {
-  margin: 0 -16px;
+  margin: 0;
 }
 
 .feed-item {
-  --padding-start: 16px;
-  --inner-padding-end: 8px;
+  --padding-start: 0;
+  --inner-padding-end: 0;
 }
 
 .feed-thumbnail {
