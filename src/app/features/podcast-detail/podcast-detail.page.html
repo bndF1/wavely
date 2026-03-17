@@ -99,7 +99,6 @@
         @for (episode of episodes; track episode.id) {
           <wavely-episode-item
             [episode]="episode"
-            [showPodcastTitle]="false"
             [podcastTitle]="podcast?.title"
             (episodePlay)="playEpisode($event)"
             (addToQueue)="queueEpisode($event)">
