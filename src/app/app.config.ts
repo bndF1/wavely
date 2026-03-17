@@ -49,7 +49,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     provideHttpClient(withFetch()),
     importProvidersFrom(
-      TranslateModule.forRoot({ defaultLanguage: 'en' }),
+      TranslateModule.forRoot({ fallbackLang: 'en' }),
     ),
     ...provideTranslateHttpLoader({ prefix: '/i18n/', suffix: '.json' }),
     provideFirebaseApp(() => getApp()),
