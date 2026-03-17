@@ -44,6 +44,7 @@ import { EpisodeItemComponent } from '../../shared/components/episode-item/episo
 const SKELETON_COUNT = 6;
 const FEED_LIMIT_PER_PODCAST = 10;
 const FEED_PAGE_SIZE = 30;
+const FEED_MAX_AGE_DAYS = 30;
 
 @Component({
   selector: 'wavely-home',
@@ -102,11 +103,9 @@ export class HomePage implements OnInit {
   private readonly displayCount = signal(FEED_PAGE_SIZE);
 
   protected readonly feedEpisodes = computed(() => {
-    const completedIds = new Set(
-      this.historyStore.entries().filter((e) => e.completed).map((e) => e.episodeId)
-    );
+    const cutoff = Date.now() - FEED_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
     return this.allFeedEpisodes()
-      .filter((ep) => !completedIds.has(ep.id))
+      .filter((ep) => !ep.releaseDate || new Date(ep.releaseDate).getTime() >= cutoff)
       .slice(0, this.displayCount());
   });
   protected readonly hasMoreFeed = computed(

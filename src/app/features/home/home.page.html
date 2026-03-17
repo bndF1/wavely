@@ -84,11 +84,10 @@
     </section>
   }
 
+  @if (store.subscriptions().length === 0) {
   <section class="home-section">
     <h2 class="section-title">Trending</h2>
-    @if (store.subscriptions().length === 0) {
-      <p class="section-subtitle">Discover what's popular and subscribe to personalise your feed.</p>
-    }
+    <p class="section-subtitle">Discover what's popular and subscribe to personalise your feed.</p>
 
     @if (store.error() && !store.isLoading()) {
       <wavely-empty-state
@@ -132,4 +131,5 @@
       </wavely-empty-state>
     }
   </section>
+  }
 </ion-content>
