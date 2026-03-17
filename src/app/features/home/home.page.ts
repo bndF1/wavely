@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal, computed, effect } from '@angular/co
 import { Router } from '@angular/router';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { PlayerModalService } from '../../core/services/player-modal.service';
-import { HistoryStore } from '../../store/history/history.store';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 

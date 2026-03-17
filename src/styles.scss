@@ -186,3 +186,10 @@ ion-toolbar {
     margin-right: auto;
   }
 }
+
+/* ─── Mini-player bottom clearance ─── */
+// When the mini player is visible, bump ion-content's scroll area so the
+// last item is never hidden behind the player (56px player + 8px breathing room).
+ion-tabs.has-mini-player ion-content {
+  --offset-bottom: 64px;
+}
