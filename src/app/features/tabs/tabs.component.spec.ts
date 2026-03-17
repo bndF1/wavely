@@ -17,7 +17,7 @@ describe('TabsComponent', () => {
   let fixture: ComponentFixture<TabsComponent>;
   let component: TabsComponent;
 
-  const mockModal = { present: jest.fn().mockResolvedValue(undefined) };
+  const mockModal = { present: jest.fn().mockResolvedValue(undefined), classList: { contains: jest.fn(() => false) } };
   const mockModalCtrl = {
     create: jest.fn().mockResolvedValue(mockModal),
     getTop: jest.fn().mockResolvedValue(null),
@@ -70,5 +70,19 @@ describe('TabsComponent', () => {
     mockPlayerStore.currentEpisode.mockReturnValue(null);
     await component.openFullPlayer();
     expect(mockModalCtrl.create).not.toHaveBeenCalled();
+  });
+
+  it('does not open a second modal if one is already open', async () => {
+    mockPlayerStore.currentEpisode.mockReturnValue({ id: 'ep-123', title: 'Test' });
+    const existingModal = { classList: { contains: jest.fn(() => true) } };
+    mockModalCtrl.getTop.mockResolvedValueOnce(existingModal);
+    await component.openFullPlayer();
+    expect(mockModalCtrl.create).not.toHaveBeenCalled();
+  });
+
+  it('does not open concurrent modals on rapid taps', async () => {
+    mockPlayerStore.currentEpisode.mockReturnValue({ id: 'ep-123', title: 'Test' });
+    await Promise.all([component.openFullPlayer(), component.openFullPlayer()]);
+    expect(mockModalCtrl.create).toHaveBeenCalledTimes(1);
   });
 });
