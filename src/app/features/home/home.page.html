@@ -33,6 +33,32 @@
     </section>
   }
 
+  @if (prefs.favoriteStations().length > 0) {
+    <section class="home-section">
+      <h2 class="section-title">{{ 'home.favorite_stations' | translate }}</h2>
+      <div class="subscriptions-scroll">
+        <div class="stations-row">
+          @for (station of prefs.favoriteStations(); track station.stationuuid) {
+            <button
+              type="button"
+              class="station-card"
+              [attr.aria-label]="station.name"
+              (click)="playStation(station)">
+              <div class="station-card__artwork">
+                <img
+                  [src]="station.favicon || '/default-artwork.svg'"
+                  [alt]="station.name"
+                  loading="lazy"
+                  (error)="$any($event.target).src='/default-artwork.svg'" />
+              </div>
+              <p class="station-card__name">{{ station.name }}</p>
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
   @if (store.subscriptions().length > 0) {
     <section class="home-section">
       <h2 class="section-title">{{ 'home.latest_episodes' | translate }}</h2>

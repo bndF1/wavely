@@ -31,6 +31,7 @@ import {
   searchOutline,
   sparklesOutline,
   chevronDownOutline,
+  radioOutline,
 } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
@@ -39,6 +40,8 @@ import { PlayerStore } from '../../store/player/player.store';
 import { HistoryStore } from '../../store/history/history.store';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { Episode, Podcast } from '../../core/models/podcast.model';
+import { RadioStation } from '../../core/models/radio-station.model';
+import { radioStationToEpisode } from '../../core/services/radio-api.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { EpisodeItemComponent } from '../../shared/components/episode-item/episode-item.component';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -83,7 +86,7 @@ export class HomePage implements OnInit {
   private readonly countryService = inject(CountryService);
   private readonly playerStore = inject(PlayerStore);
   private readonly historyStore = inject(HistoryStore);
-  private readonly prefs = inject(UserPreferencesService);
+  protected readonly prefs = inject(UserPreferencesService);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
   protected readonly feedSkeletons = Array.from({ length: 5 });
@@ -130,6 +133,7 @@ export class HomePage implements OnInit {
       alertCircleOutline,
       sparklesOutline,
       chevronDownOutline,
+      radioOutline,
     });
 
     // Reload feed whenever the set of subscriptions changes (handles new subscriptions added later)
@@ -198,6 +202,11 @@ export class HomePage implements OnInit {
 
   protected queueEpisode(episode: Episode): void {
     this.playerStore.addToQueue(episode);
+  }
+
+  protected playStation(station: RadioStation): void {
+    this.playerStore.play(radioStationToEpisode(station));
+    void this.playerModal.open();
   }
 
   private loadTrending(): Promise<void> {

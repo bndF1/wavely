@@ -14,7 +14,8 @@
     "load_more": "Load {{count}} more episodes",
     "error_trending": "Could not load trending podcasts. Pull down to retry.",
     "error_feed": "Could not load episodes. Pull down to retry.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "favorite_stations": "Favorite Stations"
   },
   "browse": {
     "title": "Browse",

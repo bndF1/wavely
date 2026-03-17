@@ -123,7 +123,7 @@ export class RadioPage implements OnDestroy {
 
   protected readonly favoriteStations = computed(() => {
     if (this.isSearchMode()) return [];
-    return this.stations().filter((station) => this.prefs.isFavorite(station.stationuuid));
+    return this.prefs.favoriteStations();
   });
 
   private readonly country$ = new Subject<string>();
@@ -154,6 +154,7 @@ export class RadioPage implements OnDestroy {
       .subscribe((stations) => {
         this.stations.set(stations);
         this.isLoading.set(false);
+        this.prefs.migrateLegacyFavorites(stations);
       });
 
     this.search$
@@ -220,7 +221,7 @@ export class RadioPage implements OnDestroy {
 
   protected onToggleFavorite(station: RadioStation, event: Event): void {
     event.stopPropagation();
-    this.prefs.toggleFavorite(station.stationuuid);
+    this.prefs.toggleFavorite(station);
   }
 
   protected isStationFavorite(stationuuid: string): boolean {
