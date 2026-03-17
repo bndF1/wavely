@@ -5,6 +5,22 @@
   }
 }
 
+.search-bar-wrapper {
+  padding: 8px 8px 0;
+  background: var(--wavely-background);
+
+  ion-searchbar {
+    --background: var(--wavely-surface-variant);
+    --color: var(--wavely-on-surface);
+    --placeholder-color: var(--wavely-on-surface-muted);
+    --icon-color: var(--wavely-on-surface-muted);
+    --clear-button-color: var(--wavely-on-surface-muted);
+    --border-radius: 12px;
+    --box-shadow: none;
+    height: 44px;
+  }
+}
+
 .tag-scroll {
   overflow-x: auto;
   padding: 8px 16px;
@@ -42,6 +58,13 @@ ion-chip {
   color: var(--wavely-on-surface-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.search-results-hint {
+  margin: 6px 16px 2px;
+  font-size: 12px;
+  color: var(--wavely-on-surface-muted);
+  font-style: italic;
 }
 
 .radio-list {
