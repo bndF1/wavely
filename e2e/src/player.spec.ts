@@ -109,7 +109,7 @@ test.describe('Player', () => {
   test('clicking mini player opens full player', async ({ page }) => {
     await page.locator('wavely-mini-player .mini-player').click();
 
-    await expect(page).toHaveURL(/\/episode\//);
+    await expect(page.locator('ion-modal.full-player-modal')).toBeVisible();
   });
 
   test('full player shows title and controls', async ({ page }) => {
