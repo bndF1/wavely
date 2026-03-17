@@ -115,10 +115,10 @@ test.describe('Player', () => {
   test('full player shows title and controls', async ({ page }) => {
     await page.locator('wavely-mini-player .mini-player').click();
 
-    await expect(page).toHaveURL(/\/episode\//);
-    await expect(page.locator('.episode-title')).toHaveText(PLAYER_EPISODE.title);
-    await expect(page.getByRole('button', { name: /skip back 30 seconds/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /skip forward 30 seconds/i })).toBeVisible();
-    await expect(page.locator('ion-button.play-pause-btn')).toBeVisible();
+    const fullPlayer = page.locator('ion-modal.full-player-modal wavely-full-player');
+    await expect(fullPlayer.locator('.full-player__title')).toHaveText(PLAYER_EPISODE.title);
+    await expect(fullPlayer.getByRole('button', { name: /skip back 15 seconds/i })).toBeVisible();
+    await expect(fullPlayer.getByRole('button', { name: /skip forward 30 seconds/i })).toBeVisible();
+    await expect(fullPlayer.locator('button.full-player__play-pause-btn')).toBeVisible();
   });
 });
