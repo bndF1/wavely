@@ -35,7 +35,7 @@
     size="small"
     [attr.aria-label]="'Queue ' + episode().title"
     (click)="emitQueue($event)">
-    <ion-icon slot="icon-only" name="add-outline"></ion-icon>
+    <ion-icon slot="icon-only" [name]="justAdded() ? 'checkmark-outline' : 'add-outline'"></ion-icon>
   </ion-button>
 
   <ion-button
