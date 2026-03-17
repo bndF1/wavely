@@ -22,6 +22,7 @@ import {
 import { PlayerStore } from '../../store/player/player.store';
 import { MiniPlayerComponent } from '../player/mini-player/mini-player.component';
 import { OfflineBannerComponent } from '../../shared/components/offline-banner/offline-banner.component';
+import { FullPlayerComponent } from '../player/full-player/full-player.component';
 
 @Component({
   selector: 'wavely-tabs',
