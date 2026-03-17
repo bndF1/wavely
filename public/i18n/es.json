@@ -92,7 +92,7 @@
   "player": {
     "play": "Reproducir",
     "pause": "Pausar",
-    "skip_back": "Retroceder 30 segundos",
+    "skip_back": "Retroceder 15 segundos",
     "skip_forward": "Avanzar 30 segundos",
     "previous_episode": "Episodio anterior",
     "next_episode": "Episodio siguiente",
@@ -143,5 +143,9 @@
     "fr": "Français",
     "de": "Deutsch",
     "pt": "Português"
+  },
+  "episode": {
+    "play": "Reproducir",
+    "add_to_queue": "Añadir a la cola"
   }
 }

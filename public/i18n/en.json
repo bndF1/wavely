@@ -92,7 +92,7 @@
   "player": {
     "play": "Play",
     "pause": "Pause",
-    "skip_back": "Skip back 30 seconds",
+    "skip_back": "Skip back 15 seconds",
     "skip_forward": "Skip forward 30 seconds",
     "previous_episode": "Previous episode",
     "next_episode": "Next episode",
@@ -136,6 +136,10 @@
     "cancel": "Cancel",
     "close": "Close",
     "search": "Search"
+  },
+  "episode": {
+    "play": "Play",
+    "add_to_queue": "Add to queue"
   },
   "languages": {
     "en": "English",
