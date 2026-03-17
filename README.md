@@ -284,6 +284,18 @@ gh pr create --base dev
 - [x] Logout now stops the audio player
 - [x] Onboarding UX: Home shows trending when no subscriptions
 
+### v1.5.3–v1.5.11 — Polish & Incremental Fixes ✅ Shipped
+- [x] Multiple layout, padding and spacing fixes across tabs
+- [x] Feed list left padding restored
+- [x] Version bump automation and CI hardening
+
+### v1.6.0 — Design Tokens, WCAG Touch Targets & Completed Episode Filter 🚧 Staging
+- [x] Episode-item transparent background — removes white card background from feed list ([#291](https://github.com/bndF1/wavely/issues/291) partial)
+- [x] Design token cleanup — replaced hardcoded `#fff` with `var(--ion-color-primary-contrast)` in browse, discover, and radio chip selected states
+- [x] Full-player LIVE badge now uses `var(--ion-color-danger)` / `var(--ion-color-danger-contrast)` instead of hardcoded hex values
+- [x] Mini-player play/close buttons bumped from 40 px → 44 px for WCAG 2.5.5 touch target compliance ([#290](https://github.com/bndF1/wavely/issues/290) partial)
+- [x] Home feed filters out completed episodes via HistoryStore ([#242](https://github.com/bndF1/wavely/issues/242))
+
 ### v2.0 — Native Platform
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
 - [ ] Deep links / Universal Links ([#42](https://github.com/bndF1/wavely/issues/42))

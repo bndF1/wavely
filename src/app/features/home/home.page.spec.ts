@@ -92,7 +92,9 @@ describe('HomePage', () => {
     historyStore.setEntries([
       {
         episodeId: 'feed-ep2',
-        podcastId: 'p1',
+        episodeTitle: 'Episode 2',
+        podcastTitle: 'Podcast 1',
+        imageUrl: 'https://example.com/image.jpg',
         completed: true,
         position: 100,
         duration: 100,
