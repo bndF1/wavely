@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
 
 import {
   IonTabs,
@@ -7,6 +6,7 @@ import {
   IonTabButton,
   IonIcon,
   IonLabel,
+  ModalController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
