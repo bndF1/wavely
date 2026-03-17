@@ -18,10 +18,6 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
-    path: 'episode/:id',
-    renderMode: RenderMode.Server,
-  },
-  {
     path: 'publisher/:artistId',
     renderMode: RenderMode.Client,
   },
