@@ -14,7 +14,8 @@
     "load_more": "Cargar {{count}} episodios más",
     "error_trending": "No se pudieron cargar los podcasts en tendencia. Desliza hacia abajo para reintentar.",
     "error_feed": "No se pudieron cargar los episodios. Desliza hacia abajo para reintentar.",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "favorite_stations": "Estaciones Favoritas"
   },
   "browse": {
     "title": "Explorar",
