@@ -28,6 +28,7 @@ import { Podcast } from '../../core/models/podcast.model';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 const SKELETON_COUNT = 6;
 const PAGE_SIZE = 12;
@@ -51,6 +52,7 @@ const PAGE_SIZE = 12;
     IonToolbar,
     PodcastCardComponent,
     EmptyStateComponent,
+    TranslatePipe,
   ],
 })
 export class PublisherPage {

@@ -29,6 +29,7 @@ import { RadioApiService, radioStationToEpisode } from '../../core/services/radi
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { PlayerStore } from '../../store/player/player.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 const SKELETON_COUNT = 8;
 const MAX_TAG_CHIPS = 14;
@@ -59,6 +60,7 @@ const SEARCH_LIMIT = 60;
     IonSkeletonText,
     SlicePipe,
     EmptyStateComponent,
+    TranslatePipe,
   ],
 })
 export class RadioPage implements OnDestroy {

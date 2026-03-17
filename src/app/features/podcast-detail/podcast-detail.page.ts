@@ -33,6 +33,7 @@ import { Observable, catchError, of, retry } from 'rxjs';
 import { EpisodeItemComponent } from '../../shared/components/episode-item/episode-item.component';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs/operators';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'wavely-podcast-detail',
@@ -56,6 +57,7 @@ import { map, switchMap } from 'rxjs/operators';
     IonInfiniteScroll,
     IonInfiniteScrollContent,
     EpisodeItemComponent,
+    TranslatePipe,
   ],
 })
 export class PodcastDetailPage {
