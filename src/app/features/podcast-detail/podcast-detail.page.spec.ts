@@ -20,6 +20,7 @@ import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { PlayerStore } from '../../store/player/player.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
+import { PlayerModalService } from '../../core/services/player-modal.service';
 import { mockEpisode, mockPodcast } from '../../../testing/podcast-fixtures';
 import {
   mockPlayerStore,
@@ -61,6 +62,7 @@ describe('PodcastDetailPage', () => {
         { provide: AuthStore, useValue: mockAuth },
         { provide: SubscriptionSyncService, useValue: mockSyncService },
         { provide: Router, useValue: mockRouter },
+        { provide: PlayerModalService, useValue: { open: jest.fn().mockResolvedValue(undefined) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -168,17 +170,18 @@ describe('PodcastDetailPage', () => {
     expect(mockSyncService.removeSubscription).not.toHaveBeenCalled();
   });
 
-  it('plays selected episode, queues upcoming episodes, and navigates with state', async () => {
+  it('plays selected episode, queues upcoming episodes, and opens full player modal', async () => {
     await createComponent();
+    const playerModal = TestBed.inject(PlayerModalService) as jest.Mocked<PlayerModalService>;
 
     component['playEpisode'](episodes[0]);
 
     expect(mockPlayer.clearQueue).toHaveBeenCalledTimes(1);
     expect(mockPlayer.addToQueue).toHaveBeenCalledWith({ ...episodes[1], podcastTitle: podcast.title });
     expect(mockPlayer.play).toHaveBeenCalledWith({ ...episodes[0], podcastTitle: podcast.title });
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/episode', 'ep-1'], {
-      state: { episode: { ...episodes[0], podcastTitle: podcast.title }, podcast },
-    });
+    await Promise.resolve();
+    expect(playerModal.open).toHaveBeenCalled();
+    expect(mockRouter.navigate).not.toHaveBeenCalledWith(expect.arrayContaining(['/episode']));
   });
 
   it('does nothing on playEpisode when podcast is null', async () => {
@@ -188,7 +191,6 @@ describe('PodcastDetailPage', () => {
     component['playEpisode'](episodes[0]);
 
     expect(mockPlayer.play).not.toHaveBeenCalled();
-    expect(mockRouter.navigate).not.toHaveBeenCalled();
   });
 
   it('falls back to default artwork on image error', async () => {

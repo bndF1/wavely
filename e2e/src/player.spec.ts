@@ -78,7 +78,11 @@ test.describe('Player', () => {
 
     await page.goto(`/podcast/${PLAYER_PODCAST.id}`);
     await page.getByRole('button', { name: `Play ${PLAYER_EPISODE.title}`, exact: true }).click();
-    await expect(page).toHaveURL(/\/episode\//);
+    // v1.5.9+: episode play opens the full-player modal instead of navigating to /episode/
+    const fullPlayerModal = page.locator('ion-modal.full-player-modal');
+    await expect(fullPlayerModal).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(fullPlayerModal).not.toBeVisible();
 
     // Navigate within the SPA to preserve PlayerStore state (page.goto would reload)
     await page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/home');
