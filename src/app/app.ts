@@ -7,6 +7,7 @@ import { filter, take } from 'rxjs';
 import { AudioService } from './core/services/audio.service';
 import { AuthService } from './core/auth/auth.service';
 import { AuthStore } from './store/auth/auth.store';
+import { ThemeService } from './core/services/theme.service';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -20,6 +21,9 @@ export class App {
   // Injecting AudioService here ensures it's instantiated at app start
   // so effects are registered before any playback is triggered.
   private readonly _audio = inject(AudioService);
+  // Injecting ThemeService here ensures the saved theme is applied before
+  // the first render, avoiding a flash of the wrong color scheme.
+  private readonly _theme = inject(ThemeService);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 

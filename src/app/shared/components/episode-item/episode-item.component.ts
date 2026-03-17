@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { IonButton, IonIcon, IonItem, IonLabel, IonNote, IonThumbnail } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { addOutline, playCircleOutline } from 'ionicons/icons';
+import { addOutline, checkmarkOutline, playCircleOutline } from 'ionicons/icons';
 
 import { Episode } from '../../../core/models/podcast.model';
 
@@ -22,8 +22,10 @@ export class EpisodeItemComponent {
   readonly episodePlay = output<Episode>();
   readonly addToQueue = output<Episode>();
 
+  protected readonly justAdded = signal(false);
+
   constructor() {
-    addIcons({ playCircleOutline, addOutline });
+    addIcons({ playCircleOutline, addOutline, checkmarkOutline });
   }
 
   protected emitPlay(): void {
@@ -33,6 +35,8 @@ export class EpisodeItemComponent {
   protected emitQueue(event: Event): void {
     event.stopPropagation();
     this.addToQueue.emit(this.episode());
+    this.justAdded.set(true);
+    setTimeout(() => this.justAdded.set(false), 1500);
   }
 
   protected formatDuration(seconds: number): string {
