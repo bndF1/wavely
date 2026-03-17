@@ -18,7 +18,10 @@ describe('TabsComponent', () => {
   let component: TabsComponent;
 
   const mockModal = { present: jest.fn().mockResolvedValue(undefined) };
-  const mockModalCtrl = { create: jest.fn().mockResolvedValue(mockModal) };
+  const mockModalCtrl = {
+    create: jest.fn().mockResolvedValue(mockModal),
+    getTop: jest.fn().mockResolvedValue(null),
+  };
 
   const mockPlayerStore = {
     currentEpisode: jest.fn(() => null),

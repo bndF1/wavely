@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed, effect } from '@angular/co
 import { Router } from '@angular/router';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import {
   IonHeader,
@@ -140,7 +140,9 @@ export class HomePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    void this.loadFeed(true);
+    if (!this.isFeedLoading()) {
+      void this.loadFeed(true);
+    }
   }
 
   protected async handleRefresh(event: RefresherCustomEvent): Promise<void> {
@@ -220,6 +222,16 @@ export class HomePage implements OnInit {
         if (podcast.feedUrl) {
           return this.api.getEpisodesFromRss(podcast.feedUrl, podcast.id).pipe(
             map((eps) => eps.slice(0, FEED_LIMIT_PER_PODCAST)),
+            // Enrich RSS episodes with podcastTitle (not set by RSS parser)
+            map((eps) => eps.map((ep) => ({ ...ep, podcastTitle: ep.podcastTitle ?? podcast.title }))),
+            // Fall back to iTunes when RSS returns no episodes (e.g. CORS/proxy block)
+            switchMap((eps) =>
+              eps.length > 0
+                ? of(eps)
+                : this.api.getPodcastEpisodes(podcast.id, FEED_LIMIT_PER_PODCAST).pipe(
+                    catchError(() => of([] as Episode[])),
+                  ),
+            ),
             catchError(() =>
               this.api.getPodcastEpisodes(podcast.id, FEED_LIMIT_PER_PODCAST).pipe(
                 catchError(() => of([] as Episode[])),

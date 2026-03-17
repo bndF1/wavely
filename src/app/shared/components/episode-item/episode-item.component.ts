@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, input, output, signal } from '@angular/core';
+import { Component, OnDestroy, input, output, signal } from '@angular/core';
 import { IonButton, IonIcon, IonItem, IonLabel, IonNote, IonThumbnail } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, checkmarkOutline, playCircleOutline } from 'ionicons/icons';
@@ -12,7 +12,7 @@ import { Episode } from '../../../core/models/podcast.model';
   styleUrls: ['./episode-item.component.scss'],
   imports: [DatePipe, IonItem, IonThumbnail, IonLabel, IonNote, IonButton, IonIcon],
 })
-export class EpisodeItemComponent {
+export class EpisodeItemComponent implements OnDestroy {
   readonly episode = input.required<Episode>();
   readonly podcastTitle = input<string | null | undefined>(undefined);
   readonly showPodcastTitle = input<boolean>(true);
@@ -23,9 +23,16 @@ export class EpisodeItemComponent {
   readonly addToQueue = output<Episode>();
 
   protected readonly justAdded = signal(false);
+  private justAddedTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     addIcons({ playCircleOutline, addOutline, checkmarkOutline });
+  }
+
+  ngOnDestroy(): void {
+    if (this.justAddedTimer !== null) {
+      clearTimeout(this.justAddedTimer);
+    }
   }
 
   protected emitPlay(): void {
@@ -35,8 +42,14 @@ export class EpisodeItemComponent {
   protected emitQueue(event: Event): void {
     event.stopPropagation();
     this.addToQueue.emit(this.episode());
+    if (this.justAddedTimer !== null) {
+      clearTimeout(this.justAddedTimer);
+    }
     this.justAdded.set(true);
-    setTimeout(() => this.justAdded.set(false), 1500);
+    this.justAddedTimer = setTimeout(() => {
+      this.justAdded.set(false);
+      this.justAddedTimer = null;
+    }, 1500);
   }
 
   protected formatDuration(seconds: number): string {

@@ -58,6 +58,9 @@ export class TabsComponent {
   async openFullPlayer(): Promise<void> {
     if (!this.store.currentEpisode()?.id) return;
 
+    const existing = await this.modalCtrl.getTop();
+    if (existing?.classList.contains('full-player-modal')) return;
+
     const modal = await this.modalCtrl.create({
       component: FullPlayerComponent,
       cssClass: 'full-player-modal',
