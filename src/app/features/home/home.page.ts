@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
+import { HistoryStore } from '../../store/history/history.store';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -78,6 +79,7 @@ export class HomePage implements OnInit {
   private readonly countryService = inject(CountryService);
   private readonly playerStore = inject(PlayerStore);
   private readonly prefs = inject(UserPreferencesService);
+  private readonly historyStore = inject(HistoryStore);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
   protected readonly feedSkeletons = Array.from({ length: 5 });
