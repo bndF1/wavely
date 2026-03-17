@@ -4,11 +4,11 @@
 }
 
 .home-section {
-  padding: 20px 16px 8px;
+  padding: 16px 16px 16px;
 }
 
 .section-title {
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   font-size: 18px;
   font-weight: 600;
   color: var(--wavely-on-surface);
@@ -16,7 +16,7 @@
 }
 
 .section-subtitle {
-  margin: -8px 0 14px;
+  margin: -8px 0 16px;
   font-size: 13px;
   color: var(--ion-color-medium);
   line-height: 1.4;
@@ -39,7 +39,7 @@
 
 .subscriptions-row {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   padding-bottom: 8px;
 }
 
