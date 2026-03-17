@@ -12,14 +12,16 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonSearchbar,
   IonSkeletonText,
   IonThumbnail,
   IonTitle,
   IonToolbar,
+  SearchbarCustomEvent,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { alertCircleOutline, heart, heartOutline, radioOutline, refreshOutline } from 'ionicons/icons';
-import { Subject, catchError, of, switchMap, takeUntil, tap } from 'rxjs';
+import { alertCircleOutline, heart, heartOutline, radioOutline, refreshOutline, searchOutline } from 'ionicons/icons';
+import { Subject, catchError, debounceTime, of, switchMap, takeUntil, tap } from 'rxjs';
 
 import { RadioStation } from '../../core/models/radio-station.model';
 import { PODCAST_MARKETS, CountryService } from '../../core/services/country.service';
@@ -31,6 +33,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 const SKELETON_COUNT = 8;
 const MAX_TAG_CHIPS = 14;
 const ALL_TAG = 'All';
+const SEARCH_LIMIT = 60;
 
 @Component({
   selector: 'wavely-radio',
@@ -45,6 +48,7 @@ const ALL_TAG = 'All';
     IonButtons,
     IonButton,
     IonContent,
+    IonSearchbar,
     IonChip,
     IonLabel,
     IonList,
@@ -70,8 +74,11 @@ export class RadioPage implements OnDestroy {
   protected readonly isLoading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly selectedTag = signal(ALL_TAG);
+  protected readonly searchQuery = signal('');
+  protected readonly isSearchMode = computed(() => this.searchQuery().trim().length > 0);
 
   protected readonly availableTags = computed(() => {
+    if (this.isSearchMode()) return [];
     const tags = new Map<string, number>();
 
     for (const station of this.stations()) {
@@ -98,6 +105,7 @@ export class RadioPage implements OnDestroy {
   });
 
   protected readonly filteredStations = computed(() => {
+    if (this.isSearchMode()) return this.stations();
     const selected = this.selectedTag();
     if (selected === ALL_TAG) return this.stations();
 
@@ -112,15 +120,16 @@ export class RadioPage implements OnDestroy {
   });
 
   protected readonly favoriteStations = computed(() => {
-    const stations = this.stations();
-    return stations.filter((station) => this.prefs.isFavorite(station.stationuuid));
+    if (this.isSearchMode()) return [];
+    return this.stations().filter((station) => this.prefs.isFavorite(station.stationuuid));
   });
 
   private readonly country$ = new Subject<string>();
+  private readonly search$ = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
 
   constructor() {
-    addIcons({ alertCircleOutline, refreshOutline, radioOutline, heart, heartOutline });
+    addIcons({ alertCircleOutline, refreshOutline, radioOutline, searchOutline, heart, heartOutline });
 
     this.country$
       .pipe(
@@ -145,12 +154,57 @@ export class RadioPage implements OnDestroy {
         this.isLoading.set(false);
       });
 
+    this.search$
+      .pipe(
+        debounceTime(350),
+        tap((q) => {
+          if (q.trim()) {
+            this.isLoading.set(true);
+            this.error.set(null);
+            this.stations.set([]);
+          }
+        }),
+        switchMap((q) =>
+          q.trim()
+            ? this.radioApi.searchStations(q.trim(), SEARCH_LIMIT).pipe(
+                catchError(() => {
+                  this.error.set('Search failed. Please try again.');
+                  return of([] as RadioStation[]);
+                })
+              )
+            : of(null)
+        ),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((result) => {
+        if (result !== null) {
+          this.stations.set(result);
+          this.isLoading.set(false);
+        }
+      });
+
     this.country$.next(this.countryService.country());
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  protected onSearchInput(event: SearchbarCustomEvent): void {
+    const q = (event.detail.value ?? '').trim();
+    this.searchQuery.set(q);
+    if (q) {
+      this.search$.next(q);
+    } else {
+      this.stations.set([]);
+      this.country$.next(this.countryService.country());
+    }
+  }
+
+  protected onSearchClear(): void {
+    this.searchQuery.set('');
+    this.country$.next(this.countryService.country());
   }
 
   protected selectTag(tag: string): void {
@@ -172,7 +226,11 @@ export class RadioPage implements OnDestroy {
   }
 
   protected retry(): void {
-    this.country$.next(this.countryService.country());
+    if (this.isSearchMode()) {
+      this.search$.next(this.searchQuery());
+    } else {
+      this.country$.next(this.countryService.country());
+    }
   }
 
   protected async presentCountryPicker(): Promise<void> {
@@ -185,6 +243,7 @@ export class RadioPage implements OnDestroy {
           cssClass: market.code === currentCode ? 'country-active' : '',
           handler: () => {
             this.countryService.setCountry(market.code);
+            this.searchQuery.set('');
             this.country$.next(market.code);
           },
         })),
