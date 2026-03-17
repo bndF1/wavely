@@ -33,7 +33,7 @@
     slot="end"
     fill="clear"
     size="small"
-    [attr.aria-label]="'Queue ' + episode().title"
+    [attr.aria-label]="('episode.add_to_queue' | translate) + ': ' + episode().title"
     (click)="emitQueue($event)">
     <ion-icon slot="icon-only" [name]="justAdded() ? 'checkmark-outline' : 'add-outline'"></ion-icon>
   </ion-button>
@@ -42,7 +42,7 @@
     slot="end"
     fill="clear"
     size="small"
-    [attr.aria-label]="'Play ' + episode().title"
+    [attr.aria-label]="('episode.play' | translate) + ': ' + episode().title"
     (click)="emitPlay(); $event.stopPropagation()">
     <ion-icon slot="icon-only" name="play-circle-outline"></ion-icon>
   </ion-button>

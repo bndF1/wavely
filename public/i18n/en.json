@@ -1,0 +1,147 @@
+{
+  "nav": {
+    "home": "Home",
+    "discover": "Discover",
+    "radio": "Radio",
+    "library": "Library"
+  },
+  "home": {
+    "title": "Wavely",
+    "my_podcasts": "My Podcasts",
+    "latest_episodes": "Latest Episodes",
+    "trending": "Trending",
+    "trending_subtitle": "Discover what's popular and subscribe to personalise your feed.",
+    "load_more": "Load {{count}} more episodes",
+    "error_trending": "Could not load trending podcasts. Pull down to retry.",
+    "error_feed": "Could not load episodes. Pull down to retry.",
+    "retry": "Retry"
+  },
+  "browse": {
+    "title": "Browse",
+    "trending_now": "Trending Now",
+    "categories": "Browse by Category",
+    "no_podcasts": "No podcasts available",
+    "no_podcasts_subtitle": "Try refreshing or check back later.",
+    "error_load": "Could not load browse",
+    "refresh": "Refresh",
+    "retry": "Retry",
+    "error_subtitle": "Try refreshing or check back later.",
+    "listen_now": "Listen Now",
+    "more_in": "More in"
+  },
+  "library": {
+    "title": "Library",
+    "continue_listening": "Continue Listening",
+    "clear": "Clear",
+    "subscriptions": "Subscriptions",
+    "settings": "Settings",
+    "sign_out": "Sign out",
+    "empty_subscriptions_title": "No subscriptions yet",
+    "empty_subscriptions_subtitle": "Browse podcasts and subscribe to build your library.",
+    "empty_history_progress_title": "Nothing in progress",
+    "empty_history_progress_subtitle": "Start an episode and it will appear here to continue.",
+    "empty_history_filter_title": "No episodes here",
+    "empty_history_filter_subtitle": "Try a different filter.",
+    "browse_podcasts": "Browse Podcasts",
+    "show_all": "Show all",
+    "show_less": "Show less",
+    "filter_all": "All",
+    "filter_unplayed": "Unplayed",
+    "filter_in_progress": "In Progress",
+    "filter_completed": "Completed",
+    "unsubscribe": "Unsubscribe"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme_system": "System default",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "playback": "Playback",
+    "auto_queue": "Auto-queue",
+    "auto_queue_note": "Automatically queue remaining episodes when you play one",
+    "language": "Language",
+    "language_note": "App display language",
+    "about": "About",
+    "version": "Version"
+  },
+  "discover": {
+    "title": "Discover",
+    "search_placeholder": "Search podcasts and episodes...",
+    "results_for": "Results for",
+    "podcasts": "Podcasts",
+    "episodes": "Episodes",
+    "trending": "Trending",
+    "no_results_title": "No results found",
+    "no_results_subtitle": "Try searching with different keywords.",
+    "error_title": "Search failed",
+    "error_subtitle": "Check your connection and try again.",
+    "searching_for": "Results for",
+    "search_placeholder_hint": "Try searching for a topic, show, or person"
+  },
+  "radio": {
+    "title": "Radio",
+    "worldwide": "Worldwide",
+    "empty_title": "No stations found",
+    "empty_subtitle": "Try a different search or filter",
+    "error_title": "Could not load stations",
+    "error_subtitle": "Check your connection and try again.",
+    "retry": "Retry",
+    "language": "Language"
+  },
+  "player": {
+    "play": "Play",
+    "pause": "Pause",
+    "skip_back": "Skip back 30 seconds",
+    "skip_forward": "Skip forward 30 seconds",
+    "previous_episode": "Previous episode",
+    "next_episode": "Next episode",
+    "add_to_queue": "Add to queue",
+    "live": "LIVE",
+    "up_next": "Up Next",
+    "empty_queue": "No episodes in queue",
+    "close": "Close player",
+    "queue": "Queue",
+    "playback_rate": "Playback rate",
+    "play_stream": "Play stream"
+  },
+  "podcast_detail": {
+    "episodes": "Episodes",
+    "subscribe": "Subscribe",
+    "unsubscribe": "Unsubscribe",
+    "subscribed": "Subscribed",
+    "play_latest": "Play latest",
+    "website": "Website",
+    "error_title": "Could not load podcast",
+    "error_subtitle": "Check your connection and try again.",
+    "retry": "Retry",
+    "no_episodes_title": "No episodes available",
+    "no_episodes_subtitle": "Check back later for new episodes."
+  },
+  "publisher": {
+    "podcasts": "Podcasts",
+    "error_title": "Could not load publisher",
+    "retry": "Retry",
+    "title": "Publisher",
+    "error_subtitle": "Check your connection and try again."
+  },
+  "offline": {
+    "message": "You are offline. Some content may be unavailable.",
+    "dismiss": "Dismiss offline warning"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "close": "Close",
+    "search": "Search"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "pt": "Português"
+  }
+}

@@ -5,12 +5,13 @@ import { addIcons } from 'ionicons';
 import { addOutline, checkmarkOutline, playCircleOutline } from 'ionicons/icons';
 
 import { Episode } from '../../../core/models/podcast.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'wavely-episode-item',
   templateUrl: './episode-item.component.html',
   styleUrls: ['./episode-item.component.scss'],
-  imports: [DatePipe, IonItem, IonThumbnail, IonLabel, IonNote, IonButton, IonIcon],
+  imports: [DatePipe, IonItem, IonThumbnail, IonLabel, IonNote, IonButton, IonIcon, TranslatePipe],
 })
 export class EpisodeItemComponent implements OnDestroy {
   readonly episode = input.required<Episode>();

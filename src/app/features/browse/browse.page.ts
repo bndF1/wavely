@@ -39,6 +39,7 @@ import { CountryService, PODCAST_MARKETS } from '../../core/services/country.ser
 import { RadioApiService, radioStationToEpisode } from '../../core/services/radio-api.service';
 import { RadioStation } from '../../core/models/radio-station.model';
 import { PlayerStore } from '../../store/player/player.store';
+import { TranslatePipe } from '@ngx-translate/core';
 
 // Genre IDs used to populate the three Browse sections with distinct content.
 // Featured → News, New & Noteworthy → Technology, Top → overall chart.
@@ -80,6 +81,7 @@ const CHIP_SKELETON_COUNT = 6;
     SlicePipe,
     PodcastCardComponent,
     EmptyStateComponent,
+    TranslatePipe,
   ],
 })
 export class BrowsePage implements OnDestroy {

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      <span class="header-logo">Wavely</span>
+      <span class="header-logo">{{ 'home.title' | translate }}</span>
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="navigateToSearch()" aria-label="Search podcasts">
@@ -18,7 +18,7 @@
 
   @if (store.subscriptions().length > 0) {
     <section class="home-section">
-      <h2 class="section-title">My Podcasts</h2>
+      <h2 class="section-title">{{ 'home.my_podcasts' | translate }}</h2>
       <div class="subscriptions-scroll">
         <div class="subscriptions-row">
           @for (podcast of store.subscriptions(); track podcast.id) {
@@ -35,7 +35,7 @@
 
   @if (store.subscriptions().length > 0) {
     <section class="home-section">
-      <h2 class="section-title">Latest Episodes</h2>
+      <h2 class="section-title">{{ 'home.latest_episodes' | translate }}</h2>
 
       @if (isFeedLoading()) {
         <ion-list lines="none" aria-label="Loading latest episodes">
@@ -56,9 +56,9 @@
       @if (feedError() && !isFeedLoading()) {
         <wavely-empty-state
           icon="alert-circle-outline"
-          title="Could not load episodes"
+          [title]="'home.error_feed' | translate"
           [subtitle]="feedError()!"
-          actionLabel="Retry"
+          [actionLabel]="'home.retry' | translate"
           (action)="retryFeed()">
         </wavely-empty-state>
       }
@@ -78,7 +78,7 @@
 
         @if (hasMoreFeed()) {
           <button type="button" class="load-more-btn" (click)="loadMoreFeed()">
-            Load {{ hiddenFeedCount() }} more episodes
+            {{ 'home.load_more' | translate: { count: hiddenFeedCount() } }}
           </button>
         }
       }
@@ -87,15 +87,15 @@
 
   @if (store.subscriptions().length === 0) {
   <section class="home-section">
-    <h2 class="section-title">Trending</h2>
-    <p class="section-subtitle">Discover what's popular and subscribe to personalise your feed.</p>
+    <h2 class="section-title">{{ 'home.trending' | translate }}</h2>
+    <p class="section-subtitle">{{ 'home.trending_subtitle' | translate }}</p>
 
     @if (store.error() && !store.isLoading()) {
       <wavely-empty-state
         icon="alert-circle-outline"
-        title="Could not load trending podcasts"
+        [title]="'home.error_trending' | translate"
         [subtitle]="store.error()!"
-        actionLabel="Retry"
+        [actionLabel]="'home.retry' | translate"
         (action)="retryTrending()">
       </wavely-empty-state>
     }
@@ -127,7 +127,7 @@
         icon="sparkles-outline"
         title="No trending podcasts"
         subtitle="Pull to refresh and try again in a moment."
-        actionLabel="Retry"
+        [actionLabel]="'home.retry' | translate"
         (action)="retryTrending()">
       </wavely-empty-state>
     }

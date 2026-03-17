@@ -8,9 +8,14 @@ jest.mock('@angular/fire/auth', () => ({
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
 
 import { EpisodeItemComponent } from './episode-item.component';
 import { mockEpisode } from '../../../../testing/podcast-fixtures';
+import {
+  loadTranslations,
+  provideTranslateTesting,
+} from '../../../../testing/translate-testing.helper';
 
 describe('EpisodeItemComponent', () => {
   let fixture: ComponentFixture<EpisodeItemComponent>;
@@ -19,6 +24,7 @@ describe('EpisodeItemComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [EpisodeItemComponent],
+      providers: [...provideTranslateTesting()],
       schemas: [NO_ERRORS_SCHEMA],
     })
       .overrideComponent(EpisodeItemComponent, {
@@ -26,6 +32,7 @@ describe('EpisodeItemComponent', () => {
       })
       .compileComponents();
 
+    loadTranslations(TestBed.inject(TranslateService));
     fixture = TestBed.createComponent(EpisodeItemComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('episode', mockEpisode({ id: 'ep-1', podcastId: 'pod-1' }));

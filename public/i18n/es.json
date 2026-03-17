@@ -1,0 +1,147 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "discover": "Descubrir",
+    "radio": "Radio",
+    "library": "Biblioteca"
+  },
+  "home": {
+    "title": "Wavely",
+    "my_podcasts": "Mis Podcasts",
+    "latest_episodes": "Últimos Episodios",
+    "trending": "Tendencias",
+    "trending_subtitle": "Descubre lo más popular y suscríbete para personalizar tu feed.",
+    "load_more": "Cargar {{count}} episodios más",
+    "error_trending": "No se pudieron cargar los podcasts en tendencia. Desliza hacia abajo para reintentar.",
+    "error_feed": "No se pudieron cargar los episodios. Desliza hacia abajo para reintentar.",
+    "retry": "Reintentar"
+  },
+  "browse": {
+    "title": "Explorar",
+    "trending_now": "Tendencias ahora",
+    "categories": "Explorar por Categoría",
+    "no_podcasts": "No hay podcasts disponibles",
+    "no_podcasts_subtitle": "Intenta actualizar o vuelve más tarde.",
+    "error_load": "No se pudo cargar el explorador",
+    "refresh": "Actualizar",
+    "retry": "Reintentar",
+    "error_subtitle": "Intenta actualizar o vuelve más tarde.",
+    "listen_now": "Escuchar ahora",
+    "more_in": "Más en"
+  },
+  "library": {
+    "title": "Biblioteca",
+    "continue_listening": "Seguir Escuchando",
+    "clear": "Limpiar",
+    "subscriptions": "Suscripciones",
+    "settings": "Ajustes",
+    "sign_out": "Cerrar sesión",
+    "empty_subscriptions_title": "Aún no hay suscripciones",
+    "empty_subscriptions_subtitle": "Explora podcasts y suscríbete para construir tu biblioteca.",
+    "empty_history_progress_title": "Nada en progreso",
+    "empty_history_progress_subtitle": "Empieza un episodio y aparecerá aquí para continuar.",
+    "empty_history_filter_title": "No hay episodios aquí",
+    "empty_history_filter_subtitle": "Prueba con un filtro diferente.",
+    "browse_podcasts": "Explorar Podcasts",
+    "show_all": "Ver todo",
+    "show_less": "Ver menos",
+    "filter_all": "Todo",
+    "filter_unplayed": "No escuchados",
+    "filter_in_progress": "En progreso",
+    "filter_completed": "Completados",
+    "unsubscribe": "Cancelar suscripción"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "appearance": "Apariencia",
+    "theme_system": "Predeterminado del sistema",
+    "theme_light": "Claro",
+    "theme_dark": "Oscuro",
+    "playback": "Reproducción",
+    "auto_queue": "Cola automática",
+    "auto_queue_note": "Agregar automáticamente los episodios restantes a la cola al reproducir uno",
+    "language": "Idioma",
+    "language_note": "Idioma de la aplicación",
+    "about": "Acerca de",
+    "version": "Versión"
+  },
+  "discover": {
+    "title": "Descubrir",
+    "search_placeholder": "Buscar podcasts y episodios...",
+    "results_for": "Resultados de",
+    "podcasts": "Podcasts",
+    "episodes": "Episodios",
+    "trending": "Tendencias",
+    "no_results_title": "Sin resultados",
+    "no_results_subtitle": "Intenta buscar con palabras clave diferentes.",
+    "error_title": "Búsqueda fallida",
+    "error_subtitle": "Comprueba tu conexión e inténtalo de nuevo.",
+    "searching_for": "Resultados de",
+    "search_placeholder_hint": "Busca un tema, programa o persona"
+  },
+  "radio": {
+    "title": "Radio",
+    "worldwide": "Mundial",
+    "empty_title": "No se encontraron emisoras",
+    "empty_subtitle": "Prueba una búsqueda o filtro diferente",
+    "error_title": "No se pudieron cargar las emisoras",
+    "error_subtitle": "Comprueba tu conexión e inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "language": "Idioma"
+  },
+  "player": {
+    "play": "Reproducir",
+    "pause": "Pausar",
+    "skip_back": "Retroceder 30 segundos",
+    "skip_forward": "Avanzar 30 segundos",
+    "previous_episode": "Episodio anterior",
+    "next_episode": "Episodio siguiente",
+    "add_to_queue": "Añadir a la cola",
+    "live": "EN VIVO",
+    "up_next": "A continuación",
+    "empty_queue": "No hay episodios en la cola",
+    "close": "Cerrar reproductor",
+    "queue": "Cola",
+    "playback_rate": "Velocidad de reproducción",
+    "play_stream": "Reproducir stream"
+  },
+  "podcast_detail": {
+    "episodes": "Episodios",
+    "subscribe": "Suscribirse",
+    "unsubscribe": "Cancelar suscripción",
+    "subscribed": "Suscrito",
+    "play_latest": "Reproducir último",
+    "website": "Sitio web",
+    "error_title": "No se pudo cargar el podcast",
+    "error_subtitle": "Comprueba tu conexión e inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "no_episodes_title": "No hay episodios disponibles",
+    "no_episodes_subtitle": "Vuelve más tarde para nuevos episodios."
+  },
+  "publisher": {
+    "podcasts": "Podcasts",
+    "error_title": "No se pudo cargar el editor",
+    "retry": "Reintentar",
+    "title": "Editorial",
+    "error_subtitle": "Comprueba tu conexión e inténtalo de nuevo."
+  },
+  "offline": {
+    "message": "Estás sin conexión. Puede que algún contenido no esté disponible.",
+    "dismiss": "Descartar aviso de sin conexión"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "error": "Algo salió mal",
+    "retry": "Reintentar",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "search": "Buscar"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "pt": "Português"
+  }
+}

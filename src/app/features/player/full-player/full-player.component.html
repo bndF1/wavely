@@ -1,7 +1,7 @@
 <ion-header class="full-player__header ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="dismiss()" aria-label="Collapse player">
+      <ion-button fill="clear" (click)="dismiss()" [attr.aria-label]="'player.close' | translate">
         <ion-icon slot="icon-only" name="chevron-down"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -10,7 +10,7 @@
 
     <ion-buttons slot="end">
       @if (!isLive) {
-        <ion-button fill="clear" (click)="showSpeedPicker()" [attr.aria-label]="'Playback speed: ' + rateLabel">
+        <ion-button fill="clear" (click)="showSpeedPicker()" [attr.aria-label]="('player.playback_rate' | translate) + ': ' + rateLabel">
           <span class="full-player__rate-badge">{{ rateLabel }}</span>
         </ion-button>
       }
@@ -32,7 +32,7 @@
       <div class="full-player__info">
         <h2 class="full-player__title">{{ store.currentEpisode()!.title }}</h2>
         @if (isLive) {
-          <span class="full-player__live-badge" aria-label="Live stream">● LIVE</span>
+          <span class="full-player__live-badge" [attr.aria-label]="'player.live' | translate">● {{ 'player.live' | translate }}</span>
         }
       </div>
       <!-- Scrubber (hidden for live streams) -->
@@ -57,7 +57,7 @@
       <!-- Controls -->
       <div class="full-player__controls">
         @if (!isLive) {
-          <button class="full-player__skip-btn" (click)="skipBack()" aria-label="Skip back 15 seconds">
+          <button class="full-player__skip-btn" (click)="skipBack()" [attr.aria-label]="'player.skip_back' | translate">
             <ion-icon name="play-skip-back"></ion-icon>
             <span class="full-player__skip-label">15</span>
           </button>
@@ -65,11 +65,11 @@
         <button
           class="full-player__play-pause-btn"
           (click)="togglePlay()"
-          [attr.aria-label]="store.isPlaying() ? 'Pause' : 'Play'">
+          [attr.aria-label]="store.isPlaying() ? ('player.pause' | translate) : ('player.play' | translate)">
           <ion-icon [name]="store.isPlaying() ? 'pause-circle' : 'play-circle'"></ion-icon>
         </button>
         @if (!isLive) {
-          <button class="full-player__skip-btn" (click)="skipForward()" aria-label="Skip forward 30 seconds">
+          <button class="full-player__skip-btn" (click)="skipForward()" [attr.aria-label]="'player.skip_forward' | translate">
             <ion-icon name="play-skip-forward"></ion-icon>
             <span class="full-player__skip-label">30</span>
           </button>
@@ -81,9 +81,9 @@
         <div class="full-player__queue">
           <div class="full-player__queue-header">
             <ion-icon name="list-outline" class="full-player__queue-icon"></ion-icon>
-            <span class="full-player__queue-title">Up Next</span>
+            <span class="full-player__queue-title">{{ 'player.up_next' | translate }}</span>
             <button class="full-player__queue-clear" (click)="store.clearQueue()" aria-label="Clear queue">
-              Clear
+              {{ 'library.clear' | translate }}
             </button>
           </div>
           <ion-list lines="none" class="full-player__queue-list">

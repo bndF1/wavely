@@ -33,10 +33,10 @@
   <!-- Error: podcast metadata failed -->
   @if (podcastError && !isLoading) {
     <div class="state-message">
-      <ion-text color="medium"><p>{{ podcastError }}</p></ion-text>
+      <ion-text color="medium"><p>{{ 'podcast_detail.error_title' | translate }}</p></ion-text>
       <ion-button fill="outline" size="small" (click)="retryLoad()">
         <ion-icon name="refresh-outline" slot="start"></ion-icon>
-        Retry
+        {{ 'podcast_detail.retry' | translate }}
       </ion-button>
     </div>
   }
@@ -63,7 +63,7 @@
         }
         @if (podcast.episodeCount) {
           <p class="podcast-count">
-            {{ podcast.episodeCount }} episodes
+            {{ podcast.episodeCount }} {{ 'podcast_detail.episodes' | translate }}
           </p>
         }
         <ion-button
@@ -76,23 +76,23 @@
             slot="start"
             [name]="isSubscribed ? 'checkmark-circle' : 'add-circle-outline'">
           </ion-icon>
-          {{ isSubscribed ? 'Subscribed' : 'Subscribe' }}
+          {{ isSubscribed ? ('podcast_detail.subscribed' | translate) : ('podcast_detail.subscribe' | translate) }}
         </ion-button>
       </div>
     </div>
     <!-- Episodes error (episodes can fail independently) -->
     @if (episodesError) {
       <div class="state-message">
-        <ion-text color="medium"><p>{{ episodesError }}</p></ion-text>
+        <ion-text color="medium"><p>{{ 'podcast_detail.error_subtitle' | translate }}</p></ion-text>
         <ion-button fill="outline" size="small" (click)="retryLoad()">
           <ion-icon name="refresh-outline" slot="start"></ion-icon>
-          Retry
+          {{ 'podcast_detail.retry' | translate }}
         </ion-button>
       </div>
     }
     <!-- Episodes -->
     @if (episodes.length > 0) {
-      <h2 class="section-title">Episodes</h2>
+      <h2 class="section-title">{{ 'podcast_detail.episodes' | translate }}</h2>
     }
     @if (episodes.length > 0) {
       <ion-list lines="none">
@@ -107,12 +107,12 @@
       </ion-list>
 
       <ion-infinite-scroll [disabled]="!hasMoreEpisodes" (ionInfinite)="loadMoreEpisodes($event)">
-        <ion-infinite-scroll-content loadingText="Loading more episodes…"></ion-infinite-scroll-content>
+        <ion-infinite-scroll-content [loadingText]="'common.loading' | translate"></ion-infinite-scroll-content>
       </ion-infinite-scroll>
     }
     @if (episodes.length === 0 && !episodesError) {
       <div class="state-message">
-        <ion-text color="medium"><p>No episodes available.</p></ion-text>
+        <ion-text color="medium"><p>{{ 'podcast_detail.no_episodes_title' | translate }}</p></ion-text>
       </div>
     }
   }

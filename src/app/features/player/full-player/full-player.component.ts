@@ -29,6 +29,7 @@ import {
 import { PlayerStore } from '../../../store/player/player.store';
 import { AudioService } from '../../../core/services/audio.service';
 import { RangeCustomEvent } from '@ionic/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'wavely-full-player',
@@ -46,6 +47,7 @@ import { RangeCustomEvent } from '@ionic/angular';
     IonItem,
     IonLabel,
     IonNote,
+    TranslatePipe,
   ],
 })
 export class FullPlayerComponent {
