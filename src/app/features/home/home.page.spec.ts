@@ -17,7 +17,7 @@ import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { CountryService } from '../../core/services/country.service';
 import { PlayerModalService } from '../../core/services/player-modal.service';
-import { mockEpisode, mockPodcast } from '../../../testing/podcast-fixtures';
+import { mockPodcast, mockEpisode } from '../../../testing/podcast-fixtures';
 
 describe('HomePage', () => {
   let fixture: ComponentFixture<HomePage>;

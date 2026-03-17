@@ -1,6 +1,6 @@
 <wavely-offline-banner></wavely-offline-banner>
 
-<ion-tabs>
+<ion-tabs [class.has-mini-player]="!!store.currentEpisode()">
   @if (store.currentEpisode()) {
     <wavely-mini-player slot="bottom" (openFull)="openFullPlayer()"></wavely-mini-player>
   }
