@@ -1,12 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
 import { FullPlayerComponent } from '../../features/player/full-player/full-player.component';
 
 @Injectable({ providedIn: 'root' })
 export class PlayerModalService {
+  private readonly modalCtrl = inject(ModalController);
   private isOpening = false;
-
-  constructor(private readonly modalCtrl: ModalController) {}
 
   async open(): Promise<void> {
     if (this.isOpening) return;
