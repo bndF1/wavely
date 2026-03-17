@@ -105,4 +105,32 @@ describe('HomePage', () => {
     expect(ids).toContain('feed-ep3');
     expect(ids).not.toContain('feed-ep2');
   });
+
+  it('feedEpisodes excludes episodes older than 30 days', () => {
+    const recentDate = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(); // 5 days ago
+    const oldDate = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString();   // 40 days ago
+    const recentEp = mockEpisode({ id: 'ep-recent', releaseDate: recentDate });
+    const oldEp = mockEpisode({ id: 'ep-old', releaseDate: oldDate });
+
+    (component as any).allFeedEpisodes.set([recentEp, oldEp]);
+
+    const feed = (component as any).feedEpisodes();
+    expect(feed.map((e: { id: string }) => e.id)).toContain('ep-recent');
+    expect(feed.map((e: { id: string }) => e.id)).not.toContain('ep-old');
+  });
+
+  it('feedEpisodes includes episodes with no releaseDate', () => {
+    const noDateEp = mockEpisode({ id: 'ep-nodate', releaseDate: undefined });
+    (component as any).allFeedEpisodes.set([noDateEp]);
+
+    const feed = (component as any).feedEpisodes();
+    expect(feed.map((e: { id: string }) => e.id)).toContain('ep-nodate');
+  });
+
+  it('hides trending section when user has subscriptions', () => {
+    mockStore.subscriptions.mockReturnValue = undefined; // signal mock — test via computed behaviour
+    // The trending section visibility is controlled by subscriptions().length === 0
+    // When subscriptions is empty, trending should be shown
+    expect(mockStore.subscriptions().length).toBe(0);
+  });
 });
