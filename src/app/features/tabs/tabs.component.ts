@@ -6,7 +6,6 @@ import {
   IonTabButton,
   IonIcon,
   IonLabel,
-  ModalController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -20,9 +19,9 @@ import {
   library,
 } from 'ionicons/icons';
 import { PlayerStore } from '../../store/player/player.store';
+import { PlayerModalService } from '../../core/services/player-modal.service';
 import { MiniPlayerComponent } from '../player/mini-player/mini-player.component';
 import { OfflineBannerComponent } from '../../shared/components/offline-banner/offline-banner.component';
-import { FullPlayerComponent } from '../player/full-player/full-player.component';
 
 @Component({
   selector: 'wavely-tabs',
@@ -40,8 +39,7 @@ import { FullPlayerComponent } from '../player/full-player/full-player.component
 })
 export class TabsComponent {
   readonly store = inject(PlayerStore);
-  private readonly modalCtrl = inject(ModalController);
-  private isOpeningPlayer = false;
+  private readonly playerModal = inject(PlayerModalService);
 
   constructor() {
     addIcons({
@@ -58,24 +56,6 @@ export class TabsComponent {
 
   async openFullPlayer(): Promise<void> {
     if (!this.store.currentEpisode()?.id) return;
-    if (this.isOpeningPlayer) return;
-    this.isOpeningPlayer = true;
-    try {
-      const existing = await this.modalCtrl.getTop();
-      if (existing?.classList.contains('full-player-modal')) return;
-
-      const modal = await this.modalCtrl.create({
-        component: FullPlayerComponent,
-        cssClass: 'full-player-modal',
-        breakpoints: [0, 1],
-        initialBreakpoint: 1,
-        canDismiss: true,
-        handle: false,
-        showBackdrop: false,
-      });
-      await modal.present();
-    } finally {
-      this.isOpeningPlayer = false;
-    }
+    await this.playerModal.open();
   }
 }

@@ -1,3 +1,12 @@
+// PlayerModalService -> FullPlayerComponent -> AudioService -> AuthService -> @angular/fire/auth
+jest.mock('@angular/fire/auth', () => ({
+  Auth: class MockAuth {},
+  user: jest.fn(),
+  GoogleAuthProvider: class MockGoogleAuthProvider {},
+  signInWithPopup: jest.fn(),
+  signOut: jest.fn(),
+}));
+
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -7,6 +16,7 @@ import { HomePage } from './home.page';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { CountryService } from '../../core/services/country.service';
+import { PlayerModalService } from '../../core/services/player-modal.service';
 import { mockEpisode, mockPodcast } from '../../../testing/podcast-fixtures';
 
 describe('HomePage', () => {
@@ -39,6 +49,7 @@ describe('HomePage', () => {
         { provide: PodcastsStore, useValue: mockStore },
         { provide: Router, useValue: mockRouter },
         { provide: CountryService, useValue: mockCountryService },
+        { provide: PlayerModalService, useValue: { open: jest.fn().mockResolvedValue(undefined) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

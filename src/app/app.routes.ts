@@ -84,13 +84,6 @@ export const appRoutes: Route[] = [
       ),
   },
   {
-    path: 'episode/:id',
-    loadComponent: () =>
-      import('./features/episode-detail/episode-detail.page').then(
-        (m) => m.EpisodeDetailPage
-      ),
-  },
-  {
     path: 'publisher/:artistId',
     loadComponent: () =>
       import('./features/publisher/publisher.page').then(
