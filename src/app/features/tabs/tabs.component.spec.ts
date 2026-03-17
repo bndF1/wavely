@@ -8,7 +8,7 @@ jest.mock('@angular/fire/auth', () => ({
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { TabsComponent } from './tabs.component';
 import { PlayerStore } from '../../store/player/player.store';
@@ -17,7 +17,11 @@ describe('TabsComponent', () => {
   let fixture: ComponentFixture<TabsComponent>;
   let component: TabsComponent;
 
-  const mockRouter = { navigate: jest.fn() };
+  const mockModal = { present: jest.fn().mockResolvedValue(undefined), classList: { contains: jest.fn(() => false) } };
+  const mockModalCtrl = {
+    create: jest.fn().mockResolvedValue(mockModal),
+    getTop: jest.fn().mockResolvedValue(null),
+  };
 
   const mockPlayerStore = {
     currentEpisode: jest.fn(() => null),
@@ -32,7 +36,7 @@ describe('TabsComponent', () => {
       imports: [TabsComponent],
       providers: [
         { provide: PlayerStore, useValue: mockPlayerStore },
-        { provide: Router, useValue: mockRouter },
+        { provide: ModalController, useValue: mockModalCtrl },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -53,15 +57,26 @@ describe('TabsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('navigates to episode detail when opening full player', () => {
+  it('opens full player modal when an episode is playing', async () => {
     mockPlayerStore.currentEpisode.mockReturnValue({ id: 'ep-123', title: 'Test' });
-    component.openFullPlayer();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/episode', 'ep-123']);
+    await component.openFullPlayer();
+    expect(mockModalCtrl.create).toHaveBeenCalledWith(expect.objectContaining({ cssClass: 'full-player-modal' }));
+    expect(mockModal.present).toHaveBeenCalled();
   });
 
-  it('does not navigate when no episode is playing', () => {
-    mockPlayerStore.currentEpisode.mockReturnValue(null);
-    component.openFullPlayer();
-    expect(mockRouter.navigate).not.toHaveBeenCalled();
+  it('does not open a second modal if one is already open', async () => {
+    const existingModal = { classList: { contains: jest.fn(() => true) } };
+    mockModalCtrl.getTop.mockResolvedValueOnce(existingModal);
+    await component.openFullPlayer();
+    expect(mockModalCtrl.create).not.toHaveBeenCalled();
+  });
+
+  it('does not open concurrent modals on rapid taps', async () => {
+    // Both calls start before either awaits getTop — re-entrancy guard must block second
+    const [, second] = await Promise.all([
+      component.openFullPlayer(),
+      component.openFullPlayer(),
+    ]);
+    expect(mockModalCtrl.create).toHaveBeenCalledTimes(1);
   });
 });

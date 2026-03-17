@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
 
 import {
   IonTabs,
@@ -7,6 +6,7 @@ import {
   IonTabButton,
   IonIcon,
   IonLabel,
+  ModalController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -40,7 +40,8 @@ import { FullPlayerComponent } from '../player/full-player/full-player.component
 })
 export class TabsComponent {
   readonly store = inject(PlayerStore);
-  private readonly router = inject(Router);
+  private readonly modalCtrl = inject(ModalController);
+  private isOpeningPlayer = false;
 
   constructor() {
     addIcons({
@@ -55,10 +56,25 @@ export class TabsComponent {
     });
   }
 
-  openFullPlayer(): void {
-    const episode = this.store.currentEpisode();
-    if (episode?.id) {
-      void this.router.navigate(['/episode', episode.id]);
+  async openFullPlayer(): Promise<void> {
+    if (this.isOpeningPlayer) return;
+    this.isOpeningPlayer = true;
+    try {
+      const existing = await this.modalCtrl.getTop();
+      if (existing?.classList.contains('full-player-modal')) return;
+
+      const modal = await this.modalCtrl.create({
+        component: FullPlayerComponent,
+        cssClass: 'full-player-modal',
+        breakpoints: [0, 1],
+        initialBreakpoint: 1,
+        canDismiss: true,
+        handle: false,
+        showBackdrop: false,
+      });
+      await modal.present();
+    } finally {
+      this.isOpeningPlayer = false;
     }
   }
 }
