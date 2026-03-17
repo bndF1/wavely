@@ -41,6 +41,7 @@ import { FullPlayerComponent } from '../player/full-player/full-player.component
 export class TabsComponent {
   readonly store = inject(PlayerStore);
   private readonly modalCtrl = inject(ModalController);
+  private isOpeningPlayer = false;
 
   constructor() {
     addIcons({
@@ -57,18 +58,24 @@ export class TabsComponent {
 
   async openFullPlayer(): Promise<void> {
     if (!this.store.currentEpisode()?.id) return;
+    if (this.isOpeningPlayer) return;
+    this.isOpeningPlayer = true;
+    try {
+      const existing = await this.modalCtrl.getTop();
+      if (existing?.classList.contains('full-player-modal')) return;
 
-    const existing = await this.modalCtrl.getTop();
-    if (existing?.classList.contains('full-player-modal')) return;
-
-    const modal = await this.modalCtrl.create({
-      component: FullPlayerComponent,
-      cssClass: 'full-player-modal',
-      breakpoints: [0, 1],
-      initialBreakpoint: 1,
-      handle: false,
-      canDismiss: true,
-    });
-    await modal.present();
+      const modal = await this.modalCtrl.create({
+        component: FullPlayerComponent,
+        cssClass: 'full-player-modal',
+        breakpoints: [0, 1],
+        initialBreakpoint: 1,
+        canDismiss: true,
+        handle: false,
+        showBackdrop: false,
+      });
+      await modal.present();
+    } finally {
+      this.isOpeningPlayer = false;
+    }
   }
 }
