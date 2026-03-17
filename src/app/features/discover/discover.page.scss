@@ -60,7 +60,7 @@ ion-chip {
 
   &.selected {
     --background: var(--chip-color, var(--wavely-primary));
-    --color: #fff;
+    --color: var(--ion-color-primary-contrast);
   }
 }
 
