@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
+import { PlayerModalService } from '../../core/services/player-modal.service';
 import { HistoryStore } from '../../store/history/history.store';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
@@ -76,6 +77,7 @@ export class HomePage implements OnInit {
   private readonly api = inject(PodcastApiService);
   protected readonly store = inject(PodcastsStore);
   private readonly router = inject(Router);
+  private readonly playerModal = inject(PlayerModalService);
   private readonly countryService = inject(CountryService);
   private readonly playerStore = inject(PlayerStore);
   private readonly prefs = inject(UserPreferencesService);
@@ -185,8 +187,7 @@ export class HomePage implements OnInit {
         .forEach((e) => this.playerStore.addToQueue(e));
     }
     this.playerStore.play(episode);
-    const podcast = this.store.subscriptions().find((p) => p.id === episode.podcastId);
-    this.router.navigate(['/episode', episode.id], { state: { episode, podcast } });
+    void this.playerModal.open();
   }
 
   protected queueEpisode(episode: Episode): void {

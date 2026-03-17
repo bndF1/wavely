@@ -27,6 +27,7 @@ import { PlayerStore } from '../../store/player/player.store';
 import { AuthStore } from '../../store/auth/auth.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
+import { PlayerModalService } from '../../core/services/player-modal.service';
 import { Podcast, Episode } from '../../core/models/podcast.model';
 import { Observable, catchError, of, retry } from 'rxjs';
 import { EpisodeItemComponent } from '../../shared/components/episode-item/episode-item.component';
@@ -63,6 +64,7 @@ export class PodcastDetailPage {
   private readonly countryService = inject(CountryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly playerModal = inject(PlayerModalService);
   protected readonly podcastsStore = inject(PodcastsStore);
   protected readonly playerStore = inject(PlayerStore);
   private readonly authStore = inject(AuthStore);
@@ -204,10 +206,7 @@ export class PodcastDetailPage {
       upcoming.forEach((e) => this.playerStore.addToQueue({ ...e, podcastTitle }));
     }
     this.playerStore.play({ ...episode, podcastTitle });
-    // Navigate to episode detail, passing full objects via router state to avoid extra API calls
-    this.router.navigate(['/episode', episode.id], {
-      state: { episode: { ...episode, podcastTitle }, podcast: this.podcast },
-    });
+    void this.playerModal.open();
   }
 
   protected queueEpisode(episode: Episode): void {
