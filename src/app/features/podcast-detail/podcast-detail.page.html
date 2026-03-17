@@ -71,6 +71,7 @@
           [color]="isSubscribed ? 'primary' : 'medium'"
           size="small"
           shape="round"
+          [attr.aria-label]="isSubscribed ? ('podcast_detail.subscribed' | translate) : ('podcast_detail.subscribe' | translate)"
           (click)="toggleSubscription()">
           <ion-icon
             slot="start"
