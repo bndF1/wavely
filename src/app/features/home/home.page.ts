@@ -36,6 +36,7 @@ import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { CountryService } from '../../core/services/country.service';
 import { PlayerStore } from '../../store/player/player.store';
+import { HistoryStore } from '../../store/history/history.store';
 import { PodcastCardComponent } from '../../shared/components/podcast-card/podcast-card.component';
 import { Episode, Podcast } from '../../core/models/podcast.model';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -79,6 +80,7 @@ export class HomePage implements OnInit {
   private readonly playerModal = inject(PlayerModalService);
   private readonly countryService = inject(CountryService);
   private readonly playerStore = inject(PlayerStore);
+  private readonly historyStore = inject(HistoryStore);
   private readonly prefs = inject(UserPreferencesService);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
@@ -104,8 +106,12 @@ export class HomePage implements OnInit {
 
   protected readonly feedEpisodes = computed(() => {
     const cutoff = Date.now() - FEED_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+    const completedIds = new Set(
+      this.historyStore.entries().filter((e) => e.completed).map((e) => e.episodeId)
+    );
     return this.allFeedEpisodes()
       .filter((ep) => !ep.releaseDate || new Date(ep.releaseDate).getTime() >= cutoff)
+      .filter((ep) => !completedIds.has(ep.id))
       .slice(0, this.displayCount());
   });
   protected readonly hasMoreFeed = computed(
