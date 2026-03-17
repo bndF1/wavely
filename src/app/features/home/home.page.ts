@@ -40,6 +40,7 @@ import { PodcastCardComponent } from '../../shared/components/podcast-card/podca
 import { Episode, Podcast } from '../../core/models/podcast.model';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { EpisodeItemComponent } from '../../shared/components/episode-item/episode-item.component';
+import { HistoryStore } from '../../store/history/history.store';
 
 const SKELETON_COUNT = 6;
 const FEED_LIMIT_PER_PODCAST = 20;
