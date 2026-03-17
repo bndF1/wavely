@@ -8,7 +8,7 @@ jest.mock('@angular/fire/auth', () => ({
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { TabsComponent } from './tabs.component';
 import { PlayerStore } from '../../store/player/player.store';
