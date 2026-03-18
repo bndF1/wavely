@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/auth.fixture';
+import { clickInViewport } from './helpers/interactions';
 
 const ITUNES_LOOKUP_URL = /itunes\.apple\.com\/lookup/;
 
@@ -73,7 +74,7 @@ test.describe.serial('Subscriptions', () => {
     // the restored user and calls clearSubscriptions(), wiping it.
     await page.waitForFunction(() => (window as any)['__e2eAuthReady'] === true, { timeout: 15000 });
 
-    await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
+    await clickInViewport(page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }));
     await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     // SPA navigation preserves PodcastsStore state; page.goto would reload and
@@ -92,7 +93,7 @@ test.describe.serial('Subscriptions', () => {
     await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
     await page.waitForFunction(() => (window as any)['__e2eAuthReady'] === true, { timeout: 15000 });
 
-    await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
+    await clickInViewport(page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }));
     await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
 
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
@@ -101,7 +102,8 @@ test.describe.serial('Subscriptions', () => {
     await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 15000 });
 
     const podcastItem = page.locator('ion-item-sliding').filter({ hasText: podcast.title });
-    await podcastItem.locator('ion-button[slot="end"]').click();
+    await podcastItem.scrollIntoViewIfNeeded();
+    await clickInViewport(podcastItem.locator('ion-button[slot="end"]'));
     await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toHaveCount(0);
   });
 });
