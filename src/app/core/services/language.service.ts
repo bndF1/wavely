@@ -12,6 +12,7 @@ export class LanguageService {
   private static readonly STORAGE_KEY = 'wavely:language';
 
   readonly supported: SupportedLanguage[] = [
+    { code: 'ca', label: 'Català' },
     { code: 'en', label: 'English' },
     { code: 'es', label: 'Español' },
     { code: 'fr', label: 'Français' },
