@@ -148,12 +148,12 @@
             fill="clear"
             size="small"
             class="radio-item__favorite-btn"
-            [attr.aria-label]="isStationFavorite(station.stationuuid) ? 'Remove from favorites' : 'Add to favorites'"
+            [attr.aria-label]="isFav ? 'Remove from favorites' : 'Add to favorites'"
             (click)="onToggleFavorite(station, $event)">
             <ion-icon
               slot="icon-only"
-              [name]="isStationFavorite(station.stationuuid) ? 'heart' : 'heart-outline'"
-              [color]="isStationFavorite(station.stationuuid) ? 'danger' : 'medium'">
+              [name]="isFav ? 'heart' : 'heart-outline'"
+              [color]="isFav ? 'danger' : 'medium'">
             </ion-icon>
           </ion-button>
         </ion-item>
