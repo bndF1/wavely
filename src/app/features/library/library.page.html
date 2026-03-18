@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Library</ion-title>
+    <ion-title>{{ 'library.title' | translate }}</ion-title>
     <ion-buttons slot="end">
       @if (authStore.isAuthenticated()) {
         <ion-button id="profile-popover-trigger" [attr.aria-label]="'Account: ' + (authStore.displayName() ?? 'Profile')">
@@ -21,11 +21,11 @@
               </ion-item>
               <ion-item button (click)="navigateToSettings()" lines="none">
                 <ion-icon name="settings-outline" slot="start"></ion-icon>
-                <ion-label>Settings</ion-label>
+                <ion-label>{{ 'library.settings' | translate }}</ion-label>
               </ion-item>
               <ion-item button (click)="signOut()" lines="none">
                 <ion-icon name="log-out-outline" slot="start" color="danger"></ion-icon>
-                <ion-label color="danger">Sign out</ion-label>
+                <ion-label color="danger">{{ 'library.sign_out' | translate }}</ion-label>
               </ion-item>
               <ion-item lines="none" class="version-item">
                 <ion-label class="version-label">v{{ appVersion }}</ion-label>
@@ -34,7 +34,7 @@
           </ng-template>
         </ion-popover>
       }
-      <ion-button (click)="navigateToBrowse()" aria-label="Add podcasts">
+      <ion-button (click)="navigateToBrowse()" [attr.aria-label]="'library.browse_podcasts' | translate">
         <ion-icon slot="icon-only" name="add-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -44,8 +44,8 @@
 <ion-content>
   <section class="library-section">
     <div class="section-header">
-      <h2 class="section-title">Continue Listening</h2>
-      <ion-button fill="clear" size="small" class="clear-history-btn" (click)="clearHistory()">Clear</ion-button>
+      <h2 class="section-title">{{ 'library.continue_listening' | translate }}</h2>
+      <ion-button fill="clear" size="small" class="clear-history-btn" (click)="clearHistory()">{{ 'library.clear' | translate }}</ion-button>
     </div>
 
     <div class="history-filters" role="tablist" aria-label="History filters">
@@ -55,16 +55,16 @@
           [class.active]="historyStore.activeFilter() === filter.value"
           [outline]="historyStore.activeFilter() !== filter.value"
           (click)="selectFilter(filter.value)">
-          <ion-label>{{ filter.label }}</ion-label>
+          <ion-label>{{ filter.label | translate }}</ion-label>
         </ion-chip>
       }
     </div>
 
     @if (recentHistory().length === 0) {
       @if (historyStore.activeFilter() === 'all') {
-        <wavely-empty-state icon="time-outline" title="Nothing in progress" subtitle="Start an episode and it will appear here to continue."></wavely-empty-state>
+        <wavely-empty-state icon="time-outline" [title]="'library.empty_history_progress_title' | translate" [subtitle]="'library.empty_history_progress_subtitle' | translate"></wavely-empty-state>
       } @else {
-        <wavely-empty-state icon="time-outline" title="No episodes here" subtitle="Try a different filter."></wavely-empty-state>
+        <wavely-empty-state icon="time-outline" [title]="'library.empty_history_filter_title' | translate" [subtitle]="'library.empty_history_filter_subtitle' | translate"></wavely-empty-state>
       }
     } @else {
       <p class="list-hint">Swipe left or tap <ion-icon name="checkmark-circle-outline" style="vertical-align: middle"></ion-icon> to mark played</p>
@@ -112,18 +112,18 @@
 
       @if (hiddenCount() > 0) {
         <button type="button" class="show-all-btn" (click)="toggleShowAll()">
-          Show {{ hiddenCount() }} more episodes
+          {{ 'library.show_all' | translate }} ({{ hiddenCount() }})
         </button>
       } @else if (showAllHistory()) {
         <button type="button" class="show-all-btn" (click)="toggleShowAll()">
-          Show less
+          {{ 'library.show_less' | translate }}
         </button>
       }
     }
   </section>
 
   <section class="library-section">
-    <h2 class="section-title">Subscriptions</h2>
+    <h2 class="section-title">{{ 'library.subscriptions' | translate }}</h2>
     @if (store.subscriptions().length > 0) {
       <p class="list-hint">Swipe left to unsubscribe</p>
       <ion-list lines="full">
@@ -140,31 +140,14 @@
               <ion-button slot="end" fill="clear" color="medium" size="small" [attr.aria-label]="'Unsubscribe from ' + podcast.title" (click)="$event.stopPropagation(); unsubscribe(podcast, slidingItem)">✕</ion-button>
             </ion-item>
             <ion-item-options side="end">
-              <ion-item-option color="danger" (click)="unsubscribe(podcast, slidingItem)">Unsubscribe</ion-item-option>
+              <ion-item-option color="danger" (click)="unsubscribe(podcast, slidingItem)">{{ 'library.unsubscribe' | translate }}</ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
         }
       </ion-list>
     } @else {
-      <wavely-empty-state icon="library-outline" title="No subscriptions yet" subtitle="Browse podcasts and subscribe to build your library." actionLabel="Browse Podcasts" (action)="navigateToBrowse()"></wavely-empty-state>
+      <wavely-empty-state icon="library-outline" [title]="'library.empty_subscriptions_title' | translate" [subtitle]="'library.empty_subscriptions_subtitle' | translate" [actionLabel]="'library.browse_podcasts' | translate" (action)="navigateToBrowse()"></wavely-empty-state>
     }
   </section>
 
-  <section class="library-section">
-    <h2 class="section-title">Preferences</h2>
-    <ion-list lines="none">
-      <ion-item>
-        <ion-label>
-          <h3>Auto-queue episodes</h3>
-          <p>Automatically add remaining episodes to Up Next when you start playing</p>
-        </ion-label>
-        <ion-toggle
-          slot="end"
-          [checked]="prefs.autoQueueEnabled()"
-          (ionChange)="onAutoQueueChange($event)"
-          aria-label="Auto-queue episodes">
-        </ion-toggle>
-      </ion-item>
-    </ion-list>
-  </section>
 </ion-content>

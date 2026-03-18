@@ -4,6 +4,7 @@ import {
   ErrorHandler,
   isDevMode,
   provideBrowserGlobalErrorListeners,
+  importProvidersFrom,
 } from '@angular/core';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import { PreloadAllModules, Router, provideRouter, withPreloading } from '@angular/router';
@@ -29,6 +30,8 @@ import {
 } from '@angular/fire/firestore';
 import { provideIonicAngular } from '@ionic/angular/standalone';
 import * as Sentry from '@sentry/angular';
+import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { environment } from '../environments/environment';
 import { appRoutes } from './app.routes';
 
@@ -45,6 +48,10 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideRouter(appRoutes, withPreloading(PreloadAllModules)),
     provideHttpClient(withFetch()),
+    importProvidersFrom(
+      TranslateModule.forRoot({ fallbackLang: 'en' }),
+    ),
+    ...provideTranslateHttpLoader({ prefix: '/i18n/', suffix: '.json' }),
     provideFirebaseApp(() => getApp()),
     provideAuth(() => {
       if (environment.useEmulators) {

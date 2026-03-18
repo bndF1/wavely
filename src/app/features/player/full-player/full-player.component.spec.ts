@@ -10,11 +10,16 @@ jest.mock('@angular/fire/auth', () => ({
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { FullPlayerComponent } from './full-player.component';
 import { PlayerStore } from '../../../store/player/player.store';
 import { ModalController, ActionSheetController } from '@ionic/angular/standalone';
 import { mockPlayerStore } from '../../../../testing/mock-stores';
 import { mockEpisode } from '../../../../testing/podcast-fixtures';
+import {
+  loadTranslations,
+  provideTranslateTesting,
+} from '../../../../testing/translate-testing.helper';
 
 describe('FullPlayerComponent', () => {
   let component: FullPlayerComponent;
@@ -36,10 +41,12 @@ describe('FullPlayerComponent', () => {
         { provide: PlayerStore, useValue: store },
         { provide: ModalController, useValue: mockModalCtrl },
         { provide: ActionSheetController, useValue: mockActionSheetCtrl },
+        ...provideTranslateTesting(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
+    loadTranslations(TestBed.inject(TranslateService));
     fixture = TestBed.createComponent(FullPlayerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

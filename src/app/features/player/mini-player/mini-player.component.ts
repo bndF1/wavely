@@ -9,12 +9,13 @@ import {
 import { addIcons } from 'ionicons';
 import { playCircle, pauseCircle, closeCircle } from 'ionicons/icons';
 import { PlayerStore } from '../../../store/player/player.store';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'wavely-mini-player',
   templateUrl: './mini-player.component.html',
   styleUrls: ['./mini-player.component.scss'],
-  imports: [IonThumbnail, IonButton, IonIcon, IonProgressBar],
+  imports: [IonThumbnail, IonButton, IonIcon, IonProgressBar, TranslatePipe],
 })
 export class MiniPlayerComponent {
   readonly store = inject(PlayerStore);

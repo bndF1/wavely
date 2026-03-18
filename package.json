@@ -1,6 +1,6 @@
 {
   "name": "@wavely/source",
-  "version": "1.6.0",
+  "version": "1.8.0",
   "license": "MIT",
   "scripts": {
     "generate-env": "node --env-file=.env scripts/generate-env.mjs",
@@ -39,6 +39,8 @@
     "@ionic/angular": "^8.8.1",
     "@ionic/angular-toolkit": "^12.3.0",
     "@ngrx/signals": "^21.0.1",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "@sentry/angular": "^10.43.0",
     "express": "^4.21.2",
     "firebase": "^12.10.0",

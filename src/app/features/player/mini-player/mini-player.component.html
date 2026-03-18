@@ -25,7 +25,7 @@
         fill="clear"
         class="mini-player__play-btn"
         (click)="togglePlay($event)"
-        [attr.aria-label]="store.isPlaying() ? 'Pause' : 'Play'">
+        [attr.aria-label]="store.isPlaying() ? ('player.pause' | translate) : ('player.play' | translate)">
         <ion-icon
           slot="icon-only"
           [name]="store.isPlaying() ? 'pause-circle' : 'play-circle'">
@@ -35,7 +35,7 @@
         fill="clear"
         class="mini-player__close-btn"
         (click)="close($event)"
-        aria-label="Close player">
+        [attr.aria-label]="'player.close' | translate">
         <ion-icon slot="icon-only" name="close-circle"></ion-icon>
       </ion-button>
     </div>

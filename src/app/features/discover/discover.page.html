@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Discover</ion-title>
+    <ion-title>{{ 'discover.title' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         class="country-toggle"
@@ -15,14 +15,14 @@
 <ion-content>
   <div class="search-bar-wrapper">
     <ion-searchbar
-      placeholder="Podcasts, shows, creators…"
+      [placeholder]="'discover.search_placeholder' | translate"
       [value]="searchTerm()"
       [debounce]="0"
       (ionInput)="onSearchInput($event)"
       (ionClear)="onSearchClear()"
       animated
       enterkeyhint="search"
-      aria-label="Search podcasts">
+      [attr.aria-label]="'common.search' | translate">
     </ion-searchbar>
   </div>
 
@@ -52,9 +52,9 @@
     @if (store.error() && !store.isLoading()) {
       <wavely-empty-state
         icon="alert-circle-outline"
-        title="Search failed"
-        [subtitle]="store.error()!"
-        actionLabel="Retry"
+        [title]="'discover.error_title' | translate"
+        [subtitle]="'discover.error_subtitle' | translate"
+        [actionLabel]="'common.retry' | translate"
         (action)="retrySearch()">
       </wavely-empty-state>
     }
@@ -62,8 +62,8 @@
     @if (!store.isLoading() && !store.error() && store.searchResults().length === 0) {
       <wavely-empty-state
         icon="search-outline"
-        title="No podcasts found"
-        [subtitle]="'No results for \'' + searchTerm().trim() + '\' in this region.'">
+        [title]="'discover.no_results_title' | translate"
+        [subtitle]="'discover.no_results_subtitle' | translate">
       </wavely-empty-state>
     }
   } @else {
@@ -91,7 +91,7 @@
     }
 
     <section class="discover-section">
-      <h2 class="section-title">Trending Now</h2>
+      <h2 class="section-title">{{ 'browse.trending_now' | translate }}</h2>
 
       @if (isBrowseLoading()) {
         <div class="podcast-grid" aria-label="Loading trending podcasts">
@@ -118,9 +118,9 @@
       @if (browseError() && !isBrowseLoading()) {
         <wavely-empty-state
           icon="alert-circle-outline"
-          title="Could not load discover"
-          [subtitle]="browseError()!"
-          actionLabel="Retry"
+          [title]="'browse.error_load' | translate"
+          [subtitle]="'browse.error_subtitle' | translate"
+          [actionLabel]="'common.retry' | translate"
           (action)="retryBrowse()">
         </wavely-empty-state>
       }
@@ -128,9 +128,9 @@
       @if (!isBrowseLoading() && !browseError() && topPodcasts().length === 0) {
         <wavely-empty-state
           icon="search-outline"
-          title="No podcasts available"
-          subtitle="Try refreshing or check back later."
-          actionLabel="Refresh"
+          [title]="'browse.no_podcasts' | translate"
+          [subtitle]="'browse.no_podcasts_subtitle' | translate"
+          [actionLabel]="'browse.refresh' | translate"
           (action)="retryBrowse()">
         </wavely-empty-state>
       }
@@ -159,7 +159,7 @@
     </div>
 
     <section class="discover-section">
-      <h2 class="section-title">Top in News</h2>
+      <h2 class="section-title">{{ 'browse.more_in' | translate }} News</h2>
 
       @if (isBrowseLoading()) {
         <div class="podcast-carousel" aria-label="Loading top news podcasts">
@@ -187,7 +187,7 @@
     </section>
 
     <section class="discover-section">
-      <h2 class="section-title">Top in Technology</h2>
+      <h2 class="section-title">{{ 'browse.more_in' | translate }} Technology</h2>
 
       @if (isBrowseLoading()) {
         <div class="podcast-carousel" aria-label="Loading top technology podcasts">

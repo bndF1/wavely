@@ -1,7 +1,12 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
 
 import { NetworkService } from '../../../core/services/network.service';
+import {
+  loadTranslations,
+  provideTranslateTesting,
+} from '../../../../testing/translate-testing.helper';
 import { OfflineBannerComponent } from './offline-banner.component';
 
 describe('OfflineBannerComponent', () => {
@@ -12,13 +17,12 @@ describe('OfflineBannerComponent', () => {
     await TestBed.configureTestingModule({
       imports: [OfflineBannerComponent],
       providers: [
-        {
-          provide: NetworkService,
-          useValue: { isOnline },
-        },
+        { provide: NetworkService, useValue: { isOnline } },
+        ...provideTranslateTesting(),
       ],
     }).compileComponents();
 
+    loadTranslations(TestBed.inject(TranslateService));
     fixture = TestBed.createComponent(OfflineBannerComponent);
   });
 
