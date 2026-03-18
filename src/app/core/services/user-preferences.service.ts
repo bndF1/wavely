@@ -30,14 +30,31 @@ export class UserPreferencesService {
     this.persist({ autoQueueEnabled: value });
   }
 
-  toggleFavorite(station: RadioStation): void {
-    const current = this.favoriteStations();
-    const next = current.some((s) => s.stationuuid === station.stationuuid)
-      ? current.filter((s) => s.stationuuid !== station.stationuuid)
-      : [...current, station];
-
+  addFavoriteStation(station: RadioStation): void {
+    if (this.isFavorite(station.stationuuid)) return;
+    const next = [...this.favoriteStations(), station];
     this.favoriteStations.set(next);
     this.persist({ favoriteStations: next });
+  }
+
+  removeFavoriteStation(stationuuid: string): void {
+    const next = this.favoriteStations().filter((s) => s.stationuuid !== stationuuid);
+    this.favoriteStations.set(next);
+    this.persist({ favoriteStations: next });
+  }
+
+  setFavoriteStations(stations: RadioStation[]): void {
+    this.favoriteStations.set(stations);
+    this.persist({ favoriteStations: stations });
+  }
+
+  /** @deprecated Use RadioFavoritesSyncService.syncToggle() for Firestore-backed toggle. */
+  toggleFavorite(station: RadioStation): void {
+    if (this.isFavorite(station.stationuuid)) {
+      this.removeFavoriteStation(station.stationuuid);
+    } else {
+      this.addFavoriteStation(station);
+    }
   }
 
   isFavorite(stationuuid: string): boolean {
