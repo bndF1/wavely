@@ -11,6 +11,7 @@ import { tap } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { HistorySyncService } from '../../core/services/history-sync.service';
+import { RadioFavoritesSyncService } from '../../core/services/radio-favorites-sync.service';
 import { HistoryStore } from '../history/history.store';
 import { PlayerStore } from '../player/player.store';
 import type { User } from 'firebase/auth';
@@ -41,6 +42,7 @@ export const AuthStore = signalStore(
     authService = inject(AuthService),
     syncService = inject(SubscriptionSyncService),
     historySyncService = inject(HistorySyncService),
+    radioFavoritesSync = inject(RadioFavoritesSyncService),
     historyStore = inject(HistoryStore),
     playerStore = inject(PlayerStore)
   ) => ({
@@ -56,9 +58,16 @@ export const AuthStore = signalStore(
             syncService.clearSubscriptions();
             historyStore.clear();
             historyStore.setLoading(true);
+            // Only clear favorites when switching between two authenticated users (A→B).
+            // On first sign-in (previousUid === null) keep local favorites so
+            // loadFromFirestore can merge and persist them to Firestore.
+            if (previousUid !== null) {
+              radioFavoritesSync.clearFavorites();
+            }
 
             // Pass a stale-result guard: discard getDocs result if user changed mid-flight
             syncService.loadFromFirestore(user.uid, () => store.user()?.uid === user.uid);
+            radioFavoritesSync.loadFromFirestore(user.uid, () => store.user()?.uid === user.uid);
             historySyncService
               .loadHistory(user.uid)
               .then((entries) => {
@@ -86,6 +95,7 @@ export const AuthStore = signalStore(
             playerStore.close();
             syncService.clearSubscriptions();
             historyStore.clear();
+            radioFavoritesSync.clearFavorites();
           }
         });
       })

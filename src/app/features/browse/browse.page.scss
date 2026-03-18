@@ -131,3 +131,25 @@ ion-chip {
     letter-spacing: 0.05em;
   }
 }
+
+
+@media (min-width: 1024px) {
+  .podcast-carousel {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    overflow: visible;
+    gap: 16px;
+  }
+
+  .carousel-item,
+  .skeleton-card {
+    min-width: auto;
+    flex: none;
+  }
+
+  .browse-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 48px;
+  }
+}

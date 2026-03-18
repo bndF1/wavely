@@ -93,8 +93,18 @@ test.describe('Home page', () => {
     await page.goto('/tabs');
     await expect(page).toHaveURL(/\/tabs\/home/);
 
-    const homeTab = page.getByRole('tab', { name: /home/i });
-    await expect(homeTab).toHaveAttribute('aria-selected', 'true');
+    // On mobile: ion-tab-bar is visible and home tab should be selected
+    // On desktop: tab bar is hidden and sidebar link carries the active state
+    const tabBar = page.locator('ion-tab-bar');
+    const isDesktop = await tabBar.evaluate((el) => getComputedStyle(el).display === 'none');
+
+    if (isDesktop) {
+      const sidebarHomeLink = page.locator('.desktop-sidebar__link[href$="/tabs/home"]');
+      await expect(sidebarHomeLink).toHaveClass(/active/);
+    } else {
+      const homeTab = page.getByRole('tab', { name: /home/i });
+      await expect(homeTab).toHaveAttribute('aria-selected', 'true');
+    }
   });
 
   test('home page basic smoke render', async ({ page }) => {

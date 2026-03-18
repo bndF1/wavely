@@ -8,3 +8,98 @@ ion-tab-button {
   --color: var(--wavely-on-surface-muted);
   --color-selected: var(--wavely-primary);
 }
+
+.tabs-layout {
+  height: 100%;
+}
+
+// Desktop layout: sidebar replaces bottom tab bar
+.desktop-sidebar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  :host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .tabs-layout {
+    display: flex;
+    flex: 1;
+    height: 100%;
+  }
+
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    min-width: 220px;
+    height: 100%;
+    background: var(--ion-card-background, var(--ion-background-color));
+    border-right: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.1));
+    padding: 16px 0;
+    z-index: 100;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .desktop-sidebar__logo {
+    padding: 12px 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ion-text-color);
+  }
+
+  .desktop-sidebar__links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 8px;
+  }
+
+  .desktop-sidebar__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--ion-color-medium);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.15s, color 0.15s;
+
+    ion-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: var(--ion-color-light);
+      color: var(--ion-text-color);
+    }
+
+    &.active {
+      background: var(--ion-color-primary-tint, rgba(74, 158, 255, 0.15));
+      color: var(--ion-color-primary);
+      font-weight: 600;
+    }
+  }
+
+  // Hide the Ionic bottom tab bar on desktop
+  .desktop-hidden-tabs {
+    display: none !important;
+  }
+
+  // Push main content to the right of the sidebar
+  ion-tabs {
+    flex: 1;
+    margin-left: 220px;
+  }
+}

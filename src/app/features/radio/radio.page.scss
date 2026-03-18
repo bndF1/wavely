@@ -9,21 +9,20 @@
   padding: 8px 8px 0;
   background: var(--wavely-background);
 
+  // Match Discover style
   ion-searchbar {
     --background: var(--wavely-surface-variant);
     --color: var(--wavely-on-surface);
-    --placeholder-color: var(--wavely-on-surface-muted);
-    --icon-color: var(--wavely-on-surface-muted);
-    --clear-button-color: var(--wavely-on-surface-muted);
-    --border-radius: 12px;
+    --placeholder-color: var(--wavely-on-surface-variant);
+    --icon-color: var(--wavely-on-surface-variant);
+    --clear-button-color: var(--wavely-on-surface-variant);
     --box-shadow: none;
-    height: 44px;
   }
 }
 
 .tag-scroll {
   overflow-x: auto;
-  padding: 8px 16px;
+  padding: 4px 16px 8px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -44,6 +43,8 @@
 ion-chip {
   --background: var(--wavely-surface-variant);
   --color: var(--wavely-on-surface);
+  font-size: 13px;
+  transition: background 0.15s, color 0.15s;
 
   &.selected {
     --background: var(--wavely-primary);
@@ -52,12 +53,11 @@ ion-chip {
 }
 
 .section-title {
-  margin: 14px 16px 6px;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--wavely-on-surface-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  margin: 0 16px 16px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--wavely-on-surface);
+  letter-spacing: -0.2px;
 }
 
 .search-results-hint {
@@ -117,5 +117,41 @@ ion-chip {
   &__favorite-btn {
     --padding-start: 0;
     --padding-end: 0;
+  }
+}
+
+
+@media (min-width: 1024px) {
+  .tag-scroll {
+    overflow: visible;
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  .tag-row {
+    flex-wrap: wrap;
+    gap: 8px;
+    width: auto;
+  }
+
+  .radio-list,
+  .radio-section,
+  .search-results-hint,
+  .search-bar-wrapper {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .radio-list,
+  .radio-section,
+  .search-results-hint {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  .search-bar-wrapper {
+    max-width: 520px;
+    margin: 16px auto;
   }
 }

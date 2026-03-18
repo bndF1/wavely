@@ -148,3 +148,33 @@ ion-note {
   --color: var(--wavely-on-surface-muted);
   flex-shrink: 0;
 }
+
+
+@media (min-width: 1024px) {
+  .history-filters {
+    flex-wrap: wrap;
+    overflow: visible;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .library-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 48px;
+  }
+
+  .section-title {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .section-header {
+    padding-right: 0;
+  }
+
+  .list-hint {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

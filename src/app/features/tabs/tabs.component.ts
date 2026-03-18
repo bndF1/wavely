@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 import {
   IonTabs,
@@ -17,6 +18,7 @@ import {
   radio,
   libraryOutline,
   library,
+  searchOutline,
 } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PlayerStore } from '../../store/player/player.store';
@@ -37,6 +39,8 @@ import { OfflineBannerComponent } from '../../shared/components/offline-banner/o
     MiniPlayerComponent,
     OfflineBannerComponent,
     TranslatePipe,
+    RouterLink,
+    RouterLinkActive,
   ],
 })
 export class TabsComponent {
@@ -53,6 +57,7 @@ export class TabsComponent {
       radio,
       libraryOutline,
       library,
+      searchOutline,
     });
   }
 
