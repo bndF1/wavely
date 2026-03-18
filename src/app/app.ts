@@ -55,9 +55,21 @@ export class App {
         filter((u) => u !== null),
         take(1),
       ).subscribe(async (user) => {
-        try {
-          await getDocs(collection(firestore, 'users', user!.uid, 'subscriptions'));
-        } catch { /* just needed to wait for Firestore auth propagation */ }
+        // Retry until Firestore auth token propagates to the emulator.
+        // A single getDocs attempt can fail with PERMISSION_DENIED if the token
+        // hasn't reached Firestore yet; silently swallowing that error would let
+        // the test proceed and then setDoc would also fail, rolling back the
+        // optimistic subscription update before the library check runs.
+        let attempts = 0;
+        while (attempts < 10) {
+          try {
+            await getDocs(collection(firestore, 'users', user!.uid, 'subscriptions'));
+            break;
+          } catch {
+            attempts++;
+            await new Promise<void>((resolve) => setTimeout(resolve, 200));
+          }
+        }
         (window as any)['__e2eAuthReady'] = true;
       });
     }
