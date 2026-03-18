@@ -119,3 +119,24 @@ ion-chip {
     --padding-end: 0;
   }
 }
+
+
+@media (min-width: 1024px) {
+  .tag-scroll {
+    overflow: visible;
+  }
+
+  .tag-row {
+    flex-wrap: wrap;
+    gap: 8px;
+    width: auto;
+  }
+
+  .radio-list,
+  .radio-section,
+  .search-results-hint {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
