@@ -68,6 +68,7 @@ service cloud.firestore {
       allow read: if isOwner(uid);
       allow create, update: if isOwner(uid)
         && request.resource.data.keys().hasAll(['stationuuid', 'name', 'url_resolved'])
+        && request.resource.data.stationuuid == stationuuid
         && request.resource.data.stationuuid is string
         && request.resource.data.name is string
         && request.resource.data.url_resolved is string;

@@ -102,6 +102,16 @@ describe('RadioFavoritesSyncService', () => {
       expect(prefs.favoriteStations().filter((s) => s.stationuuid === 'uuid-dup')).toHaveLength(1);
     });
 
+    it('does NOT roll back when station was already favorited before the call', async () => {
+      mockSetDoc.mockRejectedValue(new Error('Firestore unavailable'));
+      const station = mockStation({ stationuuid: 'uuid-pre-existing' });
+      // Station is already a favorite before the call
+      prefs.addFavoriteStation(station);
+      await service.addFavorite(station, 'uid-1');
+      // Station should still be favorited — rollback should not remove a pre-existing favorite
+      expect(prefs.favoriteStations()).toContainEqual(station);
+    });
+
     it('rolls back store on Firestore failure', async () => {
       mockSetDoc.mockRejectedValue(new Error('Firestore unavailable'));
       const station = mockStation({ stationuuid: 'uuid-rollback' });
@@ -195,6 +205,18 @@ describe('RadioFavoritesSyncService', () => {
 
       expect(prefs.favoriteStations()).toContainEqual(remote);
       expect(prefs.favoriteStations()).toContainEqual(local);
+    });
+
+    it('writes local-only favorites back to Firestore after merge', async () => {
+      const remote = mockStation({ stationuuid: 'uuid-remote-writeback' });
+      const local = mockStation({ stationuuid: 'uuid-local-writeback' });
+      prefs.addFavoriteStation(local);
+      mockGetDocs.mockResolvedValue({ docs: [{ data: () => remote }] });
+
+      await service.loadFromFirestore('uid-1', () => true);
+
+      // setDoc should have been called once for the local-only station
+      expect(mockSetDoc).toHaveBeenCalledTimes(1);
     });
 
     it('does not duplicate stations present in both Firestore and local', async () => {

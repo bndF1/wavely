@@ -58,7 +58,12 @@ export const AuthStore = signalStore(
             syncService.clearSubscriptions();
             historyStore.clear();
             historyStore.setLoading(true);
-            radioFavoritesSync.clearFavorites();
+            // Only clear favorites when switching between two authenticated users (A→B).
+            // On first sign-in (previousUid === null) keep local favorites so
+            // loadFromFirestore can merge and persist them to Firestore.
+            if (previousUid !== null) {
+              radioFavoritesSync.clearFavorites();
+            }
 
             // Pass a stale-result guard: discard getDocs result if user changed mid-flight
             syncService.loadFromFirestore(user.uid, () => store.user()?.uid === user.uid);

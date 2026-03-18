@@ -29,6 +29,7 @@ export class RadioFavoritesSyncService {
   /**
    * Load all favorite stations for a user from Firestore and merge with localStorage.
    * `isStillCurrentUser` guards against stale results when the user changes mid-flight.
+   * Local-only favorites (not yet in Firestore) are written back so all devices stay in sync.
    */
   async loadFromFirestore(uid: string, isStillCurrentUser: () => boolean): Promise<void> {
     try {
@@ -41,6 +42,18 @@ export class RadioFavoritesSyncService {
       // Merge: keep any locally-added favorites not yet in Firestore
       const localOnly = this.prefs.favoriteStations().filter((s) => !remoteIds.has(s.stationuuid));
       this.prefs.setFavoriteStations([...remote, ...localOnly]);
+
+      // Write local-only favorites back to Firestore so they sync to other devices
+      for (const station of localOnly) {
+        const docRef = doc(this.firestore, 'users', uid, 'favoriteStations', station.stationuuid);
+        const data: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(station)) {
+          if (value !== undefined) data[key] = value;
+        }
+        setDoc(docRef, data).catch((err) =>
+          console.error('[RadioFavoritesSyncService] Failed to persist local favorite', err),
+        );
+      }
     } catch (err) {
       console.error('[RadioFavoritesSyncService] Failed to load favorites', err);
     }
@@ -58,7 +71,10 @@ export class RadioFavoritesSyncService {
 
   /** Add a favorite — optimistic, then persists to Firestore if authed. */
   async addFavorite(station: RadioStation, uid: string | null): Promise<void> {
-    this.prefs.addFavoriteStation(station);
+    const wasAlreadyFavorite = this.prefs.isFavorite(station.stationuuid);
+    if (!wasAlreadyFavorite) {
+      this.prefs.addFavoriteStation(station);
+    }
     if (!uid) return;
     try {
       const docRef = doc(this.firestore, 'users', uid, 'favoriteStations', station.stationuuid);
@@ -69,8 +85,10 @@ export class RadioFavoritesSyncService {
       await setDoc(docRef, data);
     } catch (err) {
       console.error('[RadioFavoritesSyncService] Failed to add favorite', err);
-      // Rollback optimistic update
-      this.prefs.removeFavoriteStation(station.stationuuid);
+      // Rollback only if this call added it
+      if (!wasAlreadyFavorite) {
+        this.prefs.removeFavoriteStation(station.stationuuid);
+      }
     }
   }
 
