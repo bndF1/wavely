@@ -1,3 +1,11 @@
 ion-list {
   margin-bottom: 16px;
 }
+
+
+@media (min-width: 1024px) {
+  ion-list {
+    max-width: 480px;
+    margin: 0 auto 16px;
+  }
+}

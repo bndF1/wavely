@@ -34,6 +34,7 @@ import { Router } from '@angular/router';
       </div>
     </ion-content>
   `,
+  styleUrls: ['./login.page.scss'],
   styles: [
     `
       .login-content {

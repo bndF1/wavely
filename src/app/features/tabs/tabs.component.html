@@ -1,28 +1,58 @@
 <wavely-offline-banner></wavely-offline-banner>
 
-<ion-tabs [class.has-mini-player]="!!store.currentEpisode()">
-  @if (store.currentEpisode()) {
-    <wavely-mini-player slot="bottom" (openFull)="openFullPlayer()"></wavely-mini-player>
-  }
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="home" href="/tabs/home">
-      <ion-icon name="home-outline"></ion-icon>
-      <ion-label>{{ 'nav.home' | translate }}</ion-label>
-    </ion-tab-button>
+<div class="tabs-layout">
+  <nav class="desktop-sidebar" aria-label="Main navigation">
+    <div class="desktop-sidebar__logo">
+      <img src="assets/icon/favicon.png" alt="Wavely" width="32" height="32" />
+    </div>
+    <div class="desktop-sidebar__links">
+      <a routerLink="/tabs/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="desktop-sidebar__link">
+        <ion-icon name="home-outline"></ion-icon>
+        <span>Home</span>
+      </a>
+      <a routerLink="/tabs/browse" routerLinkActive="active" class="desktop-sidebar__link">
+        <ion-icon name="compass-outline"></ion-icon>
+        <span>Browse</span>
+      </a>
+      <a routerLink="/tabs/discover" routerLinkActive="active" class="desktop-sidebar__link">
+        <ion-icon name="search-outline"></ion-icon>
+        <span>Discover</span>
+      </a>
+      <a routerLink="/tabs/library" routerLinkActive="active" class="desktop-sidebar__link">
+        <ion-icon name="library-outline"></ion-icon>
+        <span>Library</span>
+      </a>
+      <a routerLink="/tabs/radio" routerLinkActive="active" class="desktop-sidebar__link">
+        <ion-icon name="radio-outline"></ion-icon>
+        <span>Radio</span>
+      </a>
+    </div>
+  </nav>
 
-    <ion-tab-button tab="discover" href="/tabs/discover">
-      <ion-icon name="compass-outline"></ion-icon>
-      <ion-label>{{ 'nav.discover' | translate }}</ion-label>
-    </ion-tab-button>
+  <ion-tabs [class.has-mini-player]="!!store.currentEpisode()">
+    @if (store.currentEpisode()) {
+      <wavely-mini-player slot="bottom" (openFull)="openFullPlayer()"></wavely-mini-player>
+    }
+    <ion-tab-bar slot="bottom" class="desktop-hidden-tabs">
+      <ion-tab-button tab="home" href="/tabs/home">
+        <ion-icon name="home-outline"></ion-icon>
+        <ion-label>{{ 'nav.home' | translate }}</ion-label>
+      </ion-tab-button>
 
-    <ion-tab-button tab="radio" href="/tabs/radio">
-      <ion-icon name="radio-outline"></ion-icon>
-      <ion-label>{{ 'nav.radio' | translate }}</ion-label>
-    </ion-tab-button>
+      <ion-tab-button tab="discover" href="/tabs/discover">
+        <ion-icon name="compass-outline"></ion-icon>
+        <ion-label>{{ 'nav.discover' | translate }}</ion-label>
+      </ion-tab-button>
 
-    <ion-tab-button tab="library" href="/tabs/library">
-      <ion-icon name="library-outline"></ion-icon>
-      <ion-label>{{ 'nav.library' | translate }}</ion-label>
-    </ion-tab-button>
-  </ion-tab-bar>
-</ion-tabs>
+      <ion-tab-button tab="radio" href="/tabs/radio">
+        <ion-icon name="radio-outline"></ion-icon>
+        <ion-label>{{ 'nav.radio' | translate }}</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="library" href="/tabs/library">
+        <ion-icon name="library-outline"></ion-icon>
+        <ion-label>{{ 'nav.library' | translate }}</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ion-tabs>
+</div>
