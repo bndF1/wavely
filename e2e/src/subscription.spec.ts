@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/auth.fixture';
+import { clickInViewport } from './helpers/interactions';
 
 const ITUNES_LOOKUP_URL = /itunes\.apple\.com\/lookup/;
 
@@ -95,7 +96,9 @@ test.describe.serial('Subscriptions', () => {
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 10000 });
+    // Use word-boundary regex: plain string hasText is case-insensitive substring,
+    // so 'Subscribe Flow Podcast' would also match 'Unsubscribe Flow Podcast'.
+    await expect(page.locator('ion-item-sliding').filter({ hasText: new RegExp(`\\b${podcast.title}\\b`) })).toBeVisible({ timeout: 10000 });
   });
 
   test('unsubscribe removes podcast from library', async ({ page }) => {
@@ -120,11 +123,12 @@ test.describe.serial('Subscriptions', () => {
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 15000 });
+    const titleRegex = new RegExp(`\\b${podcast.title}\\b`);
+    await expect(page.locator('ion-item-sliding').filter({ hasText: titleRegex })).toBeVisible({ timeout: 15000 });
 
-    const podcastItem = page.locator('ion-item-sliding').filter({ hasText: podcast.title });
+    const podcastItem = page.locator('ion-item-sliding').filter({ hasText: titleRegex });
     await podcastItem.scrollIntoViewIfNeeded();
     await clickInViewport(podcastItem.locator('ion-button[slot="end"]'));
-    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toHaveCount(0);
+    await expect(page.locator('ion-item-sliding').filter({ hasText: titleRegex })).toHaveCount(0);
   });
 });
