@@ -3,28 +3,24 @@
 <div class="tabs-layout">
   <nav class="desktop-sidebar" aria-label="Main navigation">
     <div class="desktop-sidebar__logo">
-      <img src="assets/icon/favicon.png" alt="Wavely" width="32" height="32" />
+      <img src="icons/icon-192x192.png" alt="Wavely" width="32" height="32" />
     </div>
     <div class="desktop-sidebar__links">
       <a routerLink="/tabs/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="desktop-sidebar__link">
         <ion-icon name="home-outline"></ion-icon>
-        <span>Home</span>
-      </a>
-      <a routerLink="/tabs/browse" routerLinkActive="active" class="desktop-sidebar__link">
-        <ion-icon name="compass-outline"></ion-icon>
-        <span>Browse</span>
+        <span>{{ 'nav.home' | translate }}</span>
       </a>
       <a routerLink="/tabs/discover" routerLinkActive="active" class="desktop-sidebar__link">
-        <ion-icon name="search-outline"></ion-icon>
-        <span>Discover</span>
-      </a>
-      <a routerLink="/tabs/library" routerLinkActive="active" class="desktop-sidebar__link">
-        <ion-icon name="library-outline"></ion-icon>
-        <span>Library</span>
+        <ion-icon name="compass-outline"></ion-icon>
+        <span>{{ 'nav.discover' | translate }}</span>
       </a>
       <a routerLink="/tabs/radio" routerLinkActive="active" class="desktop-sidebar__link">
         <ion-icon name="radio-outline"></ion-icon>
-        <span>Radio</span>
+        <span>{{ 'nav.radio' | translate }}</span>
+      </a>
+      <a routerLink="/tabs/library" routerLinkActive="active" class="desktop-sidebar__link">
+        <ion-icon name="library-outline"></ion-icon>
+        <span>{{ 'nav.library' | translate }}</span>
       </a>
     </div>
   </nav>
