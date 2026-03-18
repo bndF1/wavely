@@ -289,12 +289,32 @@ gh pr create --base dev
 - [x] Feed list left padding restored
 - [x] Version bump automation and CI hardening
 
-### v1.6.0 — Design Tokens, WCAG Touch Targets & Completed Episode Filter 🚧 Staging
+### v1.6.0 — Design Tokens, WCAG Touch Targets & Completed Episode Filter ✅ Shipped
 - [x] Episode-item transparent background — removes white card background from feed list ([#291](https://github.com/bndF1/wavely/issues/291) partial)
 - [x] Design token cleanup — replaced hardcoded `#fff` with `var(--ion-color-primary-contrast)` in browse, discover, and radio chip selected states
 - [x] Full-player LIVE badge now uses `var(--ion-color-danger)` / `var(--ion-color-danger-contrast)` instead of hardcoded hex values
 - [x] Mini-player play/close buttons bumped from 40 px → 44 px for WCAG 2.5.5 touch target compliance ([#290](https://github.com/bndF1/wavely/issues/290) partial)
 - [x] Home feed filters out completed episodes via HistoryStore ([#242](https://github.com/bndF1/wavely/issues/242))
+
+### v1.7.0 — Settings, Dark Mode & i18n ✅ Shipped
+- [x] Settings page with dark mode toggle and language picker (English, Spanish, French, German, Portuguese)
+- [x] @ngx-translate/core v17 integration with signal-based LanguageService
+- [x] WCAG contrast improvements (primary #4A9EFF, danger #F28B82 in dark mode)
+- [x] All templates translated with translate pipe
+
+### v1.8.0 — Favorite Radio Stations on Home Screen ✅ Shipped
+- [x] Favorite stations horizontal scroll section on Home page
+- [x] UserPreferencesService stores full RadioStation objects (name, favicon, url)
+- [x] Firebase sync for favorite stations across devices
+
+### v1.8.1 — Catalan Language Support ✅ Shipped
+- [x] Catalan (ca) language added to the language picker
+
+### v1.8.2 — Desktop UI Polish & E2E Hardening ✅ Shipped
+- [x] Desktop layout consistency pass (Discover, Radio, Library spacing/padding)
+- [x] Sidebar navigation for desktop (≥1024 px) with hidden tab bar
+- [x] Radio favorites section hidden while in search mode ([#c89ebfe](https://github.com/bndF1/wavely/commit/c89ebfe))
+- [x] E2E subscription test hardened (word-boundary regex, viewport-safe clicks)
 
 ### v2.0 — Native Platform
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
