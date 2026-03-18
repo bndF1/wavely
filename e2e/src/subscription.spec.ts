@@ -82,7 +82,7 @@ test.describe.serial('Subscriptions', () => {
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('ion-item-sliding').filter({ hasText: new RegExp(`\\b${podcast.title}\\b`) })).toBeVisible({ timeout: 10000 });
   });
 
   test('unsubscribe removes podcast from library', async ({ page }) => {
