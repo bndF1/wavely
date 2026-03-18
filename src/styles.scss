@@ -161,31 +161,26 @@ ion-toolbar {
 
 // Tablet and desktop: responsive podcast grids + generous padding
 @media (min-width: 768px) {
-  // Grow from fixed 2-col to auto-fill responsive grid
   .podcast-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 20px !important;
   }
 
-  // Section padding breathes more on wide screens
   .home-section {
     padding-left: 32px !important;
     padding-right: 32px !important;
   }
 
-  // Toolbar content gets side padding so it's not flush to the edge
   ion-toolbar {
     --padding-start: 16px;
     --padding-end: 16px;
   }
 
-  // Browse category chips wrap instead of scrolling off-screen
   .category-row {
     flex-wrap: wrap !important;
     width: auto !important;
   }
 
-  // Search bar gets a sensible max-width on desktop
   .search-bar-wrapper {
     max-width: 640px;
     margin: 16px auto;
@@ -194,16 +189,19 @@ ion-toolbar {
 
 @media (min-width: 1024px) {
   .podcast-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     gap: 24px !important;
   }
 
   .home-section {
-    padding-left: 48px !important;
-    padding-right: 48px !important;
+    padding: 24px 48px !important;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .search-bar-wrapper {
+    max-width: 520px;
   }
 
   .category-scroll {
@@ -211,7 +209,6 @@ ion-toolbar {
     padding-right: 48px !important;
   }
 
-  // Browse podcast grid gets max-width container
   ion-content .podcast-grid {
     max-width: 1200px;
     margin-left: auto;

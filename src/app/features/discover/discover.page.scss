@@ -150,3 +150,21 @@ ion-chip {
   cursor: pointer;
   font-size: 18px;
 }
+
+
+@media (min-width: 1024px) {
+  .discover-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  .category-scroll {
+    overflow: visible;
+  }
+
+  .category-row {
+    flex-wrap: wrap;
+    width: auto;
+  }
+}

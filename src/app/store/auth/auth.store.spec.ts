@@ -15,6 +15,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { HistorySyncService } from '../../core/services/history-sync.service';
 import { HistoryStore } from '../history/history.store';
+import { RadioFavoritesSyncService } from '../../core/services/radio-favorites-sync.service';
 
 describe('AuthStore', () => {
   let store: InstanceType<typeof AuthStore>;
@@ -33,6 +34,11 @@ describe('AuthStore', () => {
 
   const historySyncServiceMock = {
     loadHistory: jest.fn().mockResolvedValue([]),
+  };
+
+  const radioFavoritesSyncMock = {
+    clearFavorites: jest.fn(),
+    loadFromFirestore: jest.fn().mockResolvedValue(undefined),
   };
 
   const historyStoreMock = {
@@ -62,6 +68,7 @@ describe('AuthStore', () => {
         { provide: SubscriptionSyncService, useValue: syncServiceMock },
         { provide: HistorySyncService, useValue: historySyncServiceMock },
         { provide: HistoryStore, useValue: historyStoreMock },
+        { provide: RadioFavoritesSyncService, useValue: radioFavoritesSyncMock },
       ],
     });
 

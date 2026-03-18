@@ -61,6 +61,20 @@ service cloud.firestore {
       allow delete: if isOwner(uid);
     }
 
+    // Favorite radio stations: users/{uid}/favoriteStations/{stationuuid}
+    // Service writes the full RadioStation object via spread: { ...station }
+    // Required fields mirror the RadioStation model interface.
+    match /users/{uid}/favoriteStations/{stationuuid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasAll(['stationuuid', 'name', 'url_resolved'])
+        && request.resource.data.stationuuid == stationuuid
+        && request.resource.data.stationuuid is string
+        && request.resource.data.name is string
+        && request.resource.data.url_resolved is string;
+      allow delete: if isOwner(uid);
+    }
+
     // FCM tokens: users/{uid}/tokens/{tokenId}
     match /users/{uid}/tokens/{tokenId} {
       allow read: if isOwner(uid);
