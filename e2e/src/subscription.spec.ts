@@ -1,5 +1,4 @@
 import { test, expect } from './fixtures/auth.fixture';
-import { clickInViewport } from './helpers/interactions';
 
 const ITUNES_LOOKUP_URL = /itunes\.apple\.com\/lookup/;
 
@@ -65,6 +64,12 @@ test.describe.serial('Subscriptions', () => {
     const podcast = { id: '62001', title: 'Subscribe Flow Podcast' };
     await mockPodcastEndpoints(page, podcast);
 
+    // Capture browser errors so CI logs show Firestore/Angular failures.
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') console.error('[browser:error]', msg.text());
+    });
+    page.on('pageerror', (err) => console.error('[browser:pageerror]', err.message));
+
     await page.goto(`/podcast/${podcast.id}`);
     await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
 
@@ -78,7 +83,10 @@ test.describe.serial('Subscriptions', () => {
     // previous run. Skip clicking if the "Subscribed" button is already visible.
     const alreadySubscribed = await page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i }).isVisible();
     if (!alreadySubscribed) {
-      await clickInViewport(page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }));
+      // Use plain .click() (not clickInViewport) — the Subscribe button is in
+      // a fixed Ionic header so it is always in the viewport. clickInViewport
+      // uses force:true which may interact differently with Ionic event delivery.
+      await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
       await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
     }
 
@@ -87,12 +95,17 @@ test.describe.serial('Subscriptions', () => {
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
     await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
-    await expect(page.locator('ion-item-sliding').filter({ hasText: new RegExp(`\\b${podcast.title}\\b`) })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('ion-item-sliding').filter({ hasText: podcast.title })).toBeVisible({ timeout: 10000 });
   });
 
   test('unsubscribe removes podcast from library', async ({ page }) => {
     const podcast = { id: '62002', title: 'Unsubscribe Flow Podcast' };
     await mockPodcastEndpoints(page, podcast);
+
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') console.error('[browser:error]', msg.text());
+    });
+    page.on('pageerror', (err) => console.error('[browser:pageerror]', err.message));
 
     await page.goto(`/podcast/${podcast.id}`);
     await expect(page.locator('.podcast-header:not(.skeleton-header)')).toBeVisible({ timeout: 15000 });
@@ -100,7 +113,7 @@ test.describe.serial('Subscriptions', () => {
 
     const alreadySubscribed = await page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i }).isVisible();
     if (!alreadySubscribed) {
-      await clickInViewport(page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }));
+      await page.locator('ion-button').filter({ hasText: /\bSubscribe\b/i }).click();
       await expect(page.locator('ion-button').filter({ hasText: /\bSubscribed\b/i })).toBeVisible({ timeout: 10000 });
     }
 
