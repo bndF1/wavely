@@ -8,6 +8,11 @@ jest.mock('@angular/fire/firestore', () => ({
   collection: jest.fn(() => ({ id: 'mock-collection' })),
 }));
 
+// Mock @angular/fire/auth before any imports that use it
+jest.mock('@angular/fire/auth', () => ({
+  Auth: class MockAuth {},
+}));
+
 // Mock localStorage for UserPreferencesService
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -21,6 +26,7 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 import { TestBed } from '@angular/core/testing';
+import { Auth } from '@angular/fire/auth';
 import { Firestore } from '@angular/fire/firestore';
 import { RadioFavoritesSyncService } from './radio-favorites-sync.service';
 import { UserPreferencesService } from './user-preferences.service';
@@ -49,6 +55,7 @@ describe('RadioFavoritesSyncService', () => {
   let mockSetDoc: jest.Mock;
   let mockDeleteDoc: jest.Mock;
   let mockGetDocs: jest.Mock;
+  let mockAuth: { currentUser: { uid: string } | null };
 
   beforeEach(() => {
     localStorageMock.clear();
@@ -61,11 +68,14 @@ describe('RadioFavoritesSyncService', () => {
     mockDeleteDoc.mockResolvedValue(undefined);
     mockGetDocs.mockResolvedValue({ docs: [] });
 
+    mockAuth = { currentUser: { uid: 'uid-1' } };
+
     TestBed.configureTestingModule({
       providers: [
         RadioFavoritesSyncService,
         UserPreferencesService,
         { provide: Firestore, useValue: {} },
+        { provide: Auth, useFactory: () => mockAuth },
       ],
     });
     service = TestBed.inject(RadioFavoritesSyncService);
@@ -118,6 +128,29 @@ describe('RadioFavoritesSyncService', () => {
       await service.addFavorite(station, 'uid-1');
       expect(prefs.favoriteStations()).not.toContainEqual(station);
     });
+
+    it('does NOT roll back when user has signed out before failure arrives', async () => {
+      // Use a deferred rejection to control timing
+      let rejectSetDoc!: (err: Error) => void;
+      mockSetDoc.mockReturnValue(new Promise<void>((_, reject) => (rejectSetDoc = reject)));
+
+      const station = mockStation({ stationuuid: 'uuid-add-signout-race' });
+      const addPromise = service.addFavorite(station, 'uid-1');
+
+      // Station is now in favorites (optimistic add happened synchronously above)
+      expect(prefs.favoriteStations()).toContainEqual(station);
+
+      // Simulate sign-out while setDoc is in flight
+      service.clearFavorites();
+      mockAuth.currentUser = null;
+
+      // Now the Firestore call fails (permission-denied)
+      rejectSetDoc(new Error('permission-denied'));
+      await addPromise;
+
+      // Rollback guard must NOT re-add the station after sign-out cleared the list
+      expect(prefs.favoriteStations()).not.toContainEqual(station);
+    });
   });
 
   describe('removeFavorite()', () => {
@@ -149,6 +182,17 @@ describe('RadioFavoritesSyncService', () => {
       prefs.addFavoriteStation(station);
       await service.removeFavorite('uuid-rollback-rm', 'uid-1');
       expect(prefs.favoriteStations()).toContainEqual(station);
+    });
+
+    it('does NOT roll back when user has signed out before failure arrives', async () => {
+      mockDeleteDoc.mockRejectedValue(new Error('permission-denied'));
+      const station = mockStation({ stationuuid: 'uuid-signout-race' });
+      prefs.addFavoriteStation(station);
+      // Simulate sign-out happening while deleteDoc was in flight
+      mockAuth.currentUser = null;
+      await service.removeFavorite('uuid-signout-race', 'uid-1');
+      // Station should NOT be re-added — rollback must not corrupt signed-out state
+      expect(prefs.favoriteStations()).not.toContainEqual(station);
     });
   });
 
