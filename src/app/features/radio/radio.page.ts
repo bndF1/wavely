@@ -29,6 +29,7 @@ import { RadioApiService, radioStationToEpisode } from '../../core/services/radi
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { PlayerStore } from '../../store/player/player.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 const SKELETON_COUNT = 8;
 const MAX_TAG_CHIPS = 14;
@@ -59,6 +60,7 @@ const SEARCH_LIMIT = 60;
     IonSkeletonText,
     SlicePipe,
     EmptyStateComponent,
+    TranslatePipe,
   ],
 })
 export class RadioPage implements OnDestroy {
@@ -121,7 +123,7 @@ export class RadioPage implements OnDestroy {
 
   protected readonly favoriteStations = computed(() => {
     if (this.isSearchMode()) return [];
-    return this.stations().filter((station) => this.prefs.isFavorite(station.stationuuid));
+    return this.prefs.favoriteStations();
   });
 
   private readonly country$ = new Subject<string>();
@@ -152,6 +154,7 @@ export class RadioPage implements OnDestroy {
       .subscribe((stations) => {
         this.stations.set(stations);
         this.isLoading.set(false);
+        this.prefs.migrateLegacyFavorites(stations);
       });
 
     this.search$
@@ -218,7 +221,7 @@ export class RadioPage implements OnDestroy {
 
   protected onToggleFavorite(station: RadioStation, event: Event): void {
     event.stopPropagation();
-    this.prefs.toggleFavorite(station.stationuuid);
+    this.prefs.toggleFavorite(station);
   }
 
   protected isStationFavorite(stationuuid: string): boolean {

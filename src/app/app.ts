@@ -8,6 +8,7 @@ import { AudioService } from './core/services/audio.service';
 import { AuthService } from './core/auth/auth.service';
 import { AuthStore } from './store/auth/auth.store';
 import { ThemeService } from './core/services/theme.service';
+import { LanguageService } from './core/services/language.service';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -24,6 +25,9 @@ export class App {
   // Injecting ThemeService here ensures the saved theme is applied before
   // the first render, avoiding a flash of the wrong color scheme.
   private readonly _theme = inject(ThemeService);
+  // Injecting LanguageService here ensures translate.use(lang) is called
+  // at app startup so translations are loaded before any component renders.
+  private readonly _lang = inject(LanguageService);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 

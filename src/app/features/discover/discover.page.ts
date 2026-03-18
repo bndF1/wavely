@@ -60,6 +60,7 @@ import { PodcastCardComponent } from '../../shared/components/podcast-card/podca
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { PODCAST_CATEGORIES } from '../browse/browse.constants';
 import type { PodcastCategory } from '../browse/browse.constants';
+import { TranslatePipe } from '@ngx-translate/core';
 
 const FEATURED_GENRE_ID = 1489;
 const NOTEWORTHY_GENRE_ID = 1318;
@@ -93,6 +94,7 @@ const DEBOUNCE_MS = 300;
     IonIcon,
     PodcastCardComponent,
     EmptyStateComponent,
+    TranslatePipe,
   ],
 })
 export class DiscoverPage implements OnDestroy {

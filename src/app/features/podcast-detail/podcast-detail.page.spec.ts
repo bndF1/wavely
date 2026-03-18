@@ -12,6 +12,7 @@ import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
 import { PodcastDetailPage } from './podcast-detail.page';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
@@ -27,6 +28,10 @@ import {
   mockPodcastsStore as createMockPodcastsStore,
   mockAuthStore,
 } from '../../../testing/mock-stores';
+import {
+  loadTranslations,
+  provideTranslateTesting,
+} from '../../../testing/translate-testing.helper';
 
 describe('PodcastDetailPage', () => {
   let fixture: ComponentFixture<PodcastDetailPage>;
@@ -63,14 +68,16 @@ describe('PodcastDetailPage', () => {
         { provide: SubscriptionSyncService, useValue: mockSyncService },
         { provide: Router, useValue: mockRouter },
         { provide: PlayerModalService, useValue: { open: jest.fn().mockResolvedValue(undefined) } },
+        ...provideTranslateTesting(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
       .overrideComponent(PodcastDetailPage, {
-        set: { imports: [DatePipe], schemas: [NO_ERRORS_SCHEMA] },
+        set: { imports: [DatePipe, TranslatePipe], schemas: [NO_ERRORS_SCHEMA] },
       })
       .compileComponents();
 
+    loadTranslations(TestBed.inject(TranslateService));
     fixture = TestBed.createComponent(PodcastDetailPage);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -1,9 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { MiniPlayerComponent } from './mini-player.component';
 import { PlayerStore } from '../../../store/player/player.store';
 import { mockPlayerStore } from '../../../../testing/mock-stores';
 import { mockEpisode } from '../../../../testing/podcast-fixtures';
+import {
+  loadTranslations,
+  provideTranslateTesting,
+} from '../../../../testing/translate-testing.helper';
 
 describe('MiniPlayerComponent', () => {
   let component: MiniPlayerComponent;
@@ -15,10 +20,14 @@ describe('MiniPlayerComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [MiniPlayerComponent],
-      providers: [{ provide: PlayerStore, useValue: store }],
+      providers: [
+        { provide: PlayerStore, useValue: store },
+        ...provideTranslateTesting(),
+      ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
+    loadTranslations(TestBed.inject(TranslateService));
     fixture = TestBed.createComponent(MiniPlayerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

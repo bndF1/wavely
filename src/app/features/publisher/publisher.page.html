@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ publisherName() }}</ion-title>
+    <ion-title>{{ publisherName() || ('publisher.title' | translate) }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -25,9 +25,9 @@
   @if (error() && !isLoading()) {
     <wavely-empty-state
       icon="alert-circle-outline"
-      title="Could not load this publisher"
-      [subtitle]="error()!"
-      actionLabel="Retry"
+      [title]="'publisher.error_title' | translate"
+      [subtitle]="'publisher.error_subtitle' | translate"
+      [actionLabel]="'publisher.retry' | translate"
       (action)="retry()">
     </wavely-empty-state>
   }
@@ -52,9 +52,9 @@
   @if (!isLoading() && !error() && visiblePodcasts().length === 0) {
     <wavely-empty-state
       icon="search-outline"
-      title="No podcasts found"
-      subtitle="This publisher has no podcasts in the iTunes catalogue."
-      actionLabel="Refresh"
+      [title]="'discover.no_results_title' | translate"
+      [subtitle]="'discover.no_results_subtitle' | translate"
+      [actionLabel]="'browse.refresh' | translate"
       (action)="retry()">
     </wavely-empty-state>
   }

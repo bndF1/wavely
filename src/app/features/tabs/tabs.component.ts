@@ -18,6 +18,7 @@ import {
   libraryOutline,
   library,
 } from 'ionicons/icons';
+import { TranslatePipe } from '@ngx-translate/core';
 import { PlayerStore } from '../../store/player/player.store';
 import { PlayerModalService } from '../../core/services/player-modal.service';
 import { MiniPlayerComponent } from '../player/mini-player/mini-player.component';
@@ -35,6 +36,7 @@ import { OfflineBannerComponent } from '../../shared/components/offline-banner/o
     IonLabel,
     MiniPlayerComponent,
     OfflineBannerComponent,
+    TranslatePipe,
   ],
 })
 export class TabsComponent {

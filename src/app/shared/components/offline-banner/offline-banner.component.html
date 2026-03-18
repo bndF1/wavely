@@ -2,13 +2,13 @@
   <div class="offline-banner" role="status" aria-live="polite">
     <div class="offline-banner__message">
       <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
-      <span>You are offline. Some content may be unavailable.</span>
+      <span>{{ 'offline.message' | translate }}</span>
     </div>
     <ion-button
       fill="clear"
       size="small"
       color="warning"
-      aria-label="Dismiss offline warning"
+      [attr.aria-label]="'offline.dismiss' | translate"
       (click)="dismiss()">
       <ion-icon name="close-outline" slot="icon-only"></ion-icon>
     </ion-button>

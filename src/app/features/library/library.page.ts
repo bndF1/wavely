@@ -21,7 +21,6 @@ import {
   IonThumbnail,
   IonProgressBar,
   IonChip,
-  IonToggle,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -39,11 +38,11 @@ import { AuthStore } from '../../store/auth/auth.store';
 import { HistoryStore, HistoryEntry, HistoryFilter } from '../../store/history/history.store';
 import { SubscriptionSyncService } from '../../core/services/subscription-sync.service';
 import { HistorySyncService } from '../../core/services/history-sync.service';
-import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { Podcast } from '../../core/models/podcast.model';
 
 import { environment } from '../../../environments/environment';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'wavely-library',
@@ -70,15 +69,14 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
     IonThumbnail,
     IonProgressBar,
     IonChip,
-    IonToggle,
     EmptyStateComponent,
+    TranslatePipe,
   ],
 })
 export class LibraryPage {
   protected readonly store = inject(PodcastsStore);
   protected readonly authStore = inject(AuthStore);
   protected readonly historyStore = inject(HistoryStore);
-  protected readonly prefs = inject(UserPreferencesService);
   protected readonly appVersion = environment.appVersion;
   private readonly syncService = inject(SubscriptionSyncService);
   private readonly historySyncService = inject(HistorySyncService);
@@ -106,10 +104,10 @@ export class LibraryPage {
   });
 
   protected readonly historyFilters: { label: string; value: HistoryFilter }[] = [
-    { label: 'All', value: 'all' },
-    { label: 'Unplayed', value: 'unplayed' },
-    { label: 'In Progress', value: 'inProgress' },
-    { label: 'Completed', value: 'completed' },
+    { label: 'library.filter_all', value: 'all' },
+    { label: 'library.filter_unplayed', value: 'unplayed' },
+    { label: 'library.filter_in_progress', value: 'inProgress' },
+    { label: 'library.filter_completed', value: 'completed' },
   ];
 
 
@@ -223,10 +221,6 @@ export class LibraryPage {
   protected async signOut(): Promise<void> {
     await this.authStore.signOut();
     this.router.navigate(['/login']);
-  }
-
-  protected onAutoQueueChange(event: CustomEvent<{ checked: boolean }>): void {
-    this.prefs.setAutoQueueEnabled(event.detail.checked);
   }
 
   protected onImageError(event: Event): void {
