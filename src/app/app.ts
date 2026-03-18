@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, PLATFORM_ID, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-import { collection, Firestore, getDocs } from '@angular/fire/firestore';
+import { collection, deleteDoc, doc, Firestore, getDocs, setDoc } from '@angular/fire/firestore';
 import { filter, take } from 'rxjs';
 import { AudioService } from './core/services/audio.service';
 import { AuthService } from './core/auth/auth.service';
@@ -55,15 +55,30 @@ export class App {
         filter((u) => u !== null),
         take(1),
       ).subscribe(async (user) => {
-        // Retry until Firestore auth token propagates to the emulator.
-        // A single getDocs attempt can fail with PERMISSION_DENIED if the token
-        // hasn't reached Firestore yet; silently swallowing that error would let
-        // the test proceed and then setDoc would also fail, rolling back the
-        // optimistic subscription update before the library check runs.
+        // Retry until Firestore auth token propagates for both READ and WRITE.
+        // The probe validates both: a getDocs (read) and a test setDoc+deleteDoc
+        // (write). Without the write probe, the first real setDoc (subscribe
+        // action) can fail with PERMISSION_DENIED because the Firestore write
+        // path (WebChannel) isn't ready yet even if reads succeed, triggering a
+        // rollback that clears the in-memory store before the library renders.
+        const probeDocRef = doc(
+          firestore, 'users', user!.uid, 'subscriptions', '__e2e_probe',
+        );
+        const probeData = {
+          id: '__e2e_probe',
+          title: 'probe',
+          author: '',
+          description: '',
+          artworkUrl: '',
+          feedUrl: '',
+          genres: [] as string[],
+        };
         let attempts = 0;
         while (attempts < 10) {
           try {
             await getDocs(collection(firestore, 'users', user!.uid, 'subscriptions'));
+            await setDoc(probeDocRef, probeData);
+            await deleteDoc(probeDocRef);
             break;
           } catch {
             attempts++;
