@@ -25,9 +25,10 @@
   --wavely-divider:         #E0E0E0;
 
   /* Text */
-  --wavely-on-surface:      #202124;
-  --wavely-on-surface-muted:#5F6368;
-  --wavely-on-primary:      #FFFFFF;
+  --wavely-on-surface:         #202124;
+  --wavely-on-surface-muted:   #5F6368;
+  --wavely-on-surface-variant: #80868B;
+  --wavely-on-primary:         #FFFFFF;
 
   /* Player */
   --wavely-player-bg:       #FFFFFF;
@@ -52,8 +53,9 @@
     --wavely-surface:         #1E1E1E;
     --wavely-surface-variant: #2A2A2A;
     --wavely-divider:         #333333;
-    --wavely-on-surface:      #E8EAED;
-    --wavely-on-surface-muted:#9AA0A6;
+    --wavely-on-surface:         #E8EAED;
+    --wavely-on-surface-muted:   #9AA0A6;
+    --wavely-on-surface-variant: #9AA0A6;
     --wavely-player-bg:       #1E1E1E;
 
     /* Primary — lighter shade for dark surfaces (~6:1 on #1E1E1E) */
@@ -86,8 +88,9 @@
   --wavely-surface:         #1E1E1E;
   --wavely-surface-variant: #2A2A2A;
   --wavely-divider:         #333333;
-  --wavely-on-surface:      #E8EAED;
-  --wavely-on-surface-muted:#9AA0A6;
+  --wavely-on-surface:         #E8EAED;
+  --wavely-on-surface-muted:   #9AA0A6;
+  --wavely-on-surface-variant: #9AA0A6;
   --wavely-player-bg:       #1E1E1E;
 
   /* Primary — lighter shade for dark surfaces (~6:1 on #1E1E1E) */

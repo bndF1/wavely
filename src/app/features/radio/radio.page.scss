@@ -124,6 +124,11 @@ ion-chip {
 @media (min-width: 1024px) {
   .tag-scroll {
     overflow: visible;
+    max-width: 900px;
+    margin: 0 auto;
+    padding-left: 48px;
+    padding-right: 48px;
+    box-sizing: border-box;
   }
 
   .tag-row {
