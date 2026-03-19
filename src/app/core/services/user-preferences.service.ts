@@ -71,6 +71,9 @@ export class UserPreferencesService {
     );
     if (toMigrate.length === 0) {
       this.pendingMigrationIds.set([]);
+      // Persist to rewrite localStorage without the legacy favoriteStationIds key,
+      // preventing loadLegacyIds() from repopulating pendingMigrationIds on next load.
+      this.persist({ favoriteStations: this.favoriteStations() });
       return;
     }
 
