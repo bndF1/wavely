@@ -69,3 +69,20 @@
     color: var(--wavely-on-surface-muted);
   }
 }
+
+
+@media (min-width: 1024px) {
+  .mini-player__body {
+    padding: 10px 12px;
+  }
+
+  .mini-player__artwork {
+    --size: 52px;
+    width: 52px;
+    height: 52px;
+  }
+
+  .mini-player__title {
+    font-size: 14px;
+  }
+}

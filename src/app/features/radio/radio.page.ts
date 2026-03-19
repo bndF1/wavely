@@ -26,8 +26,10 @@ import { Subject, catchError, debounceTime, of, switchMap, takeUntil, tap } from
 import { RadioStation } from '../../core/models/radio-station.model';
 import { PODCAST_MARKETS, CountryService } from '../../core/services/country.service';
 import { RadioApiService, radioStationToEpisode } from '../../core/services/radio-api.service';
+import { RadioFavoritesSyncService } from '../../core/services/radio-favorites-sync.service';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { PlayerStore } from '../../store/player/player.store';
+import { AuthStore } from '../../store/auth/auth.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -68,6 +70,8 @@ export class RadioPage implements OnDestroy {
   private readonly playerStore = inject(PlayerStore);
   protected readonly countryService = inject(CountryService);
   protected readonly prefs = inject(UserPreferencesService);
+  private readonly favoritesSync = inject(RadioFavoritesSyncService);
+  private readonly authStore = inject(AuthStore);
   private readonly actionSheetCtrl = inject(ActionSheetController);
 
   protected readonly skeletons = Array.from({ length: SKELETON_COUNT });
@@ -221,7 +225,7 @@ export class RadioPage implements OnDestroy {
 
   protected onToggleFavorite(station: RadioStation, event: Event): void {
     event.stopPropagation();
-    this.prefs.toggleFavorite(station);
+    void this.favoritesSync.syncToggle(station, this.authStore.user()?.uid ?? null);
   }
 
   protected isStationFavorite(stationuuid: string): boolean {

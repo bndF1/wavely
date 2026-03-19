@@ -17,7 +17,6 @@ import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
 import { CountryService } from '../../core/services/country.service';
 import { PlayerModalService } from '../../core/services/player-modal.service';
-import { HistoryStore } from '../../store/history/history.store';
 import { mockPodcast, mockEpisode } from '../../../testing/podcast-fixtures';
 
 describe('HomePage', () => {
@@ -80,32 +79,18 @@ describe('HomePage', () => {
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/podcast', 'pod-7']);
   });
 
-  it('feedEpisodes excludes episodes whose IDs appear as completed in HistoryStore', () => {
+  it('feedEpisodes stays unchanged when listening history changes', () => {
     const recentDate = new Date().toISOString();
     const ep1 = mockEpisode({ id: 'feed-ep1', releaseDate: recentDate });
-    const ep2 = mockEpisode({ id: 'feed-ep2', releaseDate: recentDate }); // will be completed
+    const ep2 = mockEpisode({ id: 'feed-ep2', releaseDate: recentDate });
     const ep3 = mockEpisode({ id: 'feed-ep3', releaseDate: recentDate });
 
     (component as any).allFeedEpisodes.set([ep1, ep2, ep3]);
 
-    const historyStore = TestBed.inject(HistoryStore);
-    historyStore.setEntries([
-      {
-        episodeId: 'feed-ep2',
-        episodeTitle: 'Episode 2',
-        podcastTitle: 'Podcast 1',
-        imageUrl: 'https://example.com/image.jpg',
-        completed: true,
-        position: 100,
-        duration: 100,
-        lastPlayedAt: Date.now(),
-      },
-    ]);
-
     const ids = (component as any).feedEpisodes().map((e: { id: string }) => e.id);
     expect(ids).toContain('feed-ep1');
     expect(ids).toContain('feed-ep3');
-    expect(ids).not.toContain('feed-ep2');
+    expect(ids).toContain('feed-ep2');
   });
 
   it('feedEpisodes excludes episodes older than 30 days', () => {

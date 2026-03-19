@@ -106,3 +106,33 @@
   flex: 1;
   padding-top: 4px;
 }
+
+
+@media (min-width: 1024px) {
+  .podcast-artwork {
+    width: 160px;
+    height: 160px;
+  }
+
+  .podcast-header {
+    padding: 32px;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .podcast-title {
+    font-size: 1.4rem;
+  }
+
+  .podcast-author {
+    font-size: 1rem;
+  }
+
+  .section-title,
+  ion-list {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "nav": {
+    "home": "Inici",
+    "discover": "Descobrir",
+    "radio": "Ràdio",
+    "library": "Biblioteca"
+  },
+  "home": {
+    "title": "Wavely",
+    "my_podcasts": "Els meus pòdcasts",
+    "latest_episodes": "Darrers episodis",
+    "trending": "Tendències",
+    "trending_subtitle": "Descobreix el que és popular i subscriu-te per personalitzar el teu canal.",
+    "load_more": "Carrega {{count}} episodis més",
+    "error_trending": "No s'han pogut carregar els pòdcasts en tendència. Llisca cap avall per tornar-ho a intentar.",
+    "error_feed": "No s'han pogut carregar els episodis. Llisca cap avall per tornar-ho a intentar.",
+    "retry": "Torna-ho a intentar",
+    "favorite_stations": "Emissores favorites"
+  },
+  "browse": {
+    "title": "Explorar",
+    "trending_now": "En tendència ara",
+    "categories": "Explorar per categoria",
+    "no_podcasts": "No hi ha pòdcasts disponibles",
+    "no_podcasts_subtitle": "Prova d'actualitzar o torna més tard.",
+    "error_load": "No s'ha pogut carregar la cerca",
+    "refresh": "Actualitzar",
+    "retry": "Torna-ho a intentar",
+    "error_subtitle": "Prova d'actualitzar o torna més tard.",
+    "listen_now": "Escolta ara",
+    "more_in": "Més a"
+  },
+  "library": {
+    "title": "Biblioteca",
+    "continue_listening": "Continua escoltant",
+    "clear": "Esborra",
+    "subscriptions": "Subscripcions",
+    "settings": "Configuració",
+    "sign_out": "Tanca la sessió",
+    "empty_subscriptions_title": "Encara no hi ha subscripcions",
+    "empty_subscriptions_subtitle": "Explora pòdcasts i subscriu-te per construir la teva biblioteca.",
+    "empty_history_progress_title": "Res en curs",
+    "empty_history_progress_subtitle": "Comença un episodi i apareixerà aquí per continuar.",
+    "empty_history_filter_title": "Cap episodi aquí",
+    "empty_history_filter_subtitle": "Prova un filtre diferent.",
+    "browse_podcasts": "Explora pòdcasts",
+    "show_all": "Mostra-ho tot",
+    "show_less": "Mostra'n menys",
+    "filter_all": "Tot",
+    "filter_unplayed": "No reproduïts",
+    "filter_in_progress": "En curs",
+    "filter_completed": "Completats",
+    "unsubscribe": "Cancel·la la subscripció"
+  },
+  "settings": {
+    "title": "Configuració",
+    "appearance": "Aparença",
+    "theme_system": "Per defecte del sistema",
+    "theme_light": "Clar",
+    "theme_dark": "Fosc",
+    "playback": "Reproducció",
+    "auto_queue": "Cua automàtica",
+    "auto_queue_note": "Afegeix automàticament els episodis restants a la cua quan en reproduïs un",
+    "language": "Idioma",
+    "language_note": "Idioma de visualització de l'app",
+    "about": "Quant a",
+    "version": "Versió"
+  },
+  "discover": {
+    "title": "Descobrir",
+    "search_placeholder": "Cerca pòdcasts i episodis...",
+    "results_for": "Resultats de",
+    "podcasts": "Pòdcasts",
+    "episodes": "Episodis",
+    "trending": "Tendències",
+    "no_results_title": "No s'han trobat resultats",
+    "no_results_subtitle": "Prova de cercar amb paraules clau diferents.",
+    "error_title": "La cerca ha fallat",
+    "error_subtitle": "Comprova la connexió i torna-ho a intentar.",
+    "searching_for": "Resultats de",
+    "search_placeholder_hint": "Prova de cercar un tema, programa o persona"
+  },
+  "radio": {
+    "title": "Ràdio",
+    "worldwide": "Mundial",
+    "empty_title": "No s'han trobat emissores",
+    "empty_subtitle": "Prova una cerca o filtre diferent",
+    "error_title": "No s'han pogut carregar les emissores",
+    "error_subtitle": "Comprova la connexió i torna-ho a intentar.",
+    "retry": "Torna-ho a intentar",
+    "language": "Idioma"
+  },
+  "player": {
+    "play": "Reprodueix",
+    "pause": "Pausa",
+    "skip_back": "Retrocedeix 15 segons",
+    "skip_forward": "Avança 30 segons",
+    "previous_episode": "Episodi anterior",
+    "next_episode": "Episodi següent",
+    "add_to_queue": "Afegeix a la cua",
+    "live": "EN DIRECTE",
+    "up_next": "A continuació",
+    "empty_queue": "Cap episodi a la cua",
+    "close": "Tanca el reproductor",
+    "queue": "Cua",
+    "playback_rate": "Velocitat de reproducció",
+    "play_stream": "Reprodueix el flux"
+  },
+  "podcast_detail": {
+    "episodes": "Episodis",
+    "subscribe": "Subscriu-te",
+    "unsubscribe": "Cancel·la la subscripció",
+    "subscribed": "Subscrit",
+    "play_latest": "Reprodueix el darrer",
+    "website": "Lloc web",
+    "error_title": "No s'ha pogut carregar el pòdcast",
+    "error_subtitle": "Comprova la connexió i torna-ho a intentar.",
+    "retry": "Torna-ho a intentar",
+    "no_episodes_title": "Cap episodi disponible",
+    "no_episodes_subtitle": "Torna més tard per veure nous episodis."
+  },
+  "publisher": {
+    "podcasts": "Pòdcasts",
+    "error_title": "No s'ha pogut carregar l'editor",
+    "retry": "Torna-ho a intentar",
+    "title": "Editor",
+    "error_subtitle": "Comprova la connexió i torna-ho a intentar."
+  },
+  "offline": {
+    "message": "Estàs fora de línia. Alguns continguts poden no estar disponibles.",
+    "dismiss": "Descarta l'avís de fora de línia"
+  },
+  "common": {
+    "loading": "Carregant...",
+    "error": "Alguna cosa ha anat malament",
+    "retry": "Torna-ho a intentar",
+    "cancel": "Cancel·la",
+    "close": "Tanca",
+    "search": "Cerca"
+  },
+  "episode": {
+    "play": "Reprodueix",
+    "add_to_queue": "Afegeix a la cua"
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "pt": "Português",
+    "ca": "Català"
+  }
+}

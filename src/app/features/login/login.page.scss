@@ -1,16 +1,17 @@
-ion-content {
-  --background: var(--wavely-background);
-}
+@media (min-width: 768px) {
+  .login-container {
+    max-width: 420px;
+    margin: 64px auto;
+    padding: 40px 48px;
+    border-radius: 16px;
+    background: var(--ion-card-background);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    height: auto;
+    min-height: calc(100% - 128px);
+  }
 
-ion-card {
-  margin-top: 24px;
-}
-
-h2 {
-  margin: 0 0 8px;
-  font-size: 1.2rem;
-}
-
-p {
-  margin-bottom: 16px;
+  .app-logo {
+    width: 100px;
+    height: 100px;
+  }
 }
