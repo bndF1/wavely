@@ -1,11 +1,12 @@
 @if (store.currentEpisode()) {
   <div class="mini-player"
        [class.mini-player--desktop]="isDesktop"
-       role="button"
-       tabindex="0"
+       [attr.role]="isDesktop ? null : 'button'"
+       [attr.tabindex]="isDesktop ? null : '0'"
+       [attr.aria-label]="isDesktop ? null : ('player.open_full' | translate)"
        (click)="handleBodyClick()"
-       (keydown.enter)="handleBodyClick()"
-       (keydown.space)="handleBodyClick()">
+       (keydown.enter)="isDesktop ? null : handleBodyClick()"
+       (keydown.space)="isDesktop ? null : handleBodyClick()">
     <ion-progress-bar
       class="mini-player__progress"
       [value]="progressValue"

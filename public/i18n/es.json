@@ -102,6 +102,7 @@
     "up_next": "A continuación",
     "empty_queue": "No hay episodios en la cola",
     "close": "Cerrar reproductor",
+    "open_full": "Abrir reproductor completo",
     "queue": "Cola",
     "playback_rate": "Velocidad de reproducción",
     "play_stream": "Reproducir stream"

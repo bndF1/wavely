@@ -102,6 +102,7 @@
     "up_next": "Up Next",
     "empty_queue": "No episodes in queue",
     "close": "Close player",
+    "open_full": "Open full player",
     "queue": "Queue",
     "playback_rate": "Playback rate",
     "play_stream": "Play stream"
