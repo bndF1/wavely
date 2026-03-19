@@ -3,7 +3,8 @@
     "home": "Inici",
     "discover": "Descobrir",
     "radio": "Ràdio",
-    "library": "Biblioteca"
+    "library": "Biblioteca",
+    "settings": "Configuració"
   },
   "home": {
     "title": "Wavely",

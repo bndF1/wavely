@@ -19,6 +19,7 @@ import {
   libraryOutline,
   library,
   searchOutline,
+  settingsOutline,
 } from 'ionicons/icons';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PlayerStore } from '../../store/player/player.store';
@@ -58,6 +59,7 @@ export class TabsComponent {
       libraryOutline,
       library,
       searchOutline,
+      settingsOutline,
     });
   }
 

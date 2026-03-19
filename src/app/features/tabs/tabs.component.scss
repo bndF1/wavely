@@ -36,8 +36,8 @@ ion-tab-button {
     width: 220px;
     min-width: 220px;
     height: 100%;
-    background: var(--ion-card-background, var(--ion-background-color));
-    border-right: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.1));
+    background: var(--wavely-surface);
+    border-right: 1px solid var(--wavely-divider);
     padding: 16px 0;
     z-index: 100;
     position: fixed;
@@ -53,7 +53,7 @@ ion-tab-button {
     gap: 10px;
     font-weight: 700;
     font-size: 1.1rem;
-    color: var(--ion-text-color);
+    color: var(--wavely-on-surface);
   }
 
   .desktop-sidebar__links {
@@ -61,6 +61,12 @@ ion-tab-button {
     flex-direction: column;
     gap: 4px;
     padding: 0 8px;
+    flex: 1;
+  }
+
+  .desktop-sidebar__footer {
+    padding: 8px 8px 4px;
+    border-top: 1px solid var(--wavely-divider);
   }
 
   .desktop-sidebar__link {
@@ -69,7 +75,7 @@ ion-tab-button {
     gap: 12px;
     padding: 10px 12px;
     border-radius: 8px;
-    color: var(--ion-color-medium);
+    color: var(--wavely-on-surface-muted);
     text-decoration: none;
     font-size: 0.9rem;
     transition: background 0.15s, color 0.15s;
@@ -80,13 +86,13 @@ ion-tab-button {
     }
 
     &:hover {
-      background: var(--ion-color-light);
-      color: var(--ion-text-color);
+      background: var(--wavely-surface-variant);
+      color: var(--wavely-on-surface);
     }
 
     &.active {
       background: var(--ion-color-primary-tint, rgba(74, 158, 255, 0.15));
-      color: var(--ion-color-primary);
+      color: var(--wavely-primary);
       font-weight: 600;
     }
   }
