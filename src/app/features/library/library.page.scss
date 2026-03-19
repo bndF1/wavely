@@ -161,6 +161,12 @@ ion-note {
     box-sizing: border-box;
   }
 
+  .section-title,
+  .list-hint {
+    margin-left: 48px;
+    margin-right: 48px;
+  }
+
   .library-section {
     max-width: 900px;
     margin: 0 auto;
