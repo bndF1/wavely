@@ -102,6 +102,7 @@
     "up_next": "A continuació",
     "empty_queue": "Cap episodi a la cua",
     "close": "Tanca el reproductor",
+    "open_full": "Obrir reproductor complet",
     "queue": "Cua",
     "playback_rate": "Velocitat de reproducció",
     "play_stream": "Reprodueix el flux"

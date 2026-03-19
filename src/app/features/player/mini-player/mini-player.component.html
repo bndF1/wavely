@@ -1,10 +1,12 @@
 @if (store.currentEpisode()) {
   <div class="mini-player"
-       role="button"
-       tabindex="0"
-       (click)="openFull.emit()"
-       (keydown.enter)="openFull.emit()"
-       (keydown.space)="openFull.emit()">
+       [class.mini-player--desktop]="isDesktop"
+       [attr.role]="isDesktop ? null : 'button'"
+       [attr.tabindex]="isDesktop ? null : '0'"
+       [attr.aria-label]="isDesktop ? null : ('player.open_full' | translate)"
+       (click)="handleBodyClick()"
+       (keydown.enter)="isDesktop ? null : handleBodyClick()"
+       (keydown.space)="isDesktop ? null : handleBodyClick()">
     <ion-progress-bar
       class="mini-player__progress"
       [value]="progressValue"
@@ -21,6 +23,15 @@
       <div class="mini-player__info">
         <p class="mini-player__title">{{ store.currentEpisode()!.title }}</p>
       </div>
+      @if (!store.currentEpisode()?.isLive) {
+        <ion-button
+          fill="clear"
+          class="mini-player__skip-btn mini-player__skip-btn--desktop"
+          (click)="skipBack($event)"
+          [attr.aria-label]="'player.skip_back' | translate">
+          <ion-icon slot="icon-only" name="play-skip-back"></ion-icon>
+        </ion-button>
+      }
       <ion-button
         fill="clear"
         class="mini-player__play-btn"
@@ -31,6 +42,15 @@
           [name]="store.isPlaying() ? 'pause-circle' : 'play-circle'">
         </ion-icon>
       </ion-button>
+      @if (!store.currentEpisode()?.isLive) {
+        <ion-button
+          fill="clear"
+          class="mini-player__skip-btn mini-player__skip-btn--desktop"
+          (click)="skipForward($event)"
+          [attr.aria-label]="'player.skip_forward' | translate">
+          <ion-icon slot="icon-only" name="play-skip-forward"></ion-icon>
+        </ion-button>
+      }
       <ion-button
         fill="clear"
         class="mini-player__close-btn"
