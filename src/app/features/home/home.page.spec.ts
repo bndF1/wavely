@@ -177,6 +177,29 @@ describe('HomePage', () => {
     expect(snapshotted).toBe('sub-pod-1');
   });
 
+  // --- concurrent load guard: force=true while loading queues a follow-up (#253/#240) ---
+
+  it('concurrent force=true loadFeed sets pendingFeedRefresh flag instead of racing', () => {
+    mockApi.getPodcastEpisodes.mockReturnValue(of([]));
+    mockApi.getEpisodesFromRss.mockReturnValue(of([]));
+
+    const podcast = mockPodcast({ id: 'race-pod', feedUrl: '' });
+    mockStore.subscriptions.set([podcast]);
+    fixture.detectChanges();
+
+    // Simulate an in-flight load
+    (component as any).isFeedLoading.set(true);
+    (component as any).pendingFeedRefresh = false;
+
+    // A concurrent force=true call should NOT start a second fetch — just set the flag
+    jest.clearAllMocks();
+    void (component as any).loadFeed(true);
+
+    expect((component as any).pendingFeedRefresh).toBe(true);
+    expect(mockApi.getPodcastEpisodes).not.toHaveBeenCalled();
+    expect(mockApi.getEpisodesFromRss).not.toHaveBeenCalled();
+  });
+
   // --- #253: ionViewWillEnter must refresh the feed on every tab visit ---
 
   it('ionViewWillEnter triggers a fresh feed load on every tab visit (#253)', async () => {
