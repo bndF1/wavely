@@ -178,4 +178,34 @@ ion-tab-button {
   wavely-mini-player {
     display: none !important;
   }
+
+  // Player rail slide-in animation
+  .desktop-player-rail {
+    animation: slideInFromRight 300ms ease forwards;
+  }
+
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  // Focus visible ring for sidebar links and collapse button
+  .desktop-sidebar__link:focus-visible,
+  .desktop-sidebar__collapse-btn:focus-visible {
+    outline: 2px solid var(--wavely-primary);
+    outline-offset: 2px;
+  }
+}
+
+// Disable slide-in animation when reduced motion is preferred
+@media (prefers-reduced-motion: reduce) {
+  .desktop-player-rail {
+    animation: none;
+  }
 }

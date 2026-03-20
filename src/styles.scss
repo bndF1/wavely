@@ -259,3 +259,37 @@ ion-toolbar {
 ion-tabs.has-mini-player ion-content {
   --offset-bottom: 64px;
 }
+
+/* ─── Desktop interaction polish (#348) ─── */
+
+// Global focus-visible ring for keyboard navigation
+*:focus-visible {
+  outline: 2px solid var(--wavely-primary);
+  outline-offset: 2px;
+  border-radius: var(--wavely-radius-sm);
+}
+
+// Remove focus ring for elements that manage their own focus styles
+ion-button:focus-visible,
+.desktop-sidebar__link:focus-visible,
+.desktop-sidebar__collapse-btn:focus-visible {
+  outline: none;
+}
+
+// Pointer cursor for all Ionic buttons on desktop
+@media (min-width: 1024px) {
+  ion-button {
+    cursor: pointer;
+  }
+}
+
+// Respect reduced motion globally
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
