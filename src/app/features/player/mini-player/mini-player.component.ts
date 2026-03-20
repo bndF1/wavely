@@ -38,7 +38,10 @@ export class MiniPlayerComponent {
     return this.playerModal.isDesktop;
   }
 
-  handleBodyClick(): void {
+  handleBodyClick(event?: Event): void {
+    if (event instanceof KeyboardEvent) {
+      event.preventDefault();
+    }
     if (!this.isDesktop) {
       this.openFull.emit();
     }

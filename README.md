@@ -318,7 +318,7 @@ gh pr create --base dev
 - [x] Desktop: skip ±30 s / ±15 s buttons in mini-player on desktop
 - [x] Desktop: settings link restored in sidebar; contrast tokens and layout gaps fixed
 - [x] i18n: stub translation files added for French (fr), German (de), Portuguese (pt)
-- [x] Home feed: cache now invalidates when subscriptions change or history is cleared
+- [x] Home feed: cache now invalidates when subscriptions change (history clearing no longer affects the Latest Episodes feed)
 - [x] Home feed: concurrent load race condition fixed (pending-refresh flag)
 
 ### v2.0 — Native Platform
