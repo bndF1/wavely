@@ -7,6 +7,7 @@ jest.mock('@angular/fire/auth', () => ({
 }));
 
 import { TestBed } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
 import { PlayerModalService } from './player-modal.service';
 
@@ -23,8 +24,14 @@ describe('PlayerModalService', () => {
   };
 
   beforeEach(() => {
+    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 375 });
+
     TestBed.configureTestingModule({
-      providers: [PlayerModalService, { provide: ModalController, useValue: mockModalCtrl }],
+      providers: [
+        PlayerModalService,
+        { provide: ModalController, useValue: mockModalCtrl },
+        { provide: PLATFORM_ID, useValue: 'browser' },
+      ],
     });
     service = TestBed.inject(PlayerModalService);
   });
@@ -54,5 +61,20 @@ describe('PlayerModalService', () => {
   it('prevents concurrent opens', async () => {
     await Promise.all([service.open(), service.open()]);
     expect(mockModalCtrl.create).toHaveBeenCalledTimes(1);
+  });
+
+  describe('on desktop (>=1024px)', () => {
+    beforeEach(() => {
+      Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1280 });
+    });
+
+    it('does not open modal on desktop', async () => {
+      await service.open();
+      expect(mockModalCtrl.create).not.toHaveBeenCalled();
+    });
+
+    it('isDesktop returns true', () => {
+      expect(service.isDesktop).toBe(true);
+    });
   });
 });

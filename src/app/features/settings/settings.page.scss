@@ -4,8 +4,13 @@ ion-list {
 
 
 @media (min-width: 1024px) {
+  ion-content {
+    --padding-start: 48px;
+    --padding-end: 48px;
+  }
+
   ion-list {
-    max-width: 480px;
-    margin: 0 auto 16px;
+    max-width: 640px;
+    margin: 24px auto 16px;
   }
 }

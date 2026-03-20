@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserPreferencesService } from '../../core/services/user-preferences.service';
 import { PlayerModalService } from '../../core/services/player-modal.service';
@@ -106,9 +106,14 @@ export class HomePage implements OnInit {
   /** Comma-separated sorted IDs of subscriptions used for the last feed load */
   private readonly lastLoadedSubIds = signal('');
   private readonly displayCount = signal(FEED_PAGE_SIZE);
+  /** Set when a force=true loadFeed() arrives while a load is already in-flight.
+   *  Checked at load completion to immediately trigger a follow-up fetch (#253/#240). */
+  private pendingFeedRefresh = false;
 
   protected readonly feedEpisodes = computed(() => {
     const cutoff = Date.now() - FEED_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+    // Filter by publish date only — listening history is independent of the feed
+    // (fixes #256: clearing history must not resurface episodes already shown as new)
     return this.allFeedEpisodes()
       .filter((ep) => !ep.releaseDate || new Date(ep.releaseDate).getTime() >= cutoff)
       .slice(0, this.displayCount());
@@ -130,13 +135,15 @@ export class HomePage implements OnInit {
       radioOutline,
     });
 
-    // Reload feed whenever the set of subscriptions changes (handles new subscriptions added later)
+    // Reload feed whenever the set of subscriptions changes (handles new subscriptions added later).
+    // #240: use untracked() to read lastLoadedSubIds without creating a reactive dependency so
+    // this effect only re-runs when subscriptions change, not when lastLoadedSubIds changes.
+    // loadFeed() records the loaded sub IDs itself, preventing duplicate fetches.
     effect(() => {
       const subs = this.store.subscriptions();
       const subIds = subs.map((s) => s.id).sort().join(',');
-      if (subs.length > 0 && subIds !== this.lastLoadedSubIds()) {
+      if (subs.length > 0 && subIds !== untracked(() => this.lastLoadedSubIds())) {
         void this.loadFeed(true);
-        this.lastLoadedSubIds.set(subIds);
       }
     });
   }
@@ -148,6 +155,11 @@ export class HomePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    // Guard is intentional: when the subscription-change effect has already triggered
+    // a load (isFeedLoading = true), starting a second concurrent fetch is wasteful —
+    // the in-flight request already has the latest subscription IDs.
+    // loadFeed() snapshots lastLoadedSubIds immediately, so the effect will not
+    // queue a duplicate fetch once this call starts (#240/#253).
     if (!this.isFeedLoading()) {
       void this.loadFeed(true);
     }
@@ -223,7 +235,16 @@ export class HomePage implements OnInit {
   private loadFeed(force = false): Promise<void> {
     const subs = this.store.subscriptions();
     if (subs.length === 0) return Promise.resolve();
-    if (this.isFeedLoading() && !force) return Promise.resolve();
+    if (this.isFeedLoading()) {
+      // Queue a follow-up load so subscription changes arriving mid-flight aren't dropped.
+      if (force) this.pendingFeedRefresh = true;
+      return Promise.resolve();
+    }
+    this.pendingFeedRefresh = false;
+
+    // Snapshot the subscription IDs being loaded immediately so the subscription-change
+    // effect does not queue a duplicate fetch while this request is in flight (#240/#253).
+    this.lastLoadedSubIds.set(subs.map((s) => s.id).sort().join(','));
 
     this.isFeedLoading.set(true);
     this.feedError.set(null);
@@ -273,11 +294,13 @@ export class HomePage implements OnInit {
           }
           this.isFeedLoading.set(false);
           resolve();
+          if (this.pendingFeedRefresh) void this.loadFeed(true);
         },
         error: () => {
           this.feedError.set('Could not load episodes. Pull down to retry.');
           this.isFeedLoading.set(false);
           resolve();
+          if (this.pendingFeedRefresh) void this.loadFeed(true);
         },
       });
     });

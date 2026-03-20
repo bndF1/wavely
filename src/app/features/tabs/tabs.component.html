@@ -23,6 +23,12 @@
         <span>{{ 'nav.library' | translate }}</span>
       </a>
     </div>
+    <div class="desktop-sidebar__footer">
+      <a routerLink="/settings" routerLinkActive="active" class="desktop-sidebar__link">
+        <ion-icon name="settings-outline"></ion-icon>
+        <span>{{ 'nav.settings' | translate }}</span>
+      </a>
+    </div>
   </nav>
 
   <ion-tabs [class.has-mini-player]="!!store.currentEpisode()">
