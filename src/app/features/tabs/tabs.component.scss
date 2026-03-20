@@ -173,4 +173,9 @@ ion-tab-button {
   .desktop-hidden-tabs {
     display: none !important;
   }
+
+  // Hide mini-player on desktop — it's replaced by the right-rail DesktopPlayerComponent
+  wavely-mini-player {
+    display: none !important;
+  }
 }

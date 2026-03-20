@@ -1,4 +1,5 @@
-import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
+import { computed } from '@angular/core';
+import { signalStore, withState, withMethods, withComputed, patchState } from '@ngrx/signals';
 import { Episode } from '../../core/models/podcast.model';
 
 export interface PlayerState {
@@ -9,6 +10,8 @@ export interface PlayerState {
   playbackRate: number;
   queue: Episode[];
   isMinimised: boolean;
+  volume: number;
+  isMuted: boolean;
 }
 
 const initialState: PlayerState = {
@@ -19,11 +22,16 @@ const initialState: PlayerState = {
   playbackRate: 1,
   queue: [],
   isMinimised: true,
+  volume: 1,
+  isMuted: false,
 };
 
 export const PlayerStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
+  withComputed((store) => ({
+    effectiveVolume: computed(() => (store.isMuted() ? 0 : store.volume())),
+  })),
   withMethods((store) => ({
     play(episode: Episode): void {
       patchState(store, { currentEpisode: episode, isPlaying: true, currentTime: 0 });
@@ -83,6 +91,14 @@ export const PlayerStore = signalStore(
     /** Dismiss player entirely */
     close(): void {
       patchState(store, { currentEpisode: null, isPlaying: false, currentTime: 0, duration: 0 });
+    },
+    setVolume(volume: number): void {
+      const clamped = Math.max(0, Math.min(1, volume));
+      if (!isFinite(clamped)) return;
+      patchState(store, { volume: clamped, isMuted: false });
+    },
+    toggleMute(): void {
+      patchState(store, { isMuted: !store.isMuted() });
     },
   }))
 );
