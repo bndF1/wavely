@@ -313,7 +313,7 @@ gh pr create --base dev
 - [x] Language loading at startup (not lazy from Settings)
 - [x] i18n patches for E2E stability
 
-### v1.8.3 — Desktop UX & Feed Reliability 🚧 Staging
+### v1.8.3 — Desktop UX & Feed Reliability ✅ Shipped
 - [x] Desktop: full-player modal suppressed on desktop — mini-player only
 - [x] Desktop: skip ±30 s / ±15 s buttons in mini-player on desktop
 - [x] Desktop: settings link restored in sidebar; contrast tokens and layout gaps fixed
