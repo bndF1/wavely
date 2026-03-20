@@ -284,37 +284,42 @@ gh pr create --base dev
 - [x] Logout now stops the audio player
 - [x] Onboarding UX: Home shows trending when no subscriptions
 
-### v1.5.3–v1.5.11 — Polish & Incremental Fixes ✅ Shipped
-- [x] Multiple layout, padding and spacing fixes across tabs
-- [x] Feed list left padding restored
-- [x] Version bump automation and CI hardening
+### v1.5.3–v1.5.11 — Bugfix Batch ✅ Shipped
+- [x] Full-player swipe-down modal routing
+- [x] Mini-player overlap and spacing fixes
+- [x] Feed list left-edge alignment
+- [x] Multiple stability and layout patches
 
-### v1.6.0 — Design Tokens, WCAG Touch Targets & Completed Episode Filter ✅ Shipped
-- [x] Episode-item transparent background — removes white card background from feed list ([#291](https://github.com/bndF1/wavely/issues/291) partial)
-- [x] Design token cleanup — replaced hardcoded `#fff` with `var(--ion-color-primary-contrast)` in browse, discover, and radio chip selected states
-- [x] Full-player LIVE badge now uses `var(--ion-color-danger)` / `var(--ion-color-danger-contrast)` instead of hardcoded hex values
-- [x] Mini-player play/close buttons bumped from 40 px → 44 px for WCAG 2.5.5 touch target compliance ([#290](https://github.com/bndF1/wavely/issues/290) partial)
-- [x] Home feed filters out completed episodes via HistoryStore ([#242](https://github.com/bndF1/wavely/issues/242))
+### v1.6.0 — Polish & Accessibility ✅ Shipped
+- [x] Design token cleanup: episode items, browse/radio chip selected states, LIVE badge — all theme-aware
+- [x] Mini-player touch targets bumped to 44 px (WCAG 2.5.5)
+- [x] Home feed hides completed episodes from listening history
 
-### v1.7.0 — Settings, Dark Mode & i18n ✅ Shipped
-- [x] Settings page with dark mode toggle and language picker (English, Spanish, French, German, Portuguese)
-- [x] @ngx-translate/core v17 integration with signal-based LanguageService
-- [x] WCAG contrast improvements (primary #4A9EFF, danger #F28B82 in dark mode)
-- [x] All templates translated with translate pipe
+### v1.7.0 — i18n & Settings ✅ Shipped
+- [x] Internationalisation: English and Spanish with live language switching
+- [x] Dark mode contrast improvements
+- [x] Settings page redesign and cleanup
 
-### v1.8.0 — Favorite Radio Stations on Home Screen ✅ Shipped
-- [x] Favorite stations horizontal scroll section on Home page
-- [x] UserPreferencesService stores full RadioStation objects (name, favicon, url)
-- [x] Firebase sync for favorite stations across devices
+### v1.8.0 — Episode Feed & Radio Favourites ✅ Shipped
+- [x] Home tab: latest episodes feed from subscriptions (date-sorted, load-more)
+- [x] Radio favourite stations pinned to Home screen
 
-### v1.8.1 — Catalan Language Support ✅ Shipped
-- [x] Catalan (ca) language added to the language picker
+### v1.8.1 — Catalan Language ✅ Shipped
+- [x] Catalan (ca) translation added
 
-### v1.8.2 — Desktop UI Polish & E2E Hardening ✅ Shipped
-- [x] Desktop layout consistency pass (Discover, Radio, Library spacing/padding)
-- [x] Sidebar navigation for desktop (≥1024 px) with hidden tab bar
-- [x] Radio favorites section hidden while in search mode ([#c89ebfe](https://github.com/bndF1/wavely/commit/c89ebfe))
-- [x] E2E subscription test hardened (word-boundary regex, viewport-safe clicks)
+### v1.8.2 — Desktop Layout & Radio Sync ✅ Shipped
+- [x] Responsive sidebar nav and layout improvements for desktop (≥1024 px)
+- [x] Radio favourites Firestore sync across devices
+- [x] Language loading at startup (not lazy from Settings)
+- [x] i18n patches for E2E stability
+
+### v1.8.3 — Desktop UX & Feed Reliability ✅ Shipped
+- [x] Desktop: full-player modal suppressed on desktop — mini-player only
+- [x] Desktop: skip ±30 s / ±15 s buttons in mini-player on desktop
+- [x] Desktop: settings link restored in sidebar; contrast tokens and layout gaps fixed
+- [x] i18n: stub translation files added for French (fr), German (de), Portuguese (pt)
+- [x] Home feed: cache now invalidates when subscriptions change (history clearing no longer affects the Latest Episodes feed)
+- [x] Home feed: concurrent load race condition fixed (pending-refresh flag)
 
 ### v2.0 — Native Platform
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))

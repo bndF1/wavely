@@ -3,7 +3,8 @@
     "home": "Inici",
     "discover": "Descobrir",
     "radio": "Ràdio",
-    "library": "Biblioteca"
+    "library": "Biblioteca",
+    "settings": "Configuració"
   },
   "home": {
     "title": "Wavely",
@@ -102,6 +103,7 @@
     "up_next": "A continuació",
     "empty_queue": "Cap episodi a la cua",
     "close": "Tanca el reproductor",
+    "open_full": "Obrir reproductor complet",
     "queue": "Cua",
     "playback_rate": "Velocitat de reproducció",
     "play_stream": "Reprodueix el flux"

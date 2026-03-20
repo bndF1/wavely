@@ -154,27 +154,21 @@ ion-note {
   .history-filters {
     flex-wrap: wrap;
     overflow: visible;
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 48px;
+    padding-right: 48px;
+    max-width: 900px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  .section-title,
+  .list-hint {
+    margin-left: 48px;
+    margin-right: 48px;
   }
 
   .library-section {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 24px 48px;
-  }
-
-  .section-title {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .section-header {
-    padding-right: 0;
-  }
-
-  .list-hint {
-    margin-left: 0;
-    margin-right: 0;
   }
 }

@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA, PLATFORM_ID } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MiniPlayerComponent } from './mini-player.component';
 import { PlayerStore } from '../../../store/player/player.store';
+import { PlayerModalService } from '../../../core/services/player-modal.service';
 import { mockPlayerStore } from '../../../../testing/mock-stores';
 import { mockEpisode } from '../../../../testing/podcast-fixtures';
 import {
@@ -10,18 +11,26 @@ import {
   provideTranslateTesting,
 } from '../../../../testing/translate-testing.helper';
 
+const mockPlayerModalService = {
+  isDesktop: false,
+  open: jest.fn(),
+};
+
 describe('MiniPlayerComponent', () => {
   let component: MiniPlayerComponent;
   let fixture: ComponentFixture<MiniPlayerComponent>;
   let store: ReturnType<typeof mockPlayerStore>;
 
-  function createComponent(storeOverrides = {}): void {
+  function createComponent(storeOverrides = {}, isDesktop = false): void {
     store = mockPlayerStore(storeOverrides);
+    mockPlayerModalService.isDesktop = isDesktop;
 
     TestBed.configureTestingModule({
       imports: [MiniPlayerComponent],
       providers: [
         { provide: PlayerStore, useValue: store },
+        { provide: PlayerModalService, useValue: mockPlayerModalService },
+        { provide: PLATFORM_ID, useValue: 'browser' },
         ...provideTranslateTesting(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -95,6 +104,56 @@ describe('MiniPlayerComponent', () => {
       const event = { stopPropagation: jest.fn() } as unknown as Event;
       component.close(event);
       expect(event.stopPropagation).toHaveBeenCalled();
+    });
+  });
+
+  describe('skipBack()', () => {
+    it('calls store.skipBack(15)', () => {
+      createComponent();
+      const event = { stopPropagation: jest.fn() } as unknown as Event;
+      component.skipBack(event);
+      expect(store.skipBack).toHaveBeenCalledWith(15);
+    });
+
+    it('stops event propagation', () => {
+      createComponent();
+      const event = { stopPropagation: jest.fn() } as unknown as Event;
+      component.skipBack(event);
+      expect(event.stopPropagation).toHaveBeenCalled();
+    });
+  });
+
+  describe('skipForward()', () => {
+    it('calls store.skipForward(30)', () => {
+      createComponent();
+      const event = { stopPropagation: jest.fn() } as unknown as Event;
+      component.skipForward(event);
+      expect(store.skipForward).toHaveBeenCalledWith(30);
+    });
+
+    it('stops event propagation', () => {
+      createComponent();
+      const event = { stopPropagation: jest.fn() } as unknown as Event;
+      component.skipForward(event);
+      expect(event.stopPropagation).toHaveBeenCalled();
+    });
+  });
+
+  describe('handleBodyClick()', () => {
+    it('emits openFull on mobile', () => {
+      createComponent({}, false);
+      const spy = jest.fn();
+      component.openFull.subscribe(spy);
+      component.handleBodyClick();
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not emit openFull on desktop', () => {
+      createComponent({}, true);
+      const spy = jest.fn();
+      component.openFull.subscribe(spy);
+      component.handleBodyClick();
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 
