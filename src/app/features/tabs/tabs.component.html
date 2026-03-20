@@ -70,7 +70,8 @@
   </ion-tabs>
 
   @if (store.currentEpisode()) {
-    <!-- Player rail placeholder — DesktopPlayerComponent will go here in #341 -->
-    <aside class="desktop-player-rail" aria-label="Now playing"></aside>
+    <aside class="desktop-player-rail" aria-label="Now playing">
+      <wavely-desktop-player></wavely-desktop-player>
+    </aside>
   }
 </div>

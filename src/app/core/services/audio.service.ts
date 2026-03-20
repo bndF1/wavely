@@ -149,6 +149,14 @@ export class AudioService {
       });
     });
 
+    // Sync volume to HTMLAudioElement
+    effect(() => {
+      const vol = this.store.effectiveVolume();
+      untracked(() => {
+        if (this.audio) this.audio.volume = vol;
+      });
+    });
+
     // Respond to user-initiated seeks (store.seek() jumps > 1 second)
     effect(() => {
       const storeTime = this.store.currentTime();

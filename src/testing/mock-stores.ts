@@ -12,6 +12,8 @@ export function mockPlayerStore(overrides: Partial<PlayerState> = {}) {
     playbackRate: 1,
     queue: [],
     isMinimised: true,
+    volume: 1,
+    isMuted: false,
     ...overrides,
   };
 
@@ -23,6 +25,9 @@ export function mockPlayerStore(overrides: Partial<PlayerState> = {}) {
     playbackRate: signal(state.playbackRate),
     queue: signal(state.queue),
     isMinimised: signal(state.isMinimised),
+    volume: signal(state.volume),
+    isMuted: signal(state.isMuted),
+    effectiveVolume: signal(state.isMuted ? 0 : state.volume),
     play: jest.fn(),
     pause: jest.fn(),
     resume: jest.fn(),
@@ -38,6 +43,8 @@ export function mockPlayerStore(overrides: Partial<PlayerState> = {}) {
     skipForward: jest.fn(),
     playNext: jest.fn(),
     close: jest.fn(),
+    setVolume: jest.fn(),
+    toggleMute: jest.fn(),
   };
 }
 
