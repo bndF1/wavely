@@ -46,6 +46,10 @@ function lookupEpisodeResult() {
 test.skip(() => !process.env['USE_EMULATORS'], 'Requires Firebase emulators');
 
 test.describe('Player', () => {
+  // Player tests require mobile viewport — the full-player modal is suppressed on desktop (≥1024px)
+  // to show controls inline instead. Locking to 390px ensures consistent behaviour across CI.
+  test.use({ viewport: { width: 390, height: 844 } });
+
   test.beforeEach(async ({ page }) => {
     // Prevent AudioService from calling store.pause() in CI where real audio
     // URLs can't load. Two guard layers:
