@@ -284,6 +284,43 @@ gh pr create --base dev
 - [x] Logout now stops the audio player
 - [x] Onboarding UX: Home shows trending when no subscriptions
 
+### v1.5.3–v1.5.11 — Bugfix Batch ✅ Shipped
+- [x] Full-player swipe-down modal routing
+- [x] Mini-player overlap and spacing fixes
+- [x] Feed list left-edge alignment
+- [x] Multiple stability and layout patches
+
+### v1.6.0 — Polish & Accessibility ✅ Shipped
+- [x] Design token cleanup: episode items, browse/radio chip selected states, LIVE badge — all theme-aware
+- [x] Mini-player touch targets bumped to 44 px (WCAG 2.5.5)
+- [x] Home feed hides completed episodes from listening history
+
+### v1.7.0 — i18n & Settings ✅ Shipped
+- [x] Internationalisation: English and Spanish with live language switching
+- [x] Dark mode contrast improvements
+- [x] Settings page redesign and cleanup
+
+### v1.8.0 — Episode Feed & Radio Favourites ✅ Shipped
+- [x] Home tab: latest episodes feed from subscriptions (date-sorted, load-more)
+- [x] Radio favourite stations pinned to Home screen
+
+### v1.8.1 — Catalan Language ✅ Shipped
+- [x] Catalan (ca) translation added
+
+### v1.8.2 — Desktop Layout & Radio Sync ✅ Shipped
+- [x] Responsive sidebar nav and layout improvements for desktop (≥1024 px)
+- [x] Radio favourites Firestore sync across devices
+- [x] Language loading at startup (not lazy from Settings)
+- [x] i18n patches for E2E stability
+
+### v1.8.3 — Desktop UX & Feed Reliability 🚧 Staging
+- [x] Desktop: full-player modal suppressed on desktop — mini-player only
+- [x] Desktop: skip ±30 s / ±15 s buttons in mini-player on desktop
+- [x] Desktop: settings link restored in sidebar; contrast tokens and layout gaps fixed
+- [x] i18n: stub translation files added for French (fr), German (de), Portuguese (pt)
+- [x] Home feed: cache now invalidates when subscriptions change or history is cleared
+- [x] Home feed: concurrent load race condition fixed (pending-refresh flag)
+
 ### v2.0 — Native Platform
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
 - [ ] Deep links / Universal Links ([#42](https://github.com/bndF1/wavely/issues/42))
