@@ -1,6 +1,6 @@
 # Wavely — Software Design Document
 
-> **Version:** 1.1.0 | **Last updated:** March 2026  
+> **Version:** 1.9.0 | **Last updated:** March 2026  
 > **Status:** Living document — update with every milestone
 
 ---
@@ -25,8 +25,9 @@
 16. [Testing Strategy](#16-testing-strategy)
 17. [CI/CD Pipeline](#17-cicd-pipeline)
 18. [Deployment](#18-deployment)
-19. [Next Milestone — Discovery & Library](#19-next-milestone--discovery--library)
-20. [Known Limitations & Tech Debt](#20-known-limitations--tech-debt)
+19. [Shipped — Discovery & Library](#19-shipped--discovery--library-v120-)
+20. [Shipped — Desktop Experience (v1.9.0)](#20-shipped--desktop-experience-v190-)
+21. [Known Limitations & Tech Debt](#21-known-limitations--tech-debt)
 
 ---
 
@@ -36,11 +37,19 @@
 
 | Attribute | Value |
 |-----------|-------|
-| Current version | `v1.2.0` |
+| Current version | `v1.9.0` |
 | Production URL | https://wavely-f659c.web.app |
 | Landing page | https://bndF1.github.io/wavely |
 | Repository | https://github.com/bndF1/wavely |
 | Platforms | Web PWA · Android (Capacitor) · iOS (Capacitor) |
+
+**v1.9.0 Features (Desktop Experience Redesign):**
+- Three-panel CSS Grid shell: collapsible sidebar | scrollable content | persistent player rail
+- Design tokens v2: elevation, radius, spacing, layout CSS custom properties
+- DesktopPlayerComponent: persistent right-rail player with volume/mute controls
+- Desktop-optimised page layouts: Home grid, Podcast Detail two-column, Library grid, Discover 4-column
+- KeyboardShortcutsService: Space/j/k/[ shortcuts for playback control
+- Desktop polish: hover elevation, focus rings (WCAG 2.4.7), slide-in animation, `prefers-reduced-motion`
 
 **v1.2.0 Features (Discovery & Library):**
 - Recent searches history (localStorage, last 8 queries)
@@ -117,10 +126,11 @@ src/app/
 │   │   └── mini-player/       ← Persistent bottom bar
 │   ├── podcast-detail/        ← Podcast info + episode list
 │   ├── search/                ← iTunes search + country detection
-│   └── tabs/                  ← Tab shell + mini-player host
+│   └── tabs/                  ← Tab shell + desktop three-panel layout host
 │
 ├── shared/
 │   └── components/
+│       ├── desktop-player/     ← Persistent right-rail player (desktop only)
 │       ├── empty-state/        ← "No results" UI
 │       ├── error-state/        ← Error + retry UI
 │       ├── offline-banner/     ← Dismissible offline warning
@@ -131,8 +141,10 @@ src/app/
     │   └── auth.store.ts       ← User session signal store
     ├── history/
     │   └── history.store.ts    ← Listening history signal store
+    ├── layout/
+    │   └── layout.store.ts     ← Desktop sidebar collapsed state
     ├── player/
-    │   └── player.store.ts     ← Playback state signal store
+    │   └── player.store.ts     ← Playback state + volume/mute signal store
     └── podcasts/
         └── podcasts.store.ts   ← Search results + subscriptions signal store
 ```
@@ -142,7 +154,7 @@ src/app/
 ```
 UI Components
     ↕ signals / methods
-Signal Stores (PlayerStore, PodcastsStore, AuthStore, HistoryStore)
+Signal Stores (PlayerStore, PodcastsStore, AuthStore, HistoryStore, LayoutStore)
     ↕ observables / async
 Services (AudioService, PodcastApiService, Sync services)
     ↕
@@ -855,9 +867,100 @@ bun run cap:build   # nx build + copy index + cap copy + cap sync
 | #43 | App Store + Play Store submission |
 | #44 | Native share sheet |
 
+> **Note:** This milestone is deferred. v1.9.0 (Desktop Experience) shipped before this milestone was started.
+
 ---
 
-## 20. Known Limitations & Tech Debt
+## 20. Shipped — Desktop Experience (v1.9.0) ✅
+
+**Epic:** [#338](https://github.com/bndF1/wavely/issues/338) | **Milestone:** [v1.9.0](https://github.com/bndF1/wavely/milestone/10)
+
+### Design Vision
+
+A first-class desktop app, not a stretched mobile layout. The three-panel CSS Grid shell gives every pixel a purpose. Mobile is entirely unchanged — all desktop rules live inside `@media (min-width: 1024px)` blocks.
+
+### Three-Panel Shell (#340)
+
+`TabsComponent` (`tabs.component.scss`) applies a CSS Grid layout at ≥1024px:
+
+```
+┌──────────────┬──────────────────────────────┬────────────────┐
+│  Sidebar     │  Content (router-outlet)      │  Player Rail   │
+│  240px       │  1fr (scrollable)             │  320px         │
+│  collapsible │                               │  persistent    │
+└──────────────┴──────────────────────────────┴────────────────┘
+```
+
+- Sidebar collapses to 64px (icon-only) — state persisted in `LayoutStore`
+- `ion-tab-bar` hidden on desktop; nav links rendered in sidebar
+- `ion-router-outlet` becomes the centre column
+
+### Design Tokens v2 (#339)
+
+`src/styles.scss` defines CSS custom properties consumed across the app:
+
+| Token group | Variables |
+|-------------|-----------|
+| Layout | `--wavely-sidebar-width`, `--wavely-player-rail-width`, `--wavely-sidebar-collapsed-width` |
+| Elevation | `--wavely-elevation-0` … `--wavely-elevation-3` (box-shadow values) |
+| Radius | `--wavely-radius-sm`, `--wavely-radius-md`, `--wavely-radius-lg`, `--wavely-radius-xl` |
+| Spacing | `--wavely-space-*` (4/8/12/16/24/32/48px) |
+
+### DesktopPlayerComponent (#341)
+
+Persistent right-rail player rendered inside `TabsComponent`. Only visible at ≥1024px.
+
+- Artwork (64×64px), title, author, episode title
+- Play/pause, skip −15s / +30s controls
+- **Volume slider** + **mute toggle** (new signals in `PlayerStore`: `volume`, `isMuted`, `effectiveVolume`)
+- Progress bar (read-only display)
+- Full-player modal NOT triggered on desktop
+
+### LayoutStore
+
+`src/app/store/layout/layout.store.ts` — NgRx SignalStore:
+
+```typescript
+withState({ sidebarCollapsed: false })
+withMethods({ toggleSidebar, setSidebarCollapsed })
+```
+
+State is not persisted between sessions (intentional — open on every load).
+
+### Page Layouts
+
+| Page | Desktop layout |
+|------|----------------|
+| Home | Auto-fill CSS Grid (`minmax(140px, 1fr)`) per section; 1400px max-width |
+| Podcast Detail | CSS Grid `360px 1fr`; left column sticky; artwork 200×200px |
+| Library | Stats bar + two-column subscription grid + episode timeline |
+| Discover | 4-column auto-fill grid; sticky search bar; `ion-header` hidden |
+
+### KeyboardShortcutsService (#346)
+
+`src/app/core/services/keyboard-shortcuts.service.ts` — eagerly injected in `AppComponent`:
+
+| Key | Action |
+|-----|--------|
+| `Space` | Toggle play/pause |
+| `j` | Skip back 15s |
+| `k` | Toggle play/pause |
+| `[` | Toggle mute |
+
+Guards: skips when focus is in `<input>`, `<textarea>`, `<select>`, or `[contenteditable]`.
+
+### Desktop Polish (#348)
+
+- **Hover elevation:** podcast cards lift `translateY(-2px)` with `elevation-2` shadow
+- **Hover highlight:** episode items get `surface-variant` background
+- **Focus rings:** global `2px solid var(--wavely-primary)` via `:focus-visible`; WCAG 2.4.7 compliant
+- **Slide-in animation:** player rail enters from right (300ms ease) on first render
+- **`prefers-reduced-motion`:** kills all animations/transitions globally when set
+- **`ion-button` cursor:** `pointer` on desktop
+
+---
+
+## 21. Known Limitations & Tech Debt
 
 | Item | Severity | Notes |
 |------|----------|-------|
