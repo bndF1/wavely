@@ -5,8 +5,8 @@
        [attr.tabindex]="isDesktop ? null : '0'"
        [attr.aria-label]="isDesktop ? null : ('player.open_full' | translate)"
        (click)="handleBodyClick()"
-       (keydown.enter)="isDesktop ? null : handleBodyClick()"
-       (keydown.space)="isDesktop ? null : handleBodyClick()">
+       (keydown.enter)="isDesktop ? null : handleBodyClick($event)"
+       (keydown.space)="isDesktop ? null : handleBodyClick($event)">
     <ion-progress-bar
       class="mini-player__progress"
       [value]="progressValue"

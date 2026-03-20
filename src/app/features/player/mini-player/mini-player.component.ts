@@ -22,7 +22,7 @@ export class MiniPlayerComponent {
   readonly store = inject(PlayerStore);
   private readonly playerModal = inject(PlayerModalService);
 
-  /** Emitted when user taps the player body — parent opens full player */
+  /** Emitted when user taps the player body on non-desktop — parent opens full player (desktop tap is a no-op) */
   readonly openFull = output<void>();
 
   constructor() {
@@ -38,7 +38,10 @@ export class MiniPlayerComponent {
     return this.playerModal.isDesktop;
   }
 
-  handleBodyClick(): void {
+  handleBodyClick(event?: Event): void {
+    if (event instanceof KeyboardEvent) {
+      event.preventDefault();
+    }
     if (!this.isDesktop) {
       this.openFull.emit();
     }
