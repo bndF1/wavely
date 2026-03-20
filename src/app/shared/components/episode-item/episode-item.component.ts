@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnDestroy, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, input, output, signal } from '@angular/core';
 import { IonButton, IonIcon, IonItem, IonLabel, IonNote, IonThumbnail } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { addOutline, checkmarkOutline, playCircleOutline } from 'ionicons/icons';
@@ -11,6 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'wavely-episode-item',
   templateUrl: './episode-item.component.html',
   styleUrls: ['./episode-item.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, IonItem, IonThumbnail, IonLabel, IonNote, IonButton, IonIcon, TranslatePipe],
 })
 export class EpisodeItemComponent implements OnDestroy {
@@ -50,7 +51,7 @@ export class EpisodeItemComponent implements OnDestroy {
     this.justAddedTimer = setTimeout(() => {
       this.justAdded.set(false);
       this.justAddedTimer = null;
-    }, 1500);
+    }, 2000);
   }
 
   protected formatDuration(seconds: number): string {
