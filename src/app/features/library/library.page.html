@@ -41,6 +41,8 @@
   </ion-toolbar>
 </ion-header>
 
+<h1 class="desktop-page-title">{{ 'library.title' | translate }}</h1>
+
 <ion-content>
   <section class="library-section">
     <div class="section-header">
@@ -126,7 +128,7 @@
     <h2 class="section-title">{{ 'library.subscriptions' | translate }}</h2>
     @if (store.subscriptions().length > 0) {
       <p class="list-hint">Swipe left to unsubscribe</p>
-      <ion-list lines="full">
+      <ion-list lines="full" class="subscriptions-list">
         @for (podcast of store.subscriptions(); track podcast.id) {
           <ion-item-sliding #slidingItem>
             <ion-item button detail="true" (click)="navigateToPodcast(podcast)">
