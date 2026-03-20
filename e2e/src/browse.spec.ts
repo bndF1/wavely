@@ -53,7 +53,7 @@ test.describe('Discover browse content', () => {
   test('discover tab/category grid renders', async ({ page }) => {
     await page.goto('/tabs/discover');
 
-    await expect(page.locator('ion-title').filter({ hasText: 'Discover' })).toBeVisible();
+    await expect(page.locator('ion-title, h1.desktop-page-title').filter({ hasText: 'Discover' })).toBeVisible();
     await expect(page.locator('.category-row ion-chip')).toHaveCount(12);
     await expect(page.locator('wavely-podcast-card').first()).toBeVisible();
   });
