@@ -151,12 +151,53 @@ ion-chip {
   font-size: 18px;
 }
 
+.desktop-page-title {
+  display: none;
+}
 
 @media (min-width: 1024px) {
+  ion-header {
+    display: none;
+  }
+
+  .desktop-page-title {
+    display: block;
+    padding: var(--wavely-spacing-xl) var(--wavely-spacing-xl) 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--wavely-on-surface);
+    letter-spacing: -0.5px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  ion-content {
+    --padding-start: var(--wavely-spacing-xl);
+    --padding-end: var(--wavely-spacing-xl);
+    --padding-top: var(--wavely-spacing-md);
+  }
+
+  .search-bar-wrapper {
+    padding: var(--wavely-spacing-md) 0;
+    margin: 0 var(--wavely-spacing-xl);
+    background: var(--wavely-background);
+  }
+
+  .podcast-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--wavely-spacing-lg);
+  }
+
   .discover-section {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 48px;
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: var(--wavely-spacing-md);
   }
 
   .category-scroll {
