@@ -43,78 +43,85 @@
 
   <!-- Content -->
   @if (!isLoading && podcast) {
-    <!-- Podcast header -->
-    <div class="podcast-header">
-      <img
-        class="podcast-artwork"
-        [src]="podcast.artworkUrl || '/default-artwork.svg'"
-        [alt]="podcast.title"
-        (error)="onImageError($event)" />
-      <div class="podcast-meta">
-        <h1 class="podcast-title">{{ podcast.title }}</h1>
-        @if (podcast.artistId) {
-          <p class="podcast-author podcast-author--link"
-            tabindex="0"
-            role="link"
-            (click)="navigateToPublisher()"
-            (keydown.enter)="navigateToPublisher()">{{ podcast.author }}</p>
-        } @else {
-          <p class="podcast-author">{{ podcast.author }}</p>
+    <div class="podcast-detail-layout">
+      <!-- Left column: podcast info -->
+      <div class="podcast-info-column">
+        <div class="podcast-header">
+          <img
+            class="podcast-artwork"
+            [src]="podcast.artworkUrl || '/default-artwork.svg'"
+            [alt]="podcast.title"
+            (error)="onImageError($event)" />
+          <div class="podcast-meta">
+            <h1 class="podcast-title">{{ podcast.title }}</h1>
+            @if (podcast.artistId) {
+              <p class="podcast-author podcast-author--link"
+                tabindex="0"
+                role="link"
+                (click)="navigateToPublisher()"
+                (keydown.enter)="navigateToPublisher()">{{ podcast.author }}</p>
+            } @else {
+              <p class="podcast-author">{{ podcast.author }}</p>
+            }
+            @if (podcast.episodeCount) {
+              <p class="podcast-count">
+                {{ podcast.episodeCount }} {{ 'podcast_detail.episodes' | translate }}
+              </p>
+            }
+            <ion-button
+              [fill]="isSubscribed ? 'solid' : 'outline'"
+              [color]="isSubscribed ? 'primary' : 'medium'"
+              size="small"
+              shape="round"
+              [attr.aria-label]="isSubscribed ? ('podcast_detail.subscribed' | translate) : ('podcast_detail.subscribe' | translate)"
+              (click)="toggleSubscription()">
+              <ion-icon
+                slot="start"
+                [name]="isSubscribed ? 'checkmark-circle' : 'add-circle-outline'">
+              </ion-icon>
+              {{ isSubscribed ? ('podcast_detail.subscribed' | translate) : ('podcast_detail.subscribe' | translate) }}
+            </ion-button>
+          </div>
+        </div>
+      </div>
+      <!-- Right column: episodes -->
+      <div class="episodes-column">
+        <!-- Episodes error (episodes can fail independently) -->
+        @if (episodesError) {
+          <div class="state-message">
+            <ion-text color="medium"><p>{{ 'podcast_detail.error_subtitle' | translate }}</p></ion-text>
+            <ion-button fill="outline" size="small" (click)="retryLoad()">
+              <ion-icon name="refresh-outline" slot="start"></ion-icon>
+              {{ 'podcast_detail.retry' | translate }}
+            </ion-button>
+          </div>
         }
-        @if (podcast.episodeCount) {
-          <p class="podcast-count">
-            {{ podcast.episodeCount }} {{ 'podcast_detail.episodes' | translate }}
-          </p>
+        <!-- Episodes -->
+        @if (episodes.length > 0) {
+          <h2 class="section-title">{{ 'podcast_detail.episodes' | translate }}</h2>
         }
-        <ion-button
-          [fill]="isSubscribed ? 'solid' : 'outline'"
-          [color]="isSubscribed ? 'primary' : 'medium'"
-          size="small"
-          shape="round"
-          [attr.aria-label]="isSubscribed ? ('podcast_detail.subscribed' | translate) : ('podcast_detail.subscribe' | translate)"
-          (click)="toggleSubscription()">
-          <ion-icon
-            slot="start"
-            [name]="isSubscribed ? 'checkmark-circle' : 'add-circle-outline'">
-          </ion-icon>
-          {{ isSubscribed ? ('podcast_detail.subscribed' | translate) : ('podcast_detail.subscribe' | translate) }}
-        </ion-button>
+        @if (episodes.length > 0) {
+          <ion-list lines="none">
+            @for (episode of episodes; track episode.id) {
+              <wavely-episode-item
+                [episode]="episode"
+                [podcastTitle]="podcast?.title"
+                (episodePlay)="playEpisode($event)"
+                (addToQueue)="queueEpisode($event)">
+              </wavely-episode-item>
+            }
+          </ion-list>
+
+          <ion-infinite-scroll [disabled]="!hasMoreEpisodes" (ionInfinite)="loadMoreEpisodes($event)">
+            <ion-infinite-scroll-content [loadingText]="'common.loading' | translate"></ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+        }
+        @if (episodes.length === 0 && !episodesError) {
+          <div class="state-message">
+            <ion-text color="medium"><p>{{ 'podcast_detail.no_episodes_title' | translate }}</p></ion-text>
+          </div>
+        }
       </div>
     </div>
-    <!-- Episodes error (episodes can fail independently) -->
-    @if (episodesError) {
-      <div class="state-message">
-        <ion-text color="medium"><p>{{ 'podcast_detail.error_subtitle' | translate }}</p></ion-text>
-        <ion-button fill="outline" size="small" (click)="retryLoad()">
-          <ion-icon name="refresh-outline" slot="start"></ion-icon>
-          {{ 'podcast_detail.retry' | translate }}
-        </ion-button>
-      </div>
-    }
-    <!-- Episodes -->
-    @if (episodes.length > 0) {
-      <h2 class="section-title">{{ 'podcast_detail.episodes' | translate }}</h2>
-    }
-    @if (episodes.length > 0) {
-      <ion-list lines="none">
-        @for (episode of episodes; track episode.id) {
-          <wavely-episode-item
-            [episode]="episode"
-            [podcastTitle]="podcast?.title"
-            (episodePlay)="playEpisode($event)"
-            (addToQueue)="queueEpisode($event)">
-          </wavely-episode-item>
-        }
-      </ion-list>
-
-      <ion-infinite-scroll [disabled]="!hasMoreEpisodes" (ionInfinite)="loadMoreEpisodes($event)">
-        <ion-infinite-scroll-content [loadingText]="'common.loading' | translate"></ion-infinite-scroll-content>
-      </ion-infinite-scroll>
-    }
-    @if (episodes.length === 0 && !episodesError) {
-      <div class="state-message">
-        <ion-text color="medium"><p>{{ 'podcast_detail.no_episodes_title' | translate }}</p></ion-text>
-      </div>
-    }
   }
 </ion-content>
