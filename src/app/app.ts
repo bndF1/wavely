@@ -9,6 +9,7 @@ import { AuthService } from './core/auth/auth.service';
 import { AuthStore } from './store/auth/auth.store';
 import { ThemeService } from './core/services/theme.service';
 import { LanguageService } from './core/services/language.service';
+import { KeyboardShortcutsService } from './core/services/keyboard-shortcuts.service';
 import { environment } from '../environments/environment';
 
 @Component({
@@ -28,6 +29,9 @@ export class App {
   // Injecting LanguageService here ensures translate.use(lang) is called
   // at app startup so translations are loaded before any component renders.
   private readonly _lang = inject(LanguageService);
+  // Injecting KeyboardShortcutsService here ensures the document keydown
+  // listener is registered at app startup for desktop keyboard shortcuts.
+  private readonly _keyboardShortcuts = inject(KeyboardShortcutsService);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 
