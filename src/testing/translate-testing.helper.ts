@@ -5,7 +5,6 @@ import {
   TranslateNoOpLoader,
   TranslateService,
 } from '@ngx-translate/core';
-import { Observable, of } from 'rxjs';
 
 /**
  * Minimal translate setup for unit tests.
