@@ -47,6 +47,22 @@ describe('ThemeService', () => {
       const service = createService();
       expect(service.mode()).toBe('dark');
     });
+
+    it('defaults to "system" when localStorage contains an invalid value', () => {
+      localStorage.setItem(STORAGE_KEY, 'corrupted');
+      const service = createService();
+      expect(service.mode()).toBe('system');
+    });
+  });
+
+  describe('SSR (non-browser)', () => {
+    it('constructs without touching localStorage or document and defaults to "system"', () => {
+      TestBed.configureTestingModule({
+        providers: [ThemeService, { provide: PLATFORM_ID, useValue: 'server' }],
+      });
+      const service = TestBed.inject(ThemeService);
+      expect(service.mode()).toBe('system');
+    });
   });
 
   describe('setMode()', () => {
