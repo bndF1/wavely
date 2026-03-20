@@ -45,6 +45,7 @@ Every PR also gets an ephemeral preview channel: `https://wavely-f659c--pr-<numb
 | 🏠 **Episode Feed** | ✅ | Latest episodes from subscriptions on Home tab, date-sorted with load more |
 | 🌍 **Country-aware Content** | ✅ | iTunes market selection, localized trending podcasts per country |
 | 👤 **Publisher Profiles** | ✅ | Browse all shows from a podcast's author/publisher |
+| 🖥 **Desktop Experience** | ✅ | Three-panel shell, persistent player rail, collapsible sidebar, keyboard shortcuts |
 
 ---
 
@@ -283,6 +284,23 @@ gh pr create --base dev
 - [x] Search page removed from Discover (consolidated into the tab's own search bar)
 - [x] Logout now stops the audio player
 - [x] Onboarding UX: Home shows trending when no subscriptions
+
+### v1.6.0–v1.8.3 — Stability, Radio & Player Refinements ✅ Shipped
+- [x] Radio favorites — star stations, persisted to localStorage
+- [x] Shared EpisodeItemComponent — unified episode list UI
+- [x] Listening history: full-page view, Firestore sync, clear-all
+- [x] Mini-player keyboard UX (Space, ArrowLeft/Right)
+- [x] Queue feedback duration fix (OnPush + longer toast)
+- [x] E2E viewport and player modal fixes
+
+### v1.9.0 — Desktop Experience ✅ Shipped
+- [x] Three-panel CSS Grid shell (sidebar · content · player rail)
+- [x] Collapsible sidebar with `LayoutStore` (NgRx SignalStore)
+- [x] Persistent `DesktopPlayerComponent` right-rail panel with volume/mute
+- [x] CSS design-token system (elevation, radius, spacing, layout variables)
+- [x] Desktop layouts: Home, Discover, Library, Podcast Detail (two-column), Player
+- [x] Keyboard shortcuts: Space (play/pause), `j`/`k` (±15 s), `[` (speed cycle)
+- [x] Hover elevation, focus rings, slide-in animation polish
 
 ### v2.0 — Native Platform
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
