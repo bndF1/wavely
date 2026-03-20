@@ -20,30 +20,40 @@ ion-tab-button {
 
 @media (min-width: 1024px) {
   :host {
-    display: flex;
+    display: block;
     height: 100%;
   }
 
   .tabs-layout {
-    display: flex;
-    flex: 1;
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr 0px;
+    grid-template-rows: 1fr;
     height: 100%;
+    transition: grid-template-columns 200ms ease;
+
+    &.sidebar-collapsed {
+      grid-template-columns: var(--sidebar-collapsed-width) 1fr 0px;
+    }
+
+    &:has(.desktop-player-rail) {
+      grid-template-columns: var(--sidebar-width) 1fr var(--player-rail-width);
+    }
+
+    &.sidebar-collapsed:has(.desktop-player-rail) {
+      grid-template-columns: var(--sidebar-collapsed-width) 1fr var(--player-rail-width);
+    }
   }
 
   .desktop-sidebar {
     display: flex;
     flex-direction: column;
-    width: 220px;
-    min-width: 220px;
+    grid-column: 1;
     height: 100%;
     background: var(--wavely-surface);
     border-right: 1px solid var(--wavely-divider);
     padding: 16px 0;
     z-index: 100;
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    overflow: hidden;
   }
 
   .desktop-sidebar__logo {
@@ -54,6 +64,17 @@ ion-tab-button {
     font-weight: 700;
     font-size: 1.1rem;
     color: var(--wavely-on-surface);
+  }
+
+  .desktop-sidebar__logo-text {
+    transition: opacity 150ms ease, width 150ms ease;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .sidebar-collapsed .desktop-sidebar__logo-text {
+    opacity: 0;
+    width: 0;
   }
 
   .desktop-sidebar__links {
@@ -67,6 +88,9 @@ ion-tab-button {
   .desktop-sidebar__footer {
     padding: 8px 8px 4px;
     border-top: 1px solid var(--wavely-divider);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .desktop-sidebar__link {
@@ -74,7 +98,7 @@ ion-tab-button {
     align-items: center;
     gap: 12px;
     padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: var(--wavely-radius-md);
     color: var(--wavely-on-surface-muted);
     text-decoration: none;
     font-size: 0.9rem;
@@ -97,14 +121,56 @@ ion-tab-button {
     }
   }
 
+  .desktop-sidebar__label {
+    transition: opacity 150ms ease, width 150ms ease;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .sidebar-collapsed .desktop-sidebar__label {
+    opacity: 0;
+    width: 0;
+    margin: 0;
+  }
+
+  .desktop-sidebar__collapse-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--wavely-radius-md);
+    border: none;
+    background: transparent;
+    color: var(--wavely-on-surface-muted);
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover {
+      background: var(--wavely-surface-variant);
+      color: var(--wavely-on-surface);
+    }
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+
+  ion-tabs {
+    grid-column: 2;
+    overflow: hidden;
+  }
+
+  .desktop-player-rail {
+    grid-column: 3;
+    height: 100%;
+    background: var(--wavely-surface);
+    border-left: 1px solid var(--wavely-divider);
+    overflow-y: auto;
+  }
+
   // Hide the Ionic bottom tab bar on desktop
   .desktop-hidden-tabs {
     display: none !important;
-  }
-
-  // Push main content to the right of the sidebar
-  ion-tabs {
-    flex: 1;
-    margin-left: 220px;
   }
 }
