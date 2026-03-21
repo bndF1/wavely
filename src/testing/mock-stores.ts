@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import type { PlayerState } from '../app/store/player/player.store';
 import type { PodcastsState } from '../app/store/podcasts/podcasts.store';
 import type { Podcast } from '../app/core/models/podcast.model';
@@ -12,8 +12,13 @@ export function mockPlayerStore(overrides: Partial<PlayerState> = {}) {
     playbackRate: 1,
     queue: [],
     isMinimised: true,
+    volume: 1,
+    isMuted: false,
     ...overrides,
   };
+
+  const volumeSig = signal(state.volume);
+  const isMutedSig = signal(state.isMuted);
 
   return {
     currentEpisode: signal(state.currentEpisode),
@@ -23,6 +28,9 @@ export function mockPlayerStore(overrides: Partial<PlayerState> = {}) {
     playbackRate: signal(state.playbackRate),
     queue: signal(state.queue),
     isMinimised: signal(state.isMinimised),
+    volume: volumeSig,
+    isMuted: isMutedSig,
+    effectiveVolume: computed(() => isMutedSig() ? 0 : volumeSig()),
     play: jest.fn(),
     pause: jest.fn(),
     resume: jest.fn(),
@@ -38,6 +46,8 @@ export function mockPlayerStore(overrides: Partial<PlayerState> = {}) {
     skipForward: jest.fn(),
     playNext: jest.fn(),
     close: jest.fn(),
+    setVolume: jest.fn(),
+    toggleMute: jest.fn(),
   };
 }
 

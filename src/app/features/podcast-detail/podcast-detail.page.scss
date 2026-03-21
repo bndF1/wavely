@@ -108,31 +108,71 @@
 }
 
 
+// Mobile fallback — wrapper is invisible on mobile
+.podcast-detail-layout {
+  display: block;
+}
+
+// Desktop two-column layout
 @media (min-width: 1024px) {
-  .podcast-artwork {
-    width: 160px;
-    height: 160px;
+  // Hide Ionic header — back button replicated via browser history; sidebar provides context
+  ion-header {
+    display: none;
+  }
+
+  ion-content {
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+  }
+
+  .podcast-detail-layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 32px;
+    padding: 32px;
+    min-height: 100%;
+    align-items: start;
+  }
+
+  .podcast-info-column {
+    position: sticky;
+    top: 32px;
+  }
+
+  .episodes-column {
+    min-width: 0;
   }
 
   .podcast-header {
-    padding: 32px;
-    gap: 32px;
-    max-width: 1200px;
-    margin: 0 auto;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0;
+    gap: 16px;
+  }
+
+  .podcast-artwork {
+    width: 200px;
+    height: 200px;
+    border-radius: var(--wavely-radius-xl, 16px);
+  }
+
+  .podcast-meta {
+    text-align: center;
   }
 
   .podcast-title {
     font-size: 1.4rem;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+    display: block; // override the webkit-box display
   }
 
-  .podcast-author {
-    font-size: 1rem;
-  }
-
-  .section-title,
-  ion-list {
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+  .section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--wavely-on-surface);
   }
 }

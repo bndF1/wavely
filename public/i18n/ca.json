@@ -4,7 +4,9 @@
     "discover": "Descobrir",
     "radio": "Ràdio",
     "library": "Biblioteca",
-    "settings": "Configuració"
+    "settings": "Configuració",
+    "collapse_sidebar": "Plega la barra lateral",
+    "expand_sidebar": "Desplega la barra lateral"
   },
   "home": {
     "title": "Wavely",
@@ -79,7 +81,8 @@
     "error_title": "La cerca ha fallat",
     "error_subtitle": "Comprova la connexió i torna-ho a intentar.",
     "searching_for": "Resultats de",
-    "search_placeholder_hint": "Prova de cercar un tema, programa o persona"
+    "search_placeholder_hint": "Prova de cercar un tema, programa o persona",
+    "country_toggle_aria": "Descobrint contingut de {{ countryName }}, toca per canviar"
   },
   "radio": {
     "title": "Ràdio",
@@ -106,7 +109,13 @@
     "open_full": "Obrir reproductor complet",
     "queue": "Cua",
     "playback_rate": "Velocitat de reproducció",
-    "play_stream": "Reprodueix el flux"
+    "play_stream": "Reprodueix el flux",
+    "mute": "Silencia",
+    "unmute": "Activa el so",
+    "seek": "Cerca",
+    "volume": "Volum",
+    "clear_queue": "Elimina la cua",
+    "remove_from_queue": "Elimina de la cua"
   },
   "podcast_detail": {
     "episodes": "Episodis",

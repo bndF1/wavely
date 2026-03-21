@@ -1,33 +1,44 @@
 <wavely-offline-banner></wavely-offline-banner>
 
-<div class="tabs-layout">
+<div class="tabs-layout" [class.sidebar-collapsed]="layoutStore.sidebarCollapsed()">
   <nav class="desktop-sidebar" aria-label="Main navigation">
     <div class="desktop-sidebar__logo">
       <img src="icons/icon-192x192.png" alt="Wavely" width="32" height="32" />
+      <span class="desktop-sidebar__logo-text">Wavely</span>
     </div>
     <div class="desktop-sidebar__links">
-      <a routerLink="/tabs/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="desktop-sidebar__link">
-        <ion-icon name="home-outline"></ion-icon>
-        <span>{{ 'nav.home' | translate }}</span>
+      <a routerLink="/tabs/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+         class="desktop-sidebar__link" [title]="'nav.home' | translate">
+        <ion-icon name="home-outline" aria-hidden="true"></ion-icon>
+        <span class="desktop-sidebar__label">{{ 'nav.home' | translate }}</span>
       </a>
-      <a routerLink="/tabs/discover" routerLinkActive="active" class="desktop-sidebar__link">
-        <ion-icon name="compass-outline"></ion-icon>
-        <span>{{ 'nav.discover' | translate }}</span>
+      <a routerLink="/tabs/discover" routerLinkActive="active"
+         class="desktop-sidebar__link" [title]="'nav.discover' | translate">
+        <ion-icon name="compass-outline" aria-hidden="true"></ion-icon>
+        <span class="desktop-sidebar__label">{{ 'nav.discover' | translate }}</span>
       </a>
-      <a routerLink="/tabs/radio" routerLinkActive="active" class="desktop-sidebar__link">
-        <ion-icon name="radio-outline"></ion-icon>
-        <span>{{ 'nav.radio' | translate }}</span>
+      <a routerLink="/tabs/radio" routerLinkActive="active"
+         class="desktop-sidebar__link" [title]="'nav.radio' | translate">
+        <ion-icon name="radio-outline" aria-hidden="true"></ion-icon>
+        <span class="desktop-sidebar__label">{{ 'nav.radio' | translate }}</span>
       </a>
-      <a routerLink="/tabs/library" routerLinkActive="active" class="desktop-sidebar__link">
-        <ion-icon name="library-outline"></ion-icon>
-        <span>{{ 'nav.library' | translate }}</span>
+      <a routerLink="/tabs/library" routerLinkActive="active"
+         class="desktop-sidebar__link" [title]="'nav.library' | translate">
+        <ion-icon name="library-outline" aria-hidden="true"></ion-icon>
+        <span class="desktop-sidebar__label">{{ 'nav.library' | translate }}</span>
       </a>
     </div>
     <div class="desktop-sidebar__footer">
-      <a routerLink="/settings" routerLinkActive="active" class="desktop-sidebar__link">
-        <ion-icon name="settings-outline"></ion-icon>
-        <span>{{ 'nav.settings' | translate }}</span>
+      <a routerLink="/settings" routerLinkActive="active"
+         class="desktop-sidebar__link" [title]="'nav.settings' | translate">
+        <ion-icon name="settings-outline" aria-hidden="true"></ion-icon>
+        <span class="desktop-sidebar__label">{{ 'nav.settings' | translate }}</span>
       </a>
+      <button class="desktop-sidebar__collapse-btn"
+              (click)="layoutStore.toggleSidebar()"
+              [attr.aria-label]="layoutStore.sidebarCollapsed() ? ('nav.expand_sidebar' | translate) : ('nav.collapse_sidebar' | translate)">
+        <ion-icon [name]="layoutStore.sidebarCollapsed() ? 'chevron-forward' : 'chevron-back'" aria-hidden="true"></ion-icon>
+      </button>
     </div>
   </nav>
 
@@ -57,4 +68,10 @@
       </ion-tab-button>
     </ion-tab-bar>
   </ion-tabs>
+
+  @if (store.currentEpisode()) {
+    <aside class="desktop-player-rail" aria-label="Now playing">
+      <wavely-desktop-player></wavely-desktop-player>
+    </aside>
+  }
 </div>

@@ -4,13 +4,23 @@
     <ion-buttons slot="end">
       <ion-button
         class="country-toggle"
-        [attr.aria-label]="'Discovering ' + currentMarketName + ' content, tap to change'"
+        [attr.aria-label]="'discover.country_toggle_aria' | translate: { countryName: currentMarketName }"
         (click)="presentCountryPicker()">
         <span class="country-toggle__flag">{{ countryService.getFlag(countryService.country()) }}</span>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
+<div class="desktop-page-header">
+  <h1 class="desktop-page-title">{{ 'discover.title' | translate }}</h1>
+  <ion-button
+    class="country-toggle"
+    [attr.aria-label]="'discover.country_toggle_aria' | translate: { countryName: currentMarketName }"
+    (click)="presentCountryPicker()">
+    <span class="country-toggle__flag">{{ countryService.getFlag(countryService.country()) }}</span>
+  </ion-button>
+</div>
 
 <ion-content>
   <div class="search-bar-wrapper">

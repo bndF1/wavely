@@ -64,3 +64,16 @@
     }
   }
 }
+
+// Desktop hover highlight
+@media (min-width: 1024px) {
+  :host {
+    border-radius: var(--wavely-radius-md);
+    transition: background 150ms ease;
+
+    &:hover {
+      --background: var(--wavely-surface-variant);
+      background: var(--wavely-surface-variant);
+    }
+  }
+}
