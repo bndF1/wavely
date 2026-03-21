@@ -18,6 +18,11 @@ ion-tab-button {
   display: none;
 }
 
+// Desktop player rail is only shown at ≥1024px (grid column 3)
+.desktop-player-rail {
+  display: none;
+}
+
 @media (min-width: 1024px) {
   :host {
     display: block;

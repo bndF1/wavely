@@ -19,7 +19,7 @@
 
   <!-- Episode info -->
   <div class="desktop-player__info">
-    <p class="desktop-player__podcast">{{ store.currentEpisode()?.podcastId }}</p>
+    <p class="desktop-player__podcast">{{ store.currentEpisode()?.podcastTitle || store.currentEpisode()?.podcastId }}</p>
     <h3 class="desktop-player__title">{{ store.currentEpisode()!.title }}</h3>
   </div>
 
@@ -47,7 +47,7 @@
   <!-- Controls -->
   <div class="desktop-player__controls">
     @if (!store.currentEpisode()?.isLive) {
-      <ion-button fill="clear" (click)="store.skipBack(15)" aria-label="Skip back 15 seconds">
+      <ion-button fill="clear" (click)="store.skipBack(15)" [attr.aria-label]="'player.skip_back' | translate">
         <ion-icon slot="icon-only" name="play-skip-back"></ion-icon>
       </ion-button>
     }
@@ -55,16 +55,16 @@
       fill="clear"
       class="desktop-player__play-btn"
       (click)="togglePlay()"
-      [attr.aria-label]="store.isPlaying() ? 'Pause' : 'Play'"
+      [attr.aria-label]="store.isPlaying() ? ('player.pause' | translate) : ('player.play' | translate)"
     >
       <ion-icon slot="icon-only" [name]="store.isPlaying() ? 'pause-circle' : 'play-circle'"></ion-icon>
     </ion-button>
     @if (!store.currentEpisode()?.isLive) {
-      <ion-button fill="clear" (click)="store.skipForward(30)" aria-label="Skip forward 30 seconds">
+      <ion-button fill="clear" (click)="store.skipForward(30)" [attr.aria-label]="'player.skip_forward' | translate">
         <ion-icon slot="icon-only" name="play-skip-forward"></ion-icon>
       </ion-button>
     }
-    <ion-button fill="clear" (click)="store.close()" aria-label="Close player">
+    <ion-button fill="clear" (click)="store.close()" [attr.aria-label]="'player.close' | translate">
       <ion-icon slot="icon-only" name="close-outline"></ion-icon>
     </ion-button>
   </div>
@@ -89,7 +89,7 @@
     <ion-button
       fill="clear"
       (click)="store.toggleMute()"
-      [attr.aria-label]="store.isMuted() ? 'Unmute' : 'Mute'"
+      [attr.aria-label]="store.isMuted() ? ('player.unmute' | translate) : ('player.mute' | translate)"
     >
       <ion-icon slot="icon-only" [name]="store.isMuted() ? 'volume-mute' : 'volume-high'"></ion-icon>
     </ion-button>

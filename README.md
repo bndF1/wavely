@@ -328,7 +328,7 @@ gh pr create --base dev
 - [x] Persistent `DesktopPlayerComponent` right-rail panel with volume/mute
 - [x] CSS design-token system (elevation, radius, spacing, layout variables)
 - [x] Desktop layouts: Home, Discover, Library, Podcast Detail (two-column), Player
-- [x] Keyboard shortcuts: Space (play/pause), `j`/`k` (±15 s), `[` (speed cycle)
+- [x] Keyboard shortcuts: Space (play/pause), `j`/`k` (±15s / +30s), `[` (toggle sidebar collapse)
 - [x] Hover elevation, focus rings, slide-in animation polish
 
 ### v2.0 — Native Platform

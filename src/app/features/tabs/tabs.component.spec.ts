@@ -87,9 +87,4 @@ describe('TabsComponent', () => {
     await component.openFullPlayer();
     expect(mockPlayerModal.open).not.toHaveBeenCalled();
   });
-
-  it('toggleSidebar() delegates to layoutStore', () => {
-    component.layoutStore.toggleSidebar();
-    expect(mockLayoutStore.toggleSidebar).toHaveBeenCalledTimes(1);
-  });
 });

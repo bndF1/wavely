@@ -124,13 +124,13 @@ src/app/
 │   ├── player/
 │   │   ├── full-player/       ← Fullscreen player modal
 │   │   └── mini-player/       ← Persistent bottom bar
+│   │   └── desktop-player/    ← Persistent right-rail player (desktop only)
 │   ├── podcast-detail/        ← Podcast info + episode list
 │   ├── search/                ← iTunes search + country detection
 │   └── tabs/                  ← Tab shell + desktop three-panel layout host
 │
 ├── shared/
 │   └── components/
-│       ├── desktop-player/     ← Persistent right-rail player (desktop only)
 │       ├── empty-state/        ← "No results" UI
 │       ├── error-state/        ← Error + retry UI
 │       ├── offline-banner/     ← Dismissible offline warning
@@ -901,10 +901,10 @@ A first-class desktop app, not a stretched mobile layout. The three-panel CSS Gr
 
 | Token group | Variables |
 |-------------|-----------|
-| Layout | `--wavely-sidebar-width`, `--wavely-player-rail-width`, `--wavely-sidebar-collapsed-width` |
+| Layout | `--sidebar-width`, `--player-rail-width`, `--sidebar-collapsed-width` |
 | Elevation | `--wavely-elevation-0` … `--wavely-elevation-3` (box-shadow values) |
 | Radius | `--wavely-radius-sm`, `--wavely-radius-md`, `--wavely-radius-lg`, `--wavely-radius-xl` |
-| Spacing | `--wavely-space-*` (4/8/12/16/24/32/48px) |
+| Spacing | `--wavely-spacing-xs`, `--wavely-spacing-sm`, `--wavely-spacing-md`, `--wavely-spacing-lg`, `--wavely-spacing-xl`, `--wavely-spacing-2xl` (4/8/12/16/24/32/48px) |
 
 ### DesktopPlayerComponent (#341)
 
@@ -925,7 +925,7 @@ withState({ sidebarCollapsed: false })
 withMethods({ toggleSidebar, setSidebarCollapsed })
 ```
 
-State is not persisted between sessions (intentional — open on every load).
+`sidebarCollapsed` is persisted between sessions via `localStorage` (key: `wavely-sidebar-collapsed`) so the user's sidebar preference is restored on reload.
 
 ### Page Layouts
 
@@ -944,8 +944,8 @@ State is not persisted between sessions (intentional — open on every load).
 |-----|--------|
 | `Space` | Toggle play/pause |
 | `j` | Skip back 15s |
-| `k` | Toggle play/pause |
-| `[` | Toggle mute |
+| `k` | Skip forward 30s |
+| `[` | Toggle sidebar collapse |
 
 Guards: skips when focus is in `<input>`, `<textarea>`, `<select>`, or `[contenteditable]`.
 

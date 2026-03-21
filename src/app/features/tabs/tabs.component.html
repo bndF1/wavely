@@ -36,7 +36,7 @@
       </a>
       <button class="desktop-sidebar__collapse-btn"
               (click)="layoutStore.toggleSidebar()"
-              [attr.aria-label]="layoutStore.sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
+              [attr.aria-label]="layoutStore.sidebarCollapsed() ? ('nav.expand_sidebar' | translate) : ('nav.collapse_sidebar' | translate)">
         <ion-icon [name]="layoutStore.sidebarCollapsed() ? 'chevron-forward' : 'chevron-back'" aria-hidden="true"></ion-icon>
       </button>
     </div>
