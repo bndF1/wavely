@@ -35,13 +35,13 @@
         step="0.1"
         [value]="progressValue * 100"
         (change)="onSeek($event)"
-        aria-label="Seek"
+        [attr.aria-label]="'player.seek' | translate"
       />
       <span class="desktop-player__time desktop-player__time--remaining">{{ remainingTimeFormatted }}</span>
     </div>
   }
   @if (store.currentEpisode()?.isLive) {
-    <div class="desktop-player__live-badge">● LIVE</div>
+    <div class="desktop-player__live-badge">● {{ 'player.live' | translate }}</div>
   }
 
   <!-- Controls -->
@@ -101,7 +101,7 @@
       step="0.01"
       [value]="store.isMuted() ? 0 : store.volume()"
       (input)="onVolumeChange($event)"
-      aria-label="Volume"
+      [attr.aria-label]="'player.volume' | translate"
     />
   </div>
 
@@ -109,8 +109,8 @@
   @if (store.queue().length > 0) {
     <div class="desktop-player__queue">
       <div class="desktop-player__queue-header">
-        <span>Up Next ({{ store.queue().length }})</span>
-        <button class="desktop-player__queue-clear" (click)="store.clearQueue()">Clear</button>
+        <span>{{ 'player.up_next' | translate }} ({{ store.queue().length }})</span>
+        <button class="desktop-player__queue-clear" (click)="store.clearQueue()">{{ 'player.clear_queue' | translate }}</button>
       </div>
       <ul class="desktop-player__queue-list">
         @for (episode of store.queue(); track episode.id) {
@@ -124,7 +124,7 @@
             <div class="desktop-player__queue-info">
               <span class="desktop-player__queue-title">{{ episode.title }}</span>
             </div>
-            <button (click)="store.removeFromQueue(episode.id)" aria-label="Remove from queue">
+            <button (click)="store.removeFromQueue(episode.id)" [attr.aria-label]="'player.remove_from_queue' | translate">
               <ion-icon name="close-outline"></ion-icon>
             </button>
           </li>

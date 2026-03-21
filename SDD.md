@@ -871,7 +871,7 @@ bun run cap:build   # nx build + copy index + cap copy + cap sync
 
 ---
 
-## 20. Shipped — Desktop Experience (v1.9.0) ✅
+## 21. Shipped — Desktop Experience (v1.9.0) ✅
 
 **Epic:** [#338](https://github.com/bndF1/wavely/issues/338) | **Milestone:** [v1.9.0](https://github.com/bndF1/wavely/milestone/10)
 
@@ -886,12 +886,12 @@ A first-class desktop app, not a stretched mobile layout. The three-panel CSS Gr
 ```
 ┌──────────────┬──────────────────────────────┬────────────────┐
 │  Sidebar     │  Content (router-outlet)      │  Player Rail   │
-│  240px       │  1fr (scrollable)             │  320px         │
+│  220px       │  1fr (scrollable)             │  320px         │
 │  collapsible │                               │  persistent    │
 └──────────────┴──────────────────────────────┴────────────────┘
 ```
 
-- Sidebar collapses to 64px (icon-only) — state persisted in `LayoutStore`
+- Sidebar collapses to 72px (icon-only) — state persisted in `LayoutStore`
 - `ion-tab-bar` hidden on desktop; nav links rendered in sidebar
 - `ion-router-outlet` becomes the centre column
 
@@ -904,7 +904,7 @@ A first-class desktop app, not a stretched mobile layout. The three-panel CSS Gr
 | Layout | `--sidebar-width`, `--player-rail-width`, `--sidebar-collapsed-width` |
 | Elevation | `--wavely-elevation-0` … `--wavely-elevation-3` (box-shadow values) |
 | Radius | `--wavely-radius-sm`, `--wavely-radius-md`, `--wavely-radius-lg`, `--wavely-radius-xl` |
-| Spacing | `--wavely-spacing-xs`, `--wavely-spacing-sm`, `--wavely-spacing-md`, `--wavely-spacing-lg`, `--wavely-spacing-xl`, `--wavely-spacing-2xl` (4/8/12/16/24/32/48px) |
+| Spacing | `--wavely-spacing-xs`, `--wavely-spacing-sm`, `--wavely-spacing-md`, `--wavely-spacing-lg`, `--wavely-spacing-xl`, `--wavely-spacing-2xl` (4/8/16/24/32/48px) |
 
 ### DesktopPlayerComponent (#341)
 

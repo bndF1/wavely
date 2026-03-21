@@ -269,11 +269,12 @@ ion-tabs.has-mini-player ion-content {
   border-radius: var(--wavely-radius-sm);
 }
 
-// Remove focus ring for elements that manage their own focus styles
+// Custom accessible focus style for ion-button (Ionic's shadow DOM suppresses the global outline)
 ion-button:focus-visible,
 .desktop-sidebar__link:focus-visible,
 .desktop-sidebar__collapse-btn:focus-visible {
-  outline: none;
+  box-shadow: 0 0 0 2px var(--wavely-primary);
+  border-radius: var(--wavely-radius-sm);
 }
 
 // Pointer cursor for all Ionic buttons on desktop
