@@ -266,4 +266,74 @@ describe('PlayerStore', () => {
       expect(store.duration()).toBe(0);
     });
   });
+
+  describe('setVolume()', () => {
+    it('sets volume and clears isMuted', () => {
+      store.toggleMute();
+      store.setVolume(0.6);
+      expect(store.volume()).toBe(0.6);
+      expect(store.isMuted()).toBe(false);
+    });
+
+    it('clamps volume below 0 to 0', () => {
+      store.setVolume(-0.5);
+      expect(store.volume()).toBe(0);
+    });
+
+    it('clamps volume above 1 to 1', () => {
+      store.setVolume(1.5);
+      expect(store.volume()).toBe(1);
+    });
+
+    it('ignores NaN — does not corrupt volume state', () => {
+      store.setVolume(0.5);
+      store.setVolume(NaN);
+      expect(store.volume()).toBe(0.5); // unchanged
+    });
+
+    it('Infinity clamps to 1 (max volume)', () => {
+      store.setVolume(0.4);
+      store.setVolume(Infinity);
+      expect(store.volume()).toBe(1); // clamped by Math.min(1, Infinity) = 1
+    });
+
+    it('accepts exactly 1', () => {
+      store.setVolume(1);
+      expect(store.volume()).toBe(1);
+    });
+  });
+
+  describe('toggleMute()', () => {
+    it('flips isMuted from false to true', () => {
+      expect(store.isMuted()).toBe(false);
+      store.toggleMute();
+      expect(store.isMuted()).toBe(true);
+    });
+
+    it('flips isMuted back to false', () => {
+      store.toggleMute();
+      store.toggleMute();
+      expect(store.isMuted()).toBe(false);
+    });
+  });
+
+  describe('effectiveVolume()', () => {
+    it('returns volume when not muted', () => {
+      store.setVolume(0.7);
+      expect(store.effectiveVolume()).toBe(0.7);
+    });
+
+    it('returns 0 when muted regardless of volume', () => {
+      store.setVolume(0.8);
+      store.toggleMute();
+      expect(store.effectiveVolume()).toBe(0);
+    });
+
+    it('returns volume again after unmute', () => {
+      store.setVolume(0.8);
+      store.toggleMute();
+      store.toggleMute();
+      expect(store.effectiveVolume()).toBe(0.8);
+    });
+  });
 });

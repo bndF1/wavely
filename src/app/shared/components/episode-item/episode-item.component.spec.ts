@@ -73,4 +73,59 @@ describe('EpisodeItemComponent', () => {
     component['onImageError']({ target: image } as never);
     expect(image.src).toContain('/default-artwork.svg');
   });
+
+  describe('emitQueue', () => {
+    let mockEvent: Event;
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      mockEvent = { stopPropagation: jest.fn() } as unknown as Event;
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('emits addToQueue with the current episode', () => {
+      const ep = mockEpisode({ id: 'ep-2', podcastId: 'pod-1' });
+      fixture.componentRef.setInput('episode', ep);
+      fixture.detectChanges();
+
+      const queued: typeof ep[] = [];
+      component.addToQueue.subscribe((e) => queued.push(e));
+
+      component['emitQueue'](mockEvent);
+
+      expect(queued).toHaveLength(1);
+      expect(queued[0].id).toBe('ep-2');
+    });
+
+    it('calls stopPropagation on the event', () => {
+      component['emitQueue'](mockEvent);
+      expect(mockEvent.stopPropagation).toHaveBeenCalled();
+    });
+
+    it('sets justAdded to true immediately', () => {
+      component['emitQueue'](mockEvent);
+      expect(component.justAdded()).toBe(true);
+    });
+
+    it('resets justAdded to false after 2000ms', () => {
+      component['emitQueue'](mockEvent);
+      expect(component.justAdded()).toBe(true);
+
+      jest.advanceTimersByTime(2000);
+
+      expect(component.justAdded()).toBe(false);
+    });
+
+    it('does not reset justAdded before 2000ms', () => {
+      component['emitQueue'](mockEvent);
+      jest.advanceTimersByTime(1999);
+      expect(component.justAdded()).toBe(true);
+
+      jest.advanceTimersByTime(1);
+      expect(component.justAdded()).toBe(false);
+    });
+  });
 });

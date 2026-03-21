@@ -96,3 +96,16 @@
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+// Desktop hover elevation
+@media (min-width: 1024px) {
+  :host {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    border-radius: var(--wavely-radius-lg);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--wavely-elevation-2);
+    }
+  }
+}

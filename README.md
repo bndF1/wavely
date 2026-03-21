@@ -45,6 +45,7 @@ Every PR also gets an ephemeral preview channel: `https://wavely-f659c--pr-<numb
 | 🏠 **Episode Feed** | ✅ | Latest episodes from subscriptions on Home tab, date-sorted with load more |
 | 🌍 **Country-aware Content** | ✅ | iTunes market selection, localized trending podcasts per country |
 | 👤 **Publisher Profiles** | ✅ | Browse all shows from a podcast's author/publisher |
+| 🖥 **Desktop Experience** | ✅ | Three-panel shell, persistent player rail, collapsible sidebar, keyboard shortcuts |
 
 ---
 
@@ -313,13 +314,22 @@ gh pr create --base dev
 - [x] Language loading at startup (not lazy from Settings)
 - [x] i18n patches for E2E stability
 
-### v1.8.3 — Desktop UX & Feed Reliability 🚧 Staging
+### v1.8.3 — Desktop UX & Feed Reliability ✅ Shipped
 - [x] Desktop: full-player modal suppressed on desktop — mini-player only
 - [x] Desktop: skip ±30 s / ±15 s buttons in mini-player on desktop
 - [x] Desktop: settings link restored in sidebar; contrast tokens and layout gaps fixed
 - [x] i18n: stub translation files added for French (fr), German (de), Portuguese (pt)
-- [x] Home feed: cache now invalidates when subscriptions change (history clearing no longer affects the Latest Episodes feed)
-- [x] Home feed: concurrent load race condition fixed (pending-refresh flag)
+- [x] Home feed: cache now invalidates when subscriptions change
+- [x] Home feed: concurrent load race condition fixed
+
+### v1.9.0 — Desktop Experience ✅ Shipped
+- [x] Three-panel CSS Grid shell (sidebar · content · player rail)
+- [x] Collapsible sidebar with `LayoutStore` (NgRx SignalStore)
+- [x] Persistent `DesktopPlayerComponent` right-rail panel with volume/mute
+- [x] CSS design-token system (elevation, radius, spacing, layout variables)
+- [x] Desktop layouts: Home, Discover, Library, Podcast Detail (two-column), Player
+- [x] Keyboard shortcuts: Space (play/pause), `j`/`k` (±15s / +30s), `[` (toggle sidebar collapse)
+- [x] Hover elevation, focus rings, slide-in animation polish
 
 ### v2.0 — Native Platform
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))

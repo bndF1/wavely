@@ -4,7 +4,9 @@
     "discover": "Descubrir",
     "radio": "Radio",
     "library": "Biblioteca",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "collapse_sidebar": "Contraer barra lateral",
+    "expand_sidebar": "Expandir barra lateral"
   },
   "home": {
     "title": "Wavely",
@@ -106,7 +108,9 @@
     "open_full": "Abrir reproductor completo",
     "queue": "Cola",
     "playback_rate": "Velocidad de reproducción",
-    "play_stream": "Reproducir stream"
+    "play_stream": "Reproducir stream",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido"
   },
   "podcast_detail": {
     "episodes": "Episodios",

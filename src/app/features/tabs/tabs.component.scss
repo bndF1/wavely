@@ -18,33 +18,47 @@ ion-tab-button {
   display: none;
 }
 
+// Desktop player rail is only shown at ≥1024px (grid column 3)
+.desktop-player-rail {
+  display: none;
+}
+
 @media (min-width: 1024px) {
   :host {
-    display: flex;
-    flex-direction: column;
+    display: block;
     height: 100%;
   }
 
   .tabs-layout {
-    display: flex;
-    flex: 1;
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr 0px;
+    grid-template-rows: 1fr;
     height: 100%;
+    transition: grid-template-columns 200ms ease;
+
+    &.sidebar-collapsed {
+      grid-template-columns: var(--sidebar-collapsed-width) 1fr 0px;
+    }
+
+    &:has(.desktop-player-rail) {
+      grid-template-columns: var(--sidebar-width) 1fr var(--player-rail-width);
+    }
+
+    &.sidebar-collapsed:has(.desktop-player-rail) {
+      grid-template-columns: var(--sidebar-collapsed-width) 1fr var(--player-rail-width);
+    }
   }
 
   .desktop-sidebar {
     display: flex;
     flex-direction: column;
-    width: 220px;
-    min-width: 220px;
+    grid-column: 1;
     height: 100%;
     background: var(--wavely-surface);
     border-right: 1px solid var(--wavely-divider);
     padding: 16px 0;
     z-index: 100;
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    overflow: hidden;
   }
 
   .desktop-sidebar__logo {
@@ -55,6 +69,17 @@ ion-tab-button {
     font-weight: 700;
     font-size: 1.1rem;
     color: var(--wavely-on-surface);
+  }
+
+  .desktop-sidebar__logo-text {
+    transition: opacity 150ms ease, width 150ms ease;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .sidebar-collapsed .desktop-sidebar__logo-text {
+    opacity: 0;
+    width: 0;
   }
 
   .desktop-sidebar__links {
@@ -68,6 +93,9 @@ ion-tab-button {
   .desktop-sidebar__footer {
     padding: 8px 8px 4px;
     border-top: 1px solid var(--wavely-divider);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .desktop-sidebar__link {
@@ -75,7 +103,7 @@ ion-tab-button {
     align-items: center;
     gap: 12px;
     padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: var(--wavely-radius-md);
     color: var(--wavely-on-surface-muted);
     text-decoration: none;
     font-size: 0.9rem;
@@ -98,14 +126,91 @@ ion-tab-button {
     }
   }
 
+  .desktop-sidebar__label {
+    transition: opacity 150ms ease, width 150ms ease;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .sidebar-collapsed .desktop-sidebar__label {
+    opacity: 0;
+    width: 0;
+    margin: 0;
+  }
+
+  .desktop-sidebar__collapse-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--wavely-radius-md);
+    border: none;
+    background: transparent;
+    color: var(--wavely-on-surface-muted);
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover {
+      background: var(--wavely-surface-variant);
+      color: var(--wavely-on-surface);
+    }
+
+    ion-icon {
+      font-size: 20px;
+    }
+  }
+
+  ion-tabs {
+    grid-column: 2;
+    overflow: hidden;
+  }
+
+  .desktop-player-rail {
+    grid-column: 3;
+    height: 100%;
+    background: var(--wavely-surface);
+    border-left: 1px solid var(--wavely-divider);
+    overflow-y: auto;
+  }
+
   // Hide the Ionic bottom tab bar on desktop
   .desktop-hidden-tabs {
     display: none !important;
   }
 
-  // Push main content to the right of the sidebar
-  ion-tabs {
-    flex: 1;
-    margin-left: 220px;
+  // Hide mini-player on desktop — it's replaced by the right-rail DesktopPlayerComponent
+  wavely-mini-player {
+    display: none !important;
+  }
+
+  // Player rail slide-in animation
+  .desktop-player-rail {
+    animation: slideInFromRight 300ms ease forwards;
+  }
+
+  @keyframes slideInFromRight {
+    from {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  // Focus visible ring for sidebar links and collapse button
+  .desktop-sidebar__link:focus-visible,
+  .desktop-sidebar__collapse-btn:focus-visible {
+    outline: 2px solid var(--wavely-primary);
+    outline-offset: 2px;
+  }
+}
+
+// Disable slide-in animation when reduced motion is preferred
+@media (prefers-reduced-motion: reduce) {
+  .desktop-player-rail {
+    animation: none;
   }
 }

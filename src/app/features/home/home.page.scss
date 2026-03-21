@@ -185,28 +185,98 @@
 }
 
 
+.desktop-page-title {
+  display: none;
+
+  @media (min-width: 1024px) {
+    display: block;
+    padding: var(--wavely-spacing-xl) var(--wavely-spacing-xl) 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--wavely-on-surface);
+    letter-spacing: -0.5px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
 @media (min-width: 1024px) {
+  // Hide Ionic header on desktop (shell sidebar handles navigation context)
+  ion-header {
+    display: none;
+  }
+
+  // Content area padding and max-width
+  ion-content {
+    --padding-start: var(--wavely-spacing-xl);
+    --padding-end: var(--wavely-spacing-xl);
+    --padding-top: var(--wavely-spacing-xl);
+  }
+
+  .home-section {
+    padding: 0 0 var(--wavely-spacing-xl);
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .section-title {
+    font-size: 22px;
+    margin-bottom: var(--wavely-spacing-lg);
+  }
+
+  // My Podcasts: grid instead of horizontal scroll
   .subscriptions-scroll {
     overflow-x: visible;
     margin: 0;
     padding: 0;
   }
 
-  .subscriptions-row,
-  .stations-row {
-    flex-wrap: wrap;
-    gap: 16px;
+  .subscriptions-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--wavely-spacing-md);
+    flex-wrap: unset;
   }
 
   .subscription-card {
-    flex: 0 0 auto;
-    width: 120px;
+    flex: unset;
+    width: auto;
   }
 
-  .feed-list,
-  .load-more-btn {
-    max-width: 1200px;
+  // Radio stations: grid
+  .stations-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: var(--wavely-spacing-md);
+    flex-wrap: unset;
+  }
+
+  // Latest Episodes: two-column grid
+  .feed-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--wavely-spacing-sm);
+    max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  // Trending: 4+ columns
+  .podcast-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--wavely-spacing-lg);
+  }
+
+  // Load more button aligned with grid
+  .load-more-btn {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  // Skeleton cards match grid
+  .skeleton-card {
+    border-radius: var(--wavely-radius-lg);
   }
 }

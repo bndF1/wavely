@@ -95,7 +95,6 @@ test.describe.serial('Subscriptions', () => {
     // lose the subscription before the Firestore write completes.
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
-    await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
     // Use \b only at start: the item's text content is "TitleAuthor✕Unsubscribe" (concatenated),
     // so there is no word boundary after "Podcast" (next char is "S" of author text).
     // \b at start is enough to exclude "UnsubscribeTitle" from matching "SubscribeTitle".
@@ -123,7 +122,6 @@ test.describe.serial('Subscriptions', () => {
 
     void page.evaluate((u: string) => (window as any)['__e2eNavigate'](u), '/tabs/library').catch(() => {});
     await page.waitForURL('/tabs/library');
-    await expect(page.locator('ion-title').filter({ hasText: 'Library' })).toBeVisible();
     const titleRegex = new RegExp(`\\b${podcast.title}`);
     await expect(page.locator('ion-item-sliding').filter({ hasText: titleRegex })).toBeVisible({ timeout: 15000 });
 
