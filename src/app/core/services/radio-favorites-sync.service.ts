@@ -45,7 +45,9 @@ export class RadioFavoritesSyncService {
       const localOnly = this.prefs.favoriteStations().filter((s) => !remoteIds.has(s.stationuuid));
       this.prefs.setFavoriteStations([...remote, ...localOnly]);
 
-      // Write local-only favorites back to Firestore so they sync to other devices
+      // Write local-only favorites back to Firestore so they sync to other devices.
+      // Re-check auth before writing — user may have signed out during getDocs().
+      if (!isStillCurrentUser()) return;
       for (const station of localOnly) {
         const docRef = doc(this.firestore, 'users', uid, 'favoriteStations', station.stationuuid);
         const data: Record<string, unknown> = {};
