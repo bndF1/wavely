@@ -8,6 +8,12 @@
 </ion-header>
 
 <ion-content>
+  <!-- Desktop back button — visible only at ≥1280px where ion-header is hidden -->
+  <button class="desktop-back-btn" (click)="goBack()" [attr.aria-label]="'common.back' | translate">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+    {{ 'common.back' | translate }}
+  </button>
+
   <!-- Loading skeleton -->
   @if (isLoading) {
     <div class="podcast-header skeleton-header">

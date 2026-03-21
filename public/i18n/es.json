@@ -147,7 +147,8 @@
     "retry": "Reintentar",
     "cancel": "Cancelar",
     "close": "Cerrar",
-    "search": "Buscar"
+    "search": "Buscar",
+    "back": "Volver"
   },
   "languages": {
     "en": "English",
