@@ -5,6 +5,10 @@
 
 ---
 
+> 📐 **Next milestone: v2.0.0 — Stitch Design System** — see [§ 22](#22-planned--stitch-design-system-v200)
+
+---
+
 ## Table of Contents
 
 1. [Executive Summary](#1-executive-summary)
@@ -28,6 +32,7 @@
 19. [Shipped — Discovery & Library](#19-shipped--discovery--library-v120-)
 20. [Shipped — Desktop Experience (v1.9.0)](#20-shipped--desktop-experience-v190-)
 21. [Known Limitations & Tech Debt](#21-known-limitations--tech-debt)
+22. [Planned — Stitch Design System (v2.0.0)](#22-planned--stitch-design-system-v200)
 
 ---
 
@@ -974,3 +979,148 @@ Guards: skips when focus is in `<input>`, `<textarea>`, `<select>`, or `[content
 | No push notifications | Planned | v1.2.0 milestone |
 | No sleep timer | Planned | v2.0.0 milestone |
 | Progress restoration race condition | Low | `AudioService.pendingRestorePosition` handles it; a signal-based approach would be cleaner |
+
+
+---
+
+## 22. Planned — Stitch Design System (v2.0.0)
+
+**Epic:** TBD GitHub issue | **Milestone:** v2.0.0  
+**Branch strategy:** Single feature branch `feature/stitch-design-v2`
+
+---
+
+### Overview
+
+v2.0.0 replaces the current Ionic Material aesthetic with the **"Digital Curator"** editorial design system extracted from Google Stitch. The Stitch project (`projects/4279508321744129049`) contains 20 pre-designed screens (6 pages x light+dark x desktop+mobile) with prebuilt HTML/CSS.
+
+**Design philosophy:**
+- **No-line rule** — tonal background shifts replace borders and dividers between layout regions
+- **Glassmorphism player rail** — `surface_variant` at 80% opacity + `backdrop-filter: blur(12px)`
+- **Editorial typography** — Plus Jakarta Sans for headings/brand, Inter for body/UI
+- **Layered surface model** — five surface levels instead of a single `--wavely-surface`
+- **Tinted shadows** — box-shadows tinted with `on_surface` colour, not raw black
+
+---
+
+### Stitch Screen Inventory
+
+| Screen | Light desktop | Dark desktop | Light mobile | Dark mobile |
+|--------|--------------|--------------|--------------|-------------|
+| Home | yes | yes | yes | yes |
+| Discover | yes | yes | yes | yes |
+| Library | yes | yes | yes | yes |
+| Podcast Detail | yes | yes | yes | yes |
+| Full-screen Player | yes | yes | yes | yes |
+| Login | yes | yes | yes | yes |
+
+Each screen has:
+- `htmlCode.downloadUrl` — prebuilt semantic HTML + inline CSS (implementation source)
+- `screenshot.downloadUrl` — reference PNG for visual QA
+
+---
+
+### Design Token Mapping
+
+New `--wavely-*` values for v2.0.0:
+
+#### Colours (light mode)
+
+| Token | Old value | New value | Stitch name |
+|-------|-----------|-----------|-------------|
+| `--wavely-primary` | `#1A73E8` | `#005BBF` | `primary` |
+| `--wavely-primary-container` | — | `#1A73E8` | `primary_container` |
+| `--wavely-on-primary-container` | — | `#FFFFFF` | `on_primary_container` |
+| `--wavely-accent` | `#EA4335` | `#D9372B` | `secondary` |
+| `--wavely-background` | `#F8F9FA` | `#F8FAFB` | `background` |
+| `--wavely-surface` | `#FFFFFF` | `#FFFFFF` | `surface` |
+| `--wavely-surface-container-low` | — | `#F2F4F5` | `surface_container_low` (sidebar) |
+| `--wavely-surface-container` | — | `#ECEEEF` | `surface_container` |
+| `--wavely-surface-container-high` | — | `#E6E8E9` | `surface_container_high` (player rail) |
+| `--wavely-surface-variant` | `#F1F3F4` | `rgba(230,232,233,0.8)` | glassmorphism tint |
+| `--wavely-divider` | `#E0E0E0` | removed (no-line rule) | — |
+| `--wavely-on-surface` | `#202124` | `#191C1E` | `on_surface` |
+| `--wavely-on-surface-muted` | `#5F6368` | `#404942` | `on_surface_variant` |
+| `--wavely-on-surface-variant` | `#80868B` | `#6F7979` | `outline` |
+
+#### New elevation tokens (tinted shadows)
+
+| Token | Value |
+|-------|-------|
+| `--wavely-elevation-1` | `0 1px 3px rgba(25,28,30,0.10), 0 1px 2px rgba(25,28,30,0.06)` |
+| `--wavely-elevation-2` | `0 4px 12px rgba(25,28,30,0.12), 0 2px 4px rgba(25,28,30,0.08)` |
+| `--wavely-elevation-3` | `0 8px 24px rgba(25,28,30,0.16), 0 4px 8px rgba(25,28,30,0.10)` |
+
+#### Typography
+
+New CSS vars: `--wavely-font-display` (Plus Jakarta Sans) and `--wavely-font-body` (Inter).
+Google Fonts link added to `src/index.html` (preconnect + stylesheet, display=swap).
+Headings (h1-h3, podcast titles) use display font; all other UI uses body font.
+
+---
+
+### Implementation Strategy
+
+**Approach: Token-first, then screen-by-screen — single branch `feature/stitch-design-v2`**
+
+A single feature branch is used for the entire migration. Screens are ported in sequence to avoid merge conflicts from the global token change.
+
+**Workflow per screen:**
+1. Fetch Stitch `htmlCode.downloadUrl` for the target screen (light desktop variant)
+2. Extract CSS custom properties, layout structure, component patterns
+3. Port HTML structure to existing Angular template (keep Ionic components)
+4. Replace Stitch static content with Angular bindings and @if/@for blocks
+5. Update component SCSS to use new `--wavely-*` tokens
+6. Test dark mode: pull dark Stitch variant, verify dark-mode token overrides
+7. Test at 390px / 768px / 1024px / 1280px
+
+**Ionic shadow DOM note:** Use `::part()` selectors and Ionic CSS custom properties (`--background`, `--color`) for styling inside shadow roots.
+
+**No-line rule:** Remove all `border-*` declarations from layout boundaries; replace with background-colour tier transitions only.
+
+---
+
+### Phase 1 — Foundation (blocks all screens)
+
+| Issue | Title | Files |
+|-------|-------|-------|
+| P1-1 | Fonts: Plus Jakarta Sans + Inter | `src/index.html`, `src/styles.scss` |
+| P1-2 | Design tokens v3 — Stitch colour + elevation system | `src/styles.scss` |
+| P1-3 | Shell — no-line layout (sidebar, player rail, tab bar) | `tabs.component.scss`, `desktop-player.component.scss` |
+
+---
+
+### Phase 2 — Screen Ports
+
+| Issue | Screen | Key changes |
+|-------|--------|-------------|
+| P2-1 | Login | Editorial hero gradient, Plus Jakarta Sans wordmark, single CTA card |
+| P2-2 | Home | Section headings font, card radius/elevation, no-line section separators |
+| P2-3 | Discover | Pill chips, borderless search bar, primary-container chip selection |
+| P2-4 | Library | No-border cards, stats bar surface-container, timeline left-accent |
+| P2-5 | Podcast Detail | Header gradient, no-border episode rows, subscribe button tonal |
+| P2-6 | Player | Glassmorphism full-screen bg, progress bar thumb, mini-player bg, rail blur |
+
+---
+
+### Phase 3 — Polish
+
+| Issue | Title |
+|-------|-------|
+| P3-1 | Dark mode audit — all 6 screens |
+| P3-2 | Accessibility audit — WCAG AA contrast + focus rings |
+| P3-3 | SDD v2.0.0 update |
+
+---
+
+### Key Dark Mode Tokens
+
+| Token | Dark value |
+|-------|-----------|
+| `--wavely-primary` | `#8DB5FF` |
+| `--wavely-background` | `#0F1416` |
+| `--wavely-surface` | `#191C1E` |
+| `--wavely-surface-container-low` | `#1D2022` |
+| `--wavely-surface-container` | `#212426` |
+| `--wavely-surface-container-high` | `#252B2D` |
+| `--wavely-on-surface` | `#E1E3E5` |
