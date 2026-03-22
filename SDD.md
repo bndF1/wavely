@@ -1,6 +1,6 @@
 # Wavely — Software Design Document
 
-> **Version:** 1.9.0 | **Last updated:** March 2026  
+> **Version:** 1.9.1 | **Last updated:** March 2026  
 > **Status:** Living document — update with every milestone
 
 ---
@@ -42,7 +42,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| Current version | `v1.9.0` |
+| Current version | `v1.9.1` |
 | Production URL | https://wavely-f659c.web.app |
 | Landing page | https://bndF1.github.io/wavely |
 | Repository | https://github.com/bndF1/wavely |
@@ -861,7 +861,7 @@ bun run cap:build   # nx build + copy index + cap copy + cap sync
 
 ---
 
-## 20. Next Milestone — Native Platform (v1.3.0)
+## 20. Deferred — Native Platform (v2.1)
 
 **GitHub issues:** [#41](https://github.com/bndF1/wavely/issues/41), [#42](https://github.com/bndF1/wavely/issues/42), [#43](https://github.com/bndF1/wavely/issues/43), [#44](https://github.com/bndF1/wavely/issues/44)
 
@@ -872,7 +872,7 @@ bun run cap:build   # nx build + copy index + cap copy + cap sync
 | #43 | App Store + Play Store submission |
 | #44 | Native share sheet |
 
-> **Note:** This milestone is deferred. v1.9.0 (Desktop Experience) shipped before this milestone was started.
+> **Note:** Deferred to v2.1. v1.9.0 Desktop Experience shipped first; v2.0.0 Stitch Design System is next.
 
 ---
 
@@ -976,7 +976,7 @@ Guards: skips when focus is in `<input>`, `<textarea>`, `<select>`, or `[content
 | SSR Express serves all routes | Low | `server.ts` uses wildcard express route; needs review for performance |
 | Capacitor sync not automated in CI | Medium | Capacitor sync must be run manually before native builds |
 | No offline episode downloads | Planned | v2.0.0 milestone |
-| No push notifications | Planned | v1.2.0 milestone |
+| No push notifications | Planned | v2.1 milestone |
 | No sleep timer | Planned | v2.0.0 milestone |
 | Progress restoration race condition | Low | `AudioService.pendingRestorePosition` handles it; a signal-based approach would be cleaner |
 

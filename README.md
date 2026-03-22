@@ -335,7 +335,8 @@ gh pr create --base dev
 - [ ] Fix three-panel layout overflow at 1024–1279 px (player rail deferred to ≥1280 px) ([#365](https://github.com/bndF1/wavely/issues/365))
 
 ### v2.0.0 — Stitch Design System ([milestone](https://github.com/bndF1/wavely/milestone/11))
-> Full visual redesign implementing the **Digital Curator** design system from Google Stitch. 20 reference screens (6 pages × light/dark × desktop/mobile).
+> Full visual redesign implementing the **Digital Curator** design system from Google Stitch. 20 reference screens (6 pages × light/dark × desktop/mobile).  
+> Epic: [#366](https://github.com/bndF1/wavely/issues/366)
 
 - [ ] **P1-1** Web fonts — Plus Jakarta Sans (headings) + Inter (body) ([#367](https://github.com/bndF1/wavely/issues/367))
 - [ ] **P1-2** Design tokens v3 — Stitch colour + elevation system ([#368](https://github.com/bndF1/wavely/issues/368))
@@ -348,6 +349,7 @@ gh pr create --base dev
 - [ ] **P2-6** Player — glassmorphism full-screen + mini-player + desktop rail ([#375](https://github.com/bndF1/wavely/issues/375))
 - [ ] **P3-1** Dark mode audit ([#376](https://github.com/bndF1/wavely/issues/376))
 - [ ] **P3-2** Accessibility audit — WCAG AA + focus rings ([#377](https://github.com/bndF1/wavely/issues/377))
+- [ ] **P3-3** SDD v2.0.0 update ([#378](https://github.com/bndF1/wavely/issues/378))
 
 ### v2.1 — Native Platform (deferred)
 > Deferred until after Stitch Design System ships.
