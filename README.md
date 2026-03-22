@@ -10,7 +10,7 @@
 [![Status](https://img.shields.io/badge/status-beta-blue)](https://wavely-f659c.web.app)
 [![Release](https://img.shields.io/github/v/release/bndF1/wavely)](https://github.com/bndF1/wavely/releases)
 
-> 🚀 **Public Beta** — Core features are stable. Active development continues — see [milestones](https://github.com/bndF1/wavely/milestones) for what's coming.
+> 🚀 **Early Access v1.9.1** — Desktop experience live. Next up: [Stitch Design System v2.0.0](https://github.com/bndF1/wavely/milestone/11). Active development — see [milestones](https://github.com/bndF1/wavely/milestones) for what's coming.
 
 ## 🌐 Live Environments
 
@@ -331,7 +331,27 @@ gh pr create --base dev
 - [x] Keyboard shortcuts: Space (play/pause), `j`/`k` (±15s / +30s), `[` (toggle sidebar collapse)
 - [x] Hover elevation, focus rings, slide-in animation polish
 
-### v2.0 — Native Platform
+### v1.9.1 — Desktop Layout Hotfix 🚧 In Progress
+- [ ] Fix three-panel layout overflow at 1024–1279 px (player rail deferred to ≥1280 px) ([#365](https://github.com/bndF1/wavely/issues/365))
+
+### v2.0.0 — Stitch Design System ([milestone](https://github.com/bndF1/wavely/milestone/11))
+> Full visual redesign implementing the **Digital Curator** design system from Google Stitch. 20 reference screens (6 pages × light/dark × desktop/mobile).
+
+- [ ] **P1-1** Web fonts — Plus Jakarta Sans (headings) + Inter (body) ([#367](https://github.com/bndF1/wavely/issues/367))
+- [ ] **P1-2** Design tokens v3 — Stitch colour + elevation system ([#368](https://github.com/bndF1/wavely/issues/368))
+- [ ] **P1-3** Shell — no-line layout (tonal backgrounds replace all borders) ([#369](https://github.com/bndF1/wavely/issues/369))
+- [ ] **P2-1** Login — editorial hero gradient, Plus Jakarta Sans wordmark ([#370](https://github.com/bndF1/wavely/issues/370))
+- [ ] **P2-2** Home — editorial cards, no-line section separators ([#371](https://github.com/bndF1/wavely/issues/371))
+- [ ] **P2-3** Discover — pill chips, borderless search bar ([#372](https://github.com/bndF1/wavely/issues/372))
+- [ ] **P2-4** Library — tonal cards, timeline left-accent ([#373](https://github.com/bndF1/wavely/issues/373))
+- [ ] **P2-5** Podcast Detail — gradient header, tonal episode rows ([#374](https://github.com/bndF1/wavely/issues/374))
+- [ ] **P2-6** Player — glassmorphism full-screen + mini-player + desktop rail ([#375](https://github.com/bndF1/wavely/issues/375))
+- [ ] **P3-1** Dark mode audit ([#376](https://github.com/bndF1/wavely/issues/376))
+- [ ] **P3-2** Accessibility audit — WCAG AA + focus rings ([#377](https://github.com/bndF1/wavely/issues/377))
+
+### v2.1 — Native Platform (deferred)
+> Deferred until after Stitch Design System ships.
+
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
 - [ ] Deep links / Universal Links ([#42](https://github.com/bndF1/wavely/issues/42))
 - [ ] App Store + Play Store submission ([#43](https://github.com/bndF1/wavely/issues/43))
