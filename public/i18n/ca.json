@@ -147,7 +147,8 @@
     "retry": "Torna-ho a intentar",
     "cancel": "Cancel·la",
     "close": "Tanca",
-    "search": "Cerca"
+    "search": "Cerca",
+    "back": "Enrere"
   },
   "episode": {
     "play": "Reprodueix",

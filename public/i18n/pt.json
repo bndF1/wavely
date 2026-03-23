@@ -147,7 +147,8 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "close": "Close",
-    "search": "Search"
+    "search": "Search",
+    "back": "Voltar"
   },
   "episode": {
     "play": "Play",
