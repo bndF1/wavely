@@ -4,7 +4,9 @@
     "discover": "Descubrir",
     "radio": "Radio",
     "library": "Biblioteca",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "collapse_sidebar": "Contraer barra lateral",
+    "expand_sidebar": "Expandir barra lateral"
   },
   "home": {
     "title": "Wavely",
@@ -79,7 +81,8 @@
     "error_title": "Búsqueda fallida",
     "error_subtitle": "Comprueba tu conexión e inténtalo de nuevo.",
     "searching_for": "Resultados de",
-    "search_placeholder_hint": "Busca un tema, programa o persona"
+    "search_placeholder_hint": "Busca un tema, programa o persona",
+    "country_toggle_aria": "Descubriendo contenido de {{ countryName }}, toca para cambiar"
   },
   "radio": {
     "title": "Radio",
@@ -106,7 +109,13 @@
     "open_full": "Abrir reproductor completo",
     "queue": "Cola",
     "playback_rate": "Velocidad de reproducción",
-    "play_stream": "Reproducir stream"
+    "play_stream": "Reproducir stream",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido",
+    "seek": "Buscar",
+    "volume": "Volumen",
+    "clear_queue": "Vaciar cola",
+    "remove_from_queue": "Eliminar de la cola"
   },
   "podcast_detail": {
     "episodes": "Episodios",
@@ -138,7 +147,8 @@
     "retry": "Reintentar",
     "cancel": "Cancelar",
     "close": "Cerrar",
-    "search": "Buscar"
+    "search": "Buscar",
+    "back": "Volver"
   },
   "languages": {
     "en": "English",

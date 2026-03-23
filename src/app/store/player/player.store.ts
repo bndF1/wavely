@@ -90,7 +90,7 @@ export const PlayerStore = signalStore(
     },
     /** Dismiss player entirely */
     close(): void {
-      patchState(store, { currentEpisode: null, isPlaying: false, currentTime: 0, duration: 0 });
+      patchState(store, { currentEpisode: null, isPlaying: false, currentTime: 0, duration: 0, queue: [] });
     },
     setVolume(volume: number): void {
       const clamped = Math.max(0, Math.min(1, volume));

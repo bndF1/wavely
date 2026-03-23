@@ -201,7 +201,7 @@ ion-chip {
   .discover-section {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 48px;
+    padding: 24px 48px;
   }
 
   .section-title {
@@ -212,6 +212,10 @@ ion-chip {
 
   .category-scroll {
     overflow: visible;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 48px;
+    padding-right: 48px;
   }
 
   .category-row {

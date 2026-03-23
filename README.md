@@ -10,7 +10,7 @@
 [![Status](https://img.shields.io/badge/status-beta-blue)](https://wavely-f659c.web.app)
 [![Release](https://img.shields.io/github/v/release/bndF1/wavely)](https://github.com/bndF1/wavely/releases)
 
-> 🚀 **Public Beta** — Core features are stable. Active development continues — see [milestones](https://github.com/bndF1/wavely/milestones) for what's coming.
+> 🚀 **Early Access v1.9.1** — Desktop experience live. Next up: [Stitch Design System v2.0.0](https://github.com/bndF1/wavely/milestone/11). Active development — see [milestones](https://github.com/bndF1/wavely/milestones) for what's coming.
 
 ## 🌐 Live Environments
 
@@ -45,6 +45,7 @@ Every PR also gets an ephemeral preview channel: `https://wavely-f659c--pr-<numb
 | 🏠 **Episode Feed** | ✅ | Latest episodes from subscriptions on Home tab, date-sorted with load more |
 | 🌍 **Country-aware Content** | ✅ | iTunes market selection, localized trending podcasts per country |
 | 👤 **Publisher Profiles** | ✅ | Browse all shows from a podcast's author/publisher |
+| 🖥 **Desktop Experience** | ✅ | Three-panel shell, persistent player rail, collapsible sidebar, keyboard shortcuts |
 
 ---
 
@@ -284,7 +285,75 @@ gh pr create --base dev
 - [x] Logout now stops the audio player
 - [x] Onboarding UX: Home shows trending when no subscriptions
 
-### v2.0 — Native Platform
+### v1.5.3–v1.5.11 — Bugfix Batch ✅ Shipped
+- [x] Full-player swipe-down modal routing
+- [x] Mini-player overlap and spacing fixes
+- [x] Feed list left-edge alignment
+- [x] Multiple stability and layout patches
+
+### v1.6.0 — Polish & Accessibility ✅ Shipped
+- [x] Design token cleanup: episode items, browse/radio chip selected states, LIVE badge — all theme-aware
+- [x] Mini-player touch targets bumped to 44 px (WCAG 2.5.5)
+- [x] Home feed hides completed episodes from listening history
+
+### v1.7.0 — i18n & Settings ✅ Shipped
+- [x] Internationalisation: English and Spanish with live language switching
+- [x] Dark mode contrast improvements
+- [x] Settings page redesign and cleanup
+
+### v1.8.0 — Episode Feed & Radio Favourites ✅ Shipped
+- [x] Home tab: latest episodes feed from subscriptions (date-sorted, load-more)
+- [x] Radio favourite stations pinned to Home screen
+
+### v1.8.1 — Catalan Language ✅ Shipped
+- [x] Catalan (ca) translation added
+
+### v1.8.2 — Desktop Layout & Radio Sync ✅ Shipped
+- [x] Responsive sidebar nav and layout improvements for desktop (≥1024 px)
+- [x] Radio favourites Firestore sync across devices
+- [x] Language loading at startup (not lazy from Settings)
+- [x] i18n patches for E2E stability
+
+### v1.8.3 — Desktop UX & Feed Reliability ✅ Shipped
+- [x] Desktop: full-player modal suppressed on desktop — mini-player only
+- [x] Desktop: skip ±30 s / ±15 s buttons in mini-player on desktop
+- [x] Desktop: settings link restored in sidebar; contrast tokens and layout gaps fixed
+- [x] i18n: stub translation files added for French (fr), German (de), Portuguese (pt)
+- [x] Home feed: cache now invalidates when subscriptions change
+- [x] Home feed: concurrent load race condition fixed
+
+### v1.9.0 — Desktop Experience ✅ Shipped
+- [x] Three-panel CSS Grid shell (sidebar · content · player rail)
+- [x] Collapsible sidebar with `LayoutStore` (NgRx SignalStore)
+- [x] Persistent `DesktopPlayerComponent` right-rail panel with volume/mute
+- [x] CSS design-token system (elevation, radius, spacing, layout variables)
+- [x] Desktop layouts: Home, Discover, Library, Podcast Detail (two-column), Player
+- [x] Keyboard shortcuts: Space (play/pause), `j`/`k` (±15s / +30s), `[` (toggle sidebar collapse)
+- [x] Hover elevation, focus rings, slide-in animation polish
+
+### v1.9.1 — Desktop Layout Hotfix 🚧 In Progress
+- [ ] Fix three-panel layout overflow at 1024–1279 px (player rail deferred to ≥1280 px) ([#365](https://github.com/bndF1/wavely/issues/365))
+
+### v2.0.0 — Stitch Design System ([milestone](https://github.com/bndF1/wavely/milestone/11))
+> Full visual redesign implementing the **Digital Curator** design system from Google Stitch. 20 reference screens (6 pages × light/dark × desktop/mobile).  
+> Epic: [#366](https://github.com/bndF1/wavely/issues/366)
+
+- [ ] **P1-1** Web fonts — Plus Jakarta Sans (headings) + Inter (body) ([#367](https://github.com/bndF1/wavely/issues/367))
+- [ ] **P1-2** Design tokens v3 — Stitch colour + elevation system ([#368](https://github.com/bndF1/wavely/issues/368))
+- [ ] **P1-3** Shell — no-line layout (tonal backgrounds replace all borders) ([#369](https://github.com/bndF1/wavely/issues/369))
+- [ ] **P2-1** Login — editorial hero gradient, Plus Jakarta Sans wordmark ([#370](https://github.com/bndF1/wavely/issues/370))
+- [ ] **P2-2** Home — editorial cards, no-line section separators ([#371](https://github.com/bndF1/wavely/issues/371))
+- [ ] **P2-3** Discover — pill chips, borderless search bar ([#372](https://github.com/bndF1/wavely/issues/372))
+- [ ] **P2-4** Library — tonal cards, timeline left-accent ([#373](https://github.com/bndF1/wavely/issues/373))
+- [ ] **P2-5** Podcast Detail — gradient header, tonal episode rows ([#374](https://github.com/bndF1/wavely/issues/374))
+- [ ] **P2-6** Player — glassmorphism full-screen + mini-player + desktop rail ([#375](https://github.com/bndF1/wavely/issues/375))
+- [ ] **P3-1** Dark mode audit ([#376](https://github.com/bndF1/wavely/issues/376))
+- [ ] **P3-2** Accessibility audit — WCAG AA + focus rings ([#377](https://github.com/bndF1/wavely/issues/377))
+- [ ] **P3-3** SDD v2.0.0 update ([#378](https://github.com/bndF1/wavely/issues/378))
+
+### v2.1 — Native Platform (deferred)
+> Deferred until after Stitch Design System ships.
+
 - [ ] Push notifications ([#41](https://github.com/bndF1/wavely/issues/41))
 - [ ] Deep links / Universal Links ([#42](https://github.com/bndF1/wavely/issues/42))
 - [ ] App Store + Play Store submission ([#43](https://github.com/bndF1/wavely/issues/43))

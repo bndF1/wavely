@@ -19,7 +19,7 @@
 
   <!-- Episode info -->
   <div class="desktop-player__info">
-    <p class="desktop-player__podcast">{{ store.currentEpisode()?.podcastId }}</p>
+    <p class="desktop-player__podcast">{{ store.currentEpisode()?.podcastTitle || store.currentEpisode()?.podcastId }}</p>
     <h3 class="desktop-player__title">{{ store.currentEpisode()!.title }}</h3>
   </div>
 
@@ -35,19 +35,19 @@
         step="0.1"
         [value]="progressValue * 100"
         (change)="onSeek($event)"
-        aria-label="Seek"
+        [attr.aria-label]="'player.seek' | translate"
       />
       <span class="desktop-player__time desktop-player__time--remaining">{{ remainingTimeFormatted }}</span>
     </div>
   }
   @if (store.currentEpisode()?.isLive) {
-    <div class="desktop-player__live-badge">● LIVE</div>
+    <div class="desktop-player__live-badge">● {{ 'player.live' | translate }}</div>
   }
 
   <!-- Controls -->
   <div class="desktop-player__controls">
     @if (!store.currentEpisode()?.isLive) {
-      <ion-button fill="clear" (click)="store.skipBack(15)" aria-label="Skip back 15 seconds">
+      <ion-button fill="clear" (click)="store.skipBack(15)" [attr.aria-label]="'player.skip_back' | translate">
         <ion-icon slot="icon-only" name="play-skip-back"></ion-icon>
       </ion-button>
     }
@@ -55,16 +55,16 @@
       fill="clear"
       class="desktop-player__play-btn"
       (click)="togglePlay()"
-      [attr.aria-label]="store.isPlaying() ? 'Pause' : 'Play'"
+      [attr.aria-label]="store.isPlaying() ? ('player.pause' | translate) : ('player.play' | translate)"
     >
       <ion-icon slot="icon-only" [name]="store.isPlaying() ? 'pause-circle' : 'play-circle'"></ion-icon>
     </ion-button>
     @if (!store.currentEpisode()?.isLive) {
-      <ion-button fill="clear" (click)="store.skipForward(30)" aria-label="Skip forward 30 seconds">
+      <ion-button fill="clear" (click)="store.skipForward(30)" [attr.aria-label]="'player.skip_forward' | translate">
         <ion-icon slot="icon-only" name="play-skip-forward"></ion-icon>
       </ion-button>
     }
-    <ion-button fill="clear" (click)="store.close()" aria-label="Close player">
+    <ion-button fill="clear" (click)="store.close()" [attr.aria-label]="'player.close' | translate">
       <ion-icon slot="icon-only" name="close-outline"></ion-icon>
     </ion-button>
   </div>
@@ -89,7 +89,7 @@
     <ion-button
       fill="clear"
       (click)="store.toggleMute()"
-      [attr.aria-label]="store.isMuted() ? 'Unmute' : 'Mute'"
+      [attr.aria-label]="store.isMuted() ? ('player.unmute' | translate) : ('player.mute' | translate)"
     >
       <ion-icon slot="icon-only" [name]="store.isMuted() ? 'volume-mute' : 'volume-high'"></ion-icon>
     </ion-button>
@@ -101,7 +101,7 @@
       step="0.01"
       [value]="store.isMuted() ? 0 : store.volume()"
       (input)="onVolumeChange($event)"
-      aria-label="Volume"
+      [attr.aria-label]="'player.volume' | translate"
     />
   </div>
 
@@ -109,8 +109,8 @@
   @if (store.queue().length > 0) {
     <div class="desktop-player__queue">
       <div class="desktop-player__queue-header">
-        <span>Up Next ({{ store.queue().length }})</span>
-        <button class="desktop-player__queue-clear" (click)="store.clearQueue()">Clear</button>
+        <span>{{ 'player.up_next' | translate }} ({{ store.queue().length }})</span>
+        <button class="desktop-player__queue-clear" (click)="store.clearQueue()">{{ 'player.clear_queue' | translate }}</button>
       </div>
       <ul class="desktop-player__queue-list">
         @for (episode of store.queue(); track episode.id) {
@@ -124,7 +124,7 @@
             <div class="desktop-player__queue-info">
               <span class="desktop-player__queue-title">{{ episode.title }}</span>
             </div>
-            <button (click)="store.removeFromQueue(episode.id)" aria-label="Remove from queue">
+            <button (click)="store.removeFromQueue(episode.id)" [attr.aria-label]="'player.remove_from_queue' | translate">
               <ion-icon name="close-outline"></ion-icon>
             </button>
           </li>

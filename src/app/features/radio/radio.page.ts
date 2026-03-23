@@ -125,7 +125,10 @@ export class RadioPage implements OnDestroy {
     );
   });
 
-  protected readonly favoriteStations = computed(() => this.prefs.favoriteStations());
+  protected readonly favoriteStations = computed(() => {
+    if (this.isSearchMode()) return [];
+    return this.prefs.favoriteStations();
+  });
 
   private readonly country$ = new Subject<string>();
   private readonly search$ = new Subject<string>();

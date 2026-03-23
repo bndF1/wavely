@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import {
   Firestore,
   collection,
@@ -25,6 +26,7 @@ import { UserPreferencesService } from './user-preferences.service';
 export class RadioFavoritesSyncService {
   private readonly prefs = inject(UserPreferencesService);
   private readonly firestore = inject(Firestore);
+  private readonly auth = inject(Auth);
 
   /**
    * Load all favorite stations for a user from Firestore and merge with localStorage.
@@ -43,7 +45,9 @@ export class RadioFavoritesSyncService {
       const localOnly = this.prefs.favoriteStations().filter((s) => !remoteIds.has(s.stationuuid));
       this.prefs.setFavoriteStations([...remote, ...localOnly]);
 
-      // Write local-only favorites back to Firestore so they sync to other devices
+      // Write local-only favorites back to Firestore so they sync to other devices.
+      // Re-check auth before writing — user may have signed out during getDocs().
+      if (!isStillCurrentUser()) return;
       for (const station of localOnly) {
         const docRef = doc(this.firestore, 'users', uid, 'favoriteStations', station.stationuuid);
         const data: Record<string, unknown> = {};
@@ -85,8 +89,8 @@ export class RadioFavoritesSyncService {
       await setDoc(docRef, data);
     } catch (err) {
       console.error('[RadioFavoritesSyncService] Failed to add favorite', err);
-      // Rollback only if this call added it
-      if (!wasAlreadyFavorite) {
+      // Rollback only if this call added it AND the same user is still signed in
+      if (!wasAlreadyFavorite && this.auth.currentUser?.uid === uid) {
         this.prefs.removeFavoriteStation(station.stationuuid);
       }
     }
@@ -102,8 +106,11 @@ export class RadioFavoritesSyncService {
       await deleteDoc(docRef);
     } catch (err) {
       console.error('[RadioFavoritesSyncService] Failed to remove favorite', err);
-      // Rollback optimistic update
-      if (snapshot) this.prefs.addFavoriteStation(snapshot);
+      // Rollback only if the same user is still signed in — avoids re-polluting
+      // post-sign-out state when a permission-denied error arrives in flight
+      if (snapshot && this.auth.currentUser?.uid === uid) {
+        this.prefs.addFavoriteStation(snapshot);
+      }
     }
   }
 

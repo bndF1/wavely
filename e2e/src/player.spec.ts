@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/auth.fixture';
+import { clickInViewport } from './helpers/interactions';
 
 const ITUNES_LOOKUP_URL = /itunes\.apple\.com\/lookup/;
 
@@ -107,10 +108,10 @@ test.describe('Player', () => {
     const toggleButton = page.locator('wavely-mini-player').locator('ion-button.mini-player__play-btn');
 
     await expect(icon).toHaveAttribute('name', 'pause-circle');
-    await toggleButton.click();
+    await clickInViewport(toggleButton);
     await expect(icon).toHaveAttribute('name', 'play-circle');
 
-    await toggleButton.click();
+    await clickInViewport(toggleButton);
     await expect(icon).toHaveAttribute('name', 'pause-circle');
   });
 

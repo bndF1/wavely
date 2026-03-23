@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject } from '@angular/core';
+import { Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonHeader,
@@ -19,7 +20,7 @@ import {
   InfiniteScrollCustomEvent,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkCircle, addCircleOutline, refreshOutline } from 'ionicons/icons';
+import { checkmarkCircle, addCircleOutline, refreshOutline, arrowBackOutline } from 'ionicons/icons';
 import { PodcastApiService } from '../../core/services/podcast-api.service';
 import { CountryService } from '../../core/services/country.service';
 import { PodcastsStore } from '../../store/podcasts/podcasts.store';
@@ -66,6 +67,7 @@ export class PodcastDetailPage {
   private readonly countryService = inject(CountryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly playerModal = inject(PlayerModalService);
   protected readonly podcastsStore = inject(PodcastsStore);
   protected readonly playerStore = inject(PlayerStore);
@@ -87,7 +89,7 @@ export class PodcastDetailPage {
   protected hasMoreEpisodes = false;
 
   constructor() {
-    addIcons({ checkmarkCircle, addCircleOutline, refreshOutline });
+    addIcons({ checkmarkCircle, addCircleOutline, refreshOutline, arrowBackOutline });
 
     // Stream driven from route params — survives reuse; auto-unsubscribes on destroy
     this.route.paramMap
@@ -100,6 +102,14 @@ export class PodcastDetailPage {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ podcast, episodes }) => this.applyData(podcast, episodes));
+  }
+
+  protected goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigateByUrl('/tabs/home');
+    }
   }
 
   private resetState(): void {

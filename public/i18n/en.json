@@ -4,7 +4,9 @@
     "discover": "Discover",
     "radio": "Radio",
     "library": "Library",
-    "settings": "Settings"
+    "settings": "Settings",
+    "collapse_sidebar": "Collapse sidebar",
+    "expand_sidebar": "Expand sidebar"
   },
   "home": {
     "title": "Wavely",
@@ -79,7 +81,8 @@
     "error_title": "Search failed",
     "error_subtitle": "Check your connection and try again.",
     "searching_for": "Results for",
-    "search_placeholder_hint": "Try searching for a topic, show, or person"
+    "search_placeholder_hint": "Try searching for a topic, show, or person",
+    "country_toggle_aria": "Discovering {{ countryName }} content, tap to change"
   },
   "radio": {
     "title": "Radio",
@@ -106,7 +109,13 @@
     "open_full": "Open full player",
     "queue": "Queue",
     "playback_rate": "Playback rate",
-    "play_stream": "Play stream"
+    "play_stream": "Play stream",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "seek": "Seek",
+    "volume": "Volume",
+    "clear_queue": "Clear queue",
+    "remove_from_queue": "Remove from queue"
   },
   "podcast_detail": {
     "episodes": "Episodes",
@@ -138,7 +147,8 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "close": "Close",
-    "search": "Search"
+    "search": "Search",
+    "back": "Back"
   },
   "episode": {
     "play": "Play",

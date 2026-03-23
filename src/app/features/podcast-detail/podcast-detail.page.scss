@@ -113,9 +113,14 @@
   display: block;
 }
 
-// Desktop two-column layout
-@media (min-width: 1024px) {
-  // Hide Ionic header — back button replicated via browser history; sidebar provides context
+// Desktop back button (replaces hidden ion-header back button)
+.desktop-back-btn {
+  display: none;
+}
+
+// Desktop two-column layout — only at 1280px+ to ensure sufficient content width
+@media (min-width: 1280px) {
+  // Hide Ionic header — back button replicated via .desktop-back-btn below
   ion-header {
     display: none;
   }
@@ -126,11 +131,39 @@
     --padding-top: 0;
   }
 
+  .desktop-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--wavely-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 0 0 32px;
+    line-height: 1;
+
+    ion-icon {
+      font-size: 18px;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--wavely-primary);
+      outline-offset: 2px;
+      border-radius: var(--wavely-radius-sm);
+    }
+  }
+
   .podcast-detail-layout {
     display: grid;
     grid-template-columns: 360px 1fr;
     gap: 32px;
-    padding: 32px;
+    padding: 16px 32px 32px;
     min-height: 100%;
     align-items: start;
   }

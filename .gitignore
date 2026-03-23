@@ -74,3 +74,6 @@ src/environments/environment.staging.ts
 e2e/.auth/user.json
 playwright-report/
 *.png
+
+# MCP server config (contains API keys — never commit)
+.mcp.json

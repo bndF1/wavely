@@ -18,29 +18,29 @@ ion-tab-button {
   display: none;
 }
 
+// Desktop layout starts at ≥1024px (2-column: sidebar + content).
+// Player rail (column 3) only appears at ≥1280px — see media query below.
+.desktop-player-rail {
+  display: none;
+}
+
 @media (min-width: 1024px) {
   :host {
     display: block;
     height: 100%;
   }
 
+  // At 1024-1279px: 2-column only (sidebar + content).
+  // The player rail is hidden at this breakpoint — mini-player handles playback controls.
   .tabs-layout {
     display: grid;
-    grid-template-columns: var(--sidebar-width) 1fr 0px;
+    grid-template-columns: var(--sidebar-width) 1fr;
     grid-template-rows: 1fr;
     height: 100%;
     transition: grid-template-columns 200ms ease;
 
     &.sidebar-collapsed {
-      grid-template-columns: var(--sidebar-collapsed-width) 1fr 0px;
-    }
-
-    &:has(.desktop-player-rail) {
-      grid-template-columns: var(--sidebar-width) 1fr var(--player-rail-width);
-    }
-
-    &.sidebar-collapsed:has(.desktop-player-rail) {
-      grid-template-columns: var(--sidebar-collapsed-width) 1fr var(--player-rail-width);
+      grid-template-columns: var(--sidebar-collapsed-width) 1fr;
     }
   }
 
@@ -161,12 +161,10 @@ ion-tab-button {
     overflow: hidden;
   }
 
+  // At 1024-1279px the rail is in the DOM when a track plays,
+  // but hidden — mini-player (grid col 2 bottom) handles playback controls.
   .desktop-player-rail {
-    grid-column: 3;
-    height: 100%;
-    background: var(--wavely-surface);
-    border-left: 1px solid var(--wavely-divider);
-    overflow-y: auto;
+    display: none;
   }
 
   // Hide the Ionic bottom tab bar on desktop
@@ -174,14 +172,45 @@ ion-tab-button {
     display: none !important;
   }
 
-  // Hide mini-player on desktop — it's replaced by the right-rail DesktopPlayerComponent
-  wavely-mini-player {
-    display: none !important;
+  // Focus visible ring for sidebar links and collapse button
+  .desktop-sidebar__link:focus-visible,
+  .desktop-sidebar__collapse-btn:focus-visible {
+    outline: 2px solid var(--wavely-primary);
+    outline-offset: 2px;
+  }
+}
+
+// At 1280px+ introduce the third column (player rail)
+@media (min-width: 1280px) {
+  .tabs-layout {
+    grid-template-columns: var(--sidebar-width) 1fr 0px;
+
+    &.sidebar-collapsed {
+      grid-template-columns: var(--sidebar-collapsed-width) 1fr 0px;
+    }
+
+    &:has(.desktop-player-rail) {
+      grid-template-columns: var(--sidebar-width) 1fr var(--player-rail-width);
+    }
+
+    &.sidebar-collapsed:has(.desktop-player-rail) {
+      grid-template-columns: var(--sidebar-collapsed-width) 1fr var(--player-rail-width);
+    }
   }
 
-  // Player rail slide-in animation
   .desktop-player-rail {
+    display: block;
+    grid-column: 3;
+    height: 100%;
+    background: var(--wavely-surface);
+    border-left: 1px solid var(--wavely-divider);
+    overflow-y: auto;
     animation: slideInFromRight 300ms ease forwards;
+  }
+
+  // At 1280px+ mini-player is replaced by the right-rail DesktopPlayerComponent
+  wavely-mini-player {
+    display: none !important;
   }
 
   @keyframes slideInFromRight {
@@ -193,13 +222,6 @@ ion-tab-button {
       opacity: 1;
       transform: translateX(0);
     }
-  }
-
-  // Focus visible ring for sidebar links and collapse button
-  .desktop-sidebar__link:focus-visible,
-  .desktop-sidebar__collapse-btn:focus-visible {
-    outline: 2px solid var(--wavely-primary);
-    outline-offset: 2px;
   }
 }
 
