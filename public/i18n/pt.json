@@ -81,7 +81,8 @@
     "error_title": "Search failed",
     "error_subtitle": "Check your connection and try again.",
     "searching_for": "Results for",
-    "search_placeholder_hint": "Try searching for a topic, show, or person"
+    "search_placeholder_hint": "Try searching for a topic, show, or person",
+    "country_toggle_aria": "Descobrindo conteúdo de {{ countryName }}, toque para alterar"
   },
   "radio": {
     "title": "Radio",
@@ -110,7 +111,11 @@
     "playback_rate": "Playback rate",
     "play_stream": "Play stream",
     "mute": "Mudo",
-    "unmute": "Ativar som"
+    "unmute": "Ativar som",
+    "seek": "Buscar",
+    "volume": "Volume",
+    "clear_queue": "Limpar fila",
+    "remove_from_queue": "Remover da fila"
   },
   "podcast_detail": {
     "episodes": "Episodes",
@@ -142,7 +147,8 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "close": "Close",
-    "search": "Search"
+    "search": "Search",
+    "back": "Voltar"
   },
   "episode": {
     "play": "Play",

@@ -81,7 +81,8 @@
     "error_title": "La cerca ha fallat",
     "error_subtitle": "Comprova la connexió i torna-ho a intentar.",
     "searching_for": "Resultats de",
-    "search_placeholder_hint": "Prova de cercar un tema, programa o persona"
+    "search_placeholder_hint": "Prova de cercar un tema, programa o persona",
+    "country_toggle_aria": "Descobrint contingut de {{ countryName }}, toca per canviar"
   },
   "radio": {
     "title": "Ràdio",
@@ -110,7 +111,11 @@
     "playback_rate": "Velocitat de reproducció",
     "play_stream": "Reprodueix el flux",
     "mute": "Silencia",
-    "unmute": "Activa el so"
+    "unmute": "Activa el so",
+    "seek": "Cerca",
+    "volume": "Volum",
+    "clear_queue": "Elimina la cua",
+    "remove_from_queue": "Elimina de la cua"
   },
   "podcast_detail": {
     "episodes": "Episodis",
@@ -142,7 +147,8 @@
     "retry": "Torna-ho a intentar",
     "cancel": "Cancel·la",
     "close": "Tanca",
-    "search": "Cerca"
+    "search": "Cerca",
+    "back": "Enrere"
   },
   "episode": {
     "play": "Reprodueix",
