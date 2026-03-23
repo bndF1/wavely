@@ -18,7 +18,8 @@ ion-tab-button {
   display: none;
 }
 
-// Desktop player rail is only shown at ≥1024px (grid column 3)
+// Desktop layout starts at ≥1024px (2-column: sidebar + content).
+// Player rail (column 3) only appears at ≥1280px — see media query below.
 .desktop-player-rail {
   display: none;
 }

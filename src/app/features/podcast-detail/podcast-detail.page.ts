@@ -105,7 +105,11 @@ export class PodcastDetailPage {
   }
 
   protected goBack(): void {
-    this.location.back();
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigateByUrl('/tabs/home');
+    }
   }
 
   private resetState(): void {
